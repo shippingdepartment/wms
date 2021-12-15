@@ -5,6 +5,7 @@ include('system_load.php');
 authenticate_user('subscriber');
 
 $user_id = $_SESSION['user_id'];
+$store_id = $_GET['id']; // store id;
 $function_id = $user->get_user_info($user_id, "user_function");
 
 if ($_SESSION['user_type'] != "admin") {
@@ -15,26 +16,30 @@ if ($_SESSION['user_type'] != "admin") {
 
 $important = new ImportantFunctions();
 
-$response = $important->CallAPI('GET', 'v-beta/order_sources');
+$response = $important->CallAPI('GET', "v-beta/sales_orders?order_source_id=" . $store_id . "&sort_dir=desc&sort_by=order_date&page_size=150");
 $content = '';
-$site_url = get_option('site_url');
+// var_dump($response);
+// return;
 
-foreach ($response->order_sources as $key => $value) {
+
+
+
+
+// $content .= '</tr>';
+foreach ($response->sales_orders as $key => $value) {
     $content .= '<tr class="">';
     $content .= '<td>';
-    $content .= $key + 1;
+    $content .= $value->external_order_number;
     $content .= '</td><td>';
-    $content .= $value->order_source_nickname;
+    $content .= $value->sales_order_status->fulfillment_status;
     $content .= '</td><td>';
-    $content .= $value->order_source_friendly_name;
+    $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->name;
     $content .= '</td>';
     $content .= '</td><td>';
-    $content .= $value->active ? 'active' : 'not-active';
+    $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->sku;
     $content .= '</td>';
     $content .= '</td><td>';
-    $content .= $value->order_source_id;
-    $content .= '</td><td>';
-    $content .= ' <a href="store_orders_list.php?id=' . $value->order_source_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a><br>';
+    $content .=  date("d-m-Y", strtotime($value->order_date));
 
     // $content .= '<a href="orders_list.php?id='.$value->order_source_id.'"><span class="fa fa-eye">Hekko</span></a>';
     $content .= '</td>';
@@ -46,27 +51,8 @@ foreach ($response->order_sources as $key => $value) {
 }
 
 
+$page_title = 'Orders List'; //You can edit this to change your page title.
 
-
-
-// var_dump($content);
-// return;
-// if (!isset($_SESSION['warehouse_id']) || $_SESSION['warehouse_id'] == '') {
-//     HEADER('LOCATION: warehouses.php?message=1');
-// }
-
-//$warehouses->set_warehouse($_SESSION['warehouse_id']); //setting store.
-
-$page_title = 'Stores List'; //You can edit this to change your page title.
-
-
-
-// FROM MADDY
-
-
-
-
-// TILL MADDY
 
 ?>
 <!DOCTYPE html>
@@ -153,8 +139,8 @@ $page_title = 'Stores List'; //You can edit this to change your page title.
 
                         <!-- <div class="panel-body"> -->
 
-                        <!-- <a href="reports/listCustomers.php" target="_blank" class="btn btn-info btn-addon"> <i class="fa fa-print"></i> Print Customer List</a>
-                                        <a class="btn btn-info btn-addon" onClick="$('#example3').tableExport({type:'excel',escape:'false'});"> <i class="fa fa-file-excel-o"></i> Export to CSV</a> -->
+                        <!-- <a href="reports/listCustomers.php" target="_blank" class="btn btn-info btn-addon"> <i class="fa fa-print"></i> Print Customer List</a>-->
+                        <!-- <a class="btn btn-info btn-addon" onClick="$('#example3').tableExport({type:'excel',escape:'false'});"> <i class="fa fa-file-excel-o"></i> Export to CSV</a>  -->
                         <!-- </div> -->
                         <!-- </div> -->
                         </br>
@@ -165,12 +151,11 @@ $page_title = 'Stores List'; //You can edit this to change your page title.
                                 <table id="example3" class="display table" style="width: 100%; cellspacing: 0;">
                                     <thead>
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Order Source Nickname</th>
-                                            <th>Order Source Friendly Name</th>
-                                            <th>Active</th>
-                                            <th>Order Source id</th>
-                                            <th>Actions</th>
+                                            <th>Order #</th>
+                                            <th>Fulfillment Status</th>
+                                            <th>Item</th>
+                                            <th>Item SKU</th>
+                                            <th>Order Date</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -226,3 +211,4 @@ $page_title = 'Stores List'; //You can edit this to change your page title.
 
 
 </body>
+

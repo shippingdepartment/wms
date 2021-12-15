@@ -70,7 +70,7 @@
 			require_once("includes/sidebaradmin.php"); //including sidebar file. 	
 			}
 			?>
-			<!-- End Side Bar 
+			<!-- End Side Bar -->
             <!-- Page Content -->
             <div class="page-content">
 				<!-- Header -->
