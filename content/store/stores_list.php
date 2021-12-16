@@ -223,6 +223,10 @@ $page_title = 'Stores List'; //You can edit this to change your page title.
     <script src="../../assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="../../assets/js/pages/table-data.js"></script>
 
-
+    <script>
+        $('#example3').dataTable({
+            paging: false
+        });
+    </script>
 
 </body>

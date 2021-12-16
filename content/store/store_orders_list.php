@@ -16,7 +16,7 @@ if ($_SESSION['user_type'] != "admin") {
 
 $important = new ImportantFunctions();
 
-$response = $important->CallAPI('GET', "v-beta/sales_orders?order_source_id=" . $store_id . "&sort_dir=desc&sort_by=order_date&page_size=150");
+$response = $important->CallAPI('GET', "v-beta/sales_orders?order_source_id=" . $store_id . "&sort_dir=desc&page_size=300");
 $content = '';
 // var_dump($response);
 // return;
@@ -39,14 +39,13 @@ foreach ($response->sales_orders as $key => $value) {
     $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->sku;
     $content .= '</td>';
     $content .= '</td><td>';
-    $content .=  date("d-m-Y", strtotime($value->order_date));
+    $content .=  date("m-d-Y", strtotime($value->order_date));
+    $content .= '</td><td>';
+    // $content .= ' <a href="storess_order_details.php.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a><br>';
+    $content .= ' <a href="shipengine/order_details.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a><br>';
 
-    // $content .= '<a href="orders_list.php?id='.$value->order_source_id.'"><span class="fa fa-eye">Hekko</span></a>';
+
     $content .= '</td>';
-
-
-
-
     $content .= '</tr>';
 }
 
@@ -156,6 +155,7 @@ $page_title = 'Orders List'; //You can edit this to change your page title.
                                             <th>Item</th>
                                             <th>Item SKU</th>
                                             <th>Order Date</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -209,6 +209,13 @@ $page_title = 'Orders List'; //You can edit this to change your page title.
     <script src="../../assets/js/pages/table-data.js"></script>
 
 
+    <script>
+        $('#example3').dataTable({
+            'iDisplayLength': 100,
+            "order": [
+                [0, "desc"]
+            ]
 
+        });
+    </script>
 </body>
-
