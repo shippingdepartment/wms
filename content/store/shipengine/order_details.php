@@ -108,7 +108,7 @@ $content = '';
 
                 <div class="row mt-4">
                     <div class="col">
-                        <div class="row justify-content-between">
+                        <!-- <div class="row justify-content-between">
                             <div class="col-auto">
                                 <p class="mb-1 text-dark"><b>Pricing Details</b></p>
                             </div>
@@ -118,11 +118,11 @@ $content = '';
                             <div class="flex-sm-col col-auto">
                                 <p class="mb-1"><?php echo $response->payment_details->grand_total->amount . ' ' .strtoupper( $response->payment_details->grand_total->currency) ?></p>
                             </div>
-                        </div>
+                        </div> -->
 
                         <div class="row justify-content-between">
                             <div class="flex-sm-col text-right col">
-                                <p class="mb-1"><b>Estimated Tax</b></p>
+                                <p class="mb-1"><b> Tax</b></p>
                             </div>
                             <div class="flex-sm-col col-auto">
                                 <p class="mb-1"><?php echo $response->payment_details->estimated_tax->amount . ' ' .strtoupper( $response->payment_details->estimated_tax->currency) ?></p>
@@ -130,10 +130,19 @@ $content = '';
                         </div>
                         <div class="row justify-content-between">
                             <div class="flex-sm-col text-right col">
-                                <p class="mb-1"><b>Estimated Shipping</b></p>
+                                <p class="mb-1"><b> Shipping</b></p>
                             </div>
                             <div class="flex-sm-col col-auto">
                                 <p class="mb-1"><?php echo $response->payment_details->estimated_shipping->amount . ' ' .strtoupper( $response->payment_details->estimated_shipping->currency) ?></p>
+                            </div>
+                        </div>
+
+                        <div class="row justify-content-between">
+                            <div class="flex-sm-col text-right col">
+                                <p class="mb-1"><b> Total</b></p>
+                            </div>
+                            <div class="flex-sm-col col-auto">
+                            <p class="mb-1"><?php echo $response->payment_details->grand_total->amount . ' ' .strtoupper( $response->payment_details->grand_total->currency) ?></p>
                             </div>
                         </div>
                     </div>
