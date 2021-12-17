@@ -97,7 +97,7 @@ class Product
 	{
 
 		global $db;
-		$query = "SELECT * from products WHERE order_id='" . $order_id . "'AND product_manual_id='" . $product_manual_id . "' AND warehouse_id='" . $_SESSION['warehouse_id'] . "'";
+		$query = "SELECT * from products WHERE order_id='" . $order_id . "'OR product_manual_id='" . $product_manual_id . "' AND warehouse_id='" . $_SESSION['warehouse_id'] . "'";
 		$result = $db->query($query) or die($db->error);
 		$num_rows = $result->num_rows;
 		if ($num_rows > 0) {
