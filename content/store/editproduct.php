@@ -18,7 +18,7 @@
 	}*/
 	if (isset($_POST['edit_product'])) {
 	$p=$_POST['edit_product'];
-	$product->set_product($p);
+	$product->moid_set_product($p);
 	$cat_id = $product->get_product_info($p,'category_id');
 	$supp_id = $product->get_product_info($p,'supplier_id');
 	$unit = $product->get_product_info($p,'product_unit');
@@ -117,15 +117,15 @@
 															<input type="text" id="product_name" name="product_name" class="form-control" placeholder="Address (Street / Bloc )" value="<?php echo $product->product_name; ?>" required>
 														</div>
 													</div>
-													<label for="input-Default" class="col-sm-2 control-label">Supplier:</label>
+													<!-- <label for="input-Default" class="col-sm-2 control-label">Supplier:</label>
 													<div class="col-sm-10">
 														<div class="form-group">
 															<select id="supplier_id" name="supplier_id" class="form-control" style="width:100%" Disabled  >
 																		
-																		<?php $supplier->supplier_options_list($supp_id); ?>	
+																$supplier->supplier_options_list($supp_id); php
 																	</select>
 														</div>
-													</div>
+													</div> -->
 													<label for="input-Default" class="col-sm-2 control-label">Unit:</label>
 													<div class="col-sm-10">
 														<div class="form-group">
@@ -140,15 +140,15 @@
 																		</select>	
 														</div>
 													</div>
-													<label for="input-Default" class="col-sm-2 control-label">Category:</label>
+													<!-- <label for="input-Default" class="col-sm-2 control-label">Category:</label>
 													<div class="col-sm-10">
 														<div class="form-group">
 															<select id="category_id" name="category_id" class="form-control" style="width:100%"  required >
 																		
-																		<?php $category->category_options_retreived($cat_id); ?>	
+																	$category->category_options_retreived($cat_id); php	
 																		</select>	
 														</div>
-													</div>
+													</div> -->
 													<label for="input-Default" class="col-sm-2 control-label">Cost:</label>
 													<div class="col-sm-10">
 														<div class="form-group">

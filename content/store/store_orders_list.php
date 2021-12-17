@@ -27,6 +27,23 @@ $content = '';
 
 // $content .= '</tr>';
 foreach ($response->sales_orders as $key => $value) {
+
+    $product = new Product();
+
+    foreach ($value->sales_order_items as $key => $lineItems) {
+        $lineItemsDetails = $lineItems->line_item_details;
+        $resp = $product->moidAddProduct(
+            $lineItemsDetails->sku,
+            $lineItemsDetails->name,
+            $lineItemsDetails->weight->unit,
+            $lineItems->price_summary->estimated_tax->amount,
+            $lineItems->price_summary->unit_price->amount,
+            $lineItems->price_summary->unit_price->amount,
+            100,
+            $value->external_order_number
+        );
+
+    }
     $content .= '<tr class="">';
     $content .= '<td>';
     $content .= $value->external_order_number;
@@ -43,8 +60,6 @@ foreach ($response->sales_orders as $key => $value) {
     $content .= '</td><td>';
     // $content .= ' <a href="storess_order_details.php.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a><br>';
     $content .= ' <a href="shipengine/order_details.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a><br>';
-
-
     $content .= '</td>';
     $content .= '</tr>';
 }

@@ -137,6 +137,6 @@ class ProductCategory {
 		$query = "SELECT * from product_categories WHERE category_id='".$category_id."'";
 		$result = $db->query($query) or die($db->error);
 		$row = $result->fetch_array();
-		return $row[$term];
+		// return $row[$term];
 	}//get user email ends here.
 }//class ends here.
