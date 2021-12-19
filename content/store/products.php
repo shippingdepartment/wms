@@ -270,6 +270,7 @@ $page_title = 'Products'; //You can edit this to change your page title.
 													<th>Selling Price</th>
 												<?php } ?>
 												<th>Status</th>
+												<th>Photo</th>
 												<?php if (partial_access('admin')) { ?><th>Edit</th>
 													<th>Delete</th><?php } ?>
 											</tr>

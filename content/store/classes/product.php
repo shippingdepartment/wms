@@ -19,7 +19,54 @@ class Product
 	public $larg;
 	public $haut;
 	public $poids;
+	public $pounds;
+	public $ounces;
+	public $photo;
 
+	function moid_set_product_through_sku($sku)
+	{
+		global $db;
+		$query = "SELECT * from products WHERE product_manual_id='" . $sku . "' LIMIT 1";
+		$result = $db->query($query) or die($db->error);
+		$row = $result->fetch_array();
+		// die(($row[0]));
+		extract($row);
+
+		$this->product_manual_id = $product_manual_id;
+		$this->product_name = $product_name;
+		$this->photo = $row['photo'];
+		//$this->product_description = $product_description;
+		$this->product_unit = $product_unit;
+		$this->category_id = $category_id;
+		$this->tax_id = $tax_id;
+		//$this->product_image = $product_image;
+		$this->alert_units = $alert_units;
+		//query supplier.
+		// $query_supplier = "SELECT * from suppliers WHERE supplier_id='" . $supplier_id . "'";
+		// $result_supplier = $db->query($query_supplier) or die($db->error);
+		// $row_supplier = $result_supplier->fetch_array();
+
+		// $this->supplier = $row_supplier['full_name'];
+
+		//query cost and selling price.
+		$query_cost = "SELECT * from price WHERE product_id='" . $row[0] . "' ORDER by price_id ASC LIMIT 1";
+		$result_cost = $db->query($query_cost) or die($db->error);
+		$row_cost = $result_cost->fetch_array();
+
+		$this->product_cost = $row_cost['cost'];
+		$this->product_selling_price = $row_cost['selling_price'];
+		//query dimensions
+		$query_dimensions = "SELECT * from dimensions WHERE product_id='" . $row[0] . "'";
+		$result_dimensions = $db->query($query_dimensions) or die($db->error);
+		$row_dimensions = $result_dimensions->fetch_array();
+
+		$this->long_pr = $row_dimensions['long_pr'];
+		$this->larg = $row_dimensions['larg'];
+		$this->haut = $row_dimensions['haut'];
+		$this->poids = $row_dimensions['poids'];
+		$this->pounds = $row_dimensions['pounds'];
+		$this->ounces = $row_dimensions['ounces'];
+	}
 	function set_product($product_id)
 	{
 		global $db;
@@ -30,6 +77,7 @@ class Product
 
 		$this->product_manual_id = $product_manual_id;
 		$this->product_name = $product_name;
+		$this->photo = $row['photo'];
 		//$this->product_description = $product_description;
 		$this->product_unit = $product_unit;
 		$this->category_id = $category_id;
@@ -59,6 +107,8 @@ class Product
 		$this->larg = $row_dimensions['larg'];
 		$this->haut = $row_dimensions['haut'];
 		$this->poids = $row_dimensions['poids'];
+		$this->pounds = $row_dimensions['pounds'];
+		$this->ounces = $row_dimensions['ounces'];
 	}
 
 	function add_product($product_manual_id, $product_name, $supplier_id, $product_unit, $category_id, $tax_id, $product_cost, $product_selling_price, $alert_units, $long_pr, $larg, $haut, $poids)
@@ -117,9 +167,9 @@ class Product
 			$query_rate = "INSERT into product_rates (rate_id, default_rate, level_1, level_2, level_3, level_4, level_5, store_id, product_id) VALUES(NULL, '" . $product_selling_price . "', '" . $product_selling_price . "', '" . $product_selling_price . "', '" . $product_selling_price . "', '" . $product_selling_price . "', '" . $product_selling_price . "', '" . $_SESSION['warehouse_id'] . "', '" . $product_id . "')";
 			$result_rate = $db->query($query_rate) or die($db->error);
 
-			//inserting dimensions
-			// $query_dimensions = "INSERT into dimensions (product_id, long_pr, larg, haut, poids) VALUES('" . $product_id . "', '" . $long_pr . "', '" . $larg . "', '" . $haut . "', '" . $poids . "')";
-			// $result_dimensions = $db->query($query_dimensions) or die($db->error);
+			// inserting dimensions
+			$query_dimensions = "INSERT into dimensions (product_id, long_pr, larg, haut, poids, pounds, ounces) VALUES('" . $product_id . "', 1, 1, 1, 1,1,1)";
+			$result_dimensions = $db->query($query_dimensions) or die($db->error);
 
 			$message = $warehouse->add_inventory(500, '0', $product_id, $_SESSION['warehouse_id'], '234234');
 
@@ -134,6 +184,7 @@ class Product
 		$result = $db->query($query) or die($db->error);
 		$row = $result->fetch_array();
 		extract($row);
+		$this->photo = $photo;
 
 		$this->product_manual_id = $product_manual_id;
 		$this->product_name = $product_name;
@@ -162,19 +213,21 @@ class Product
 		$result_dimensions = $db->query($query_dimensions) or die($db->error);
 		$row_dimensions = $result_dimensions->fetch_array();
 
-		// $this->long_pr = $row_dimensions['long_pr'];
-		// $this->larg = $row_dimensions['larg'];
-		// $this->haut = $row_dimensions['haut'];
-		// $this->poids = $row_dimensions['poids'];
+		$this->long_pr = $row_dimensions['long_pr'];
+		$this->larg = $row_dimensions['larg'];
+		$this->haut = $row_dimensions['haut'];
+		$this->poids = $row_dimensions['poids'];
+		$this->pounds = $row_dimensions['pounds'];
+		$this->ounces = $row_dimensions['ounces'];
 	}
 
 	/***** MOID WORKS ENDS HERE */
 
 
-	function add_dimensions($product_id, $long_pr, $larg, $haut, $poids)
+	function add_dimensions($product_id, $long_pr, $larg, $haut, $poids, $pounds, $ounces)
 	{
 		global $db;
-		$query_dimensions = "INSERT into dimensions (product_id, long_pr, larg, haut, poids) VALUES('" . $product_id . "', '" . $long_pr . "', '" . $larg . "', '" . $haut . "', '" . $poids . "')";
+		$query_dimensions = "INSERT into dimensions (product_id, long_pr, larg, haut, poids,pounds,ounces) VALUES('" . $product_id . "', '" . $long_pr . "', '" . $larg . "', '" . $haut . "', '" . $poids . "'.'" . $pounds . "'.'" . $ounces . "')";
 		$result_dimensions = $db->query($query_dimensions) or die($db->error);
 		$ID = $db->insert_id;
 		return 'Dimensions added successfully !!';
@@ -183,7 +236,7 @@ class Product
 
 
 
-	function update_product($edit_product, $product_name, $unit, $category, $cost, $price, $tax, $alert, $long_pr, $larg, $haut, $poids)
+	function update_product($edit_product, $product_name, $unit, $category, $cost, $price, $tax, $alert, $long_pr, $larg, $haut, $poids, $photo = null)
 	{
 		global $db;
 		$query = "UPDATE products SET
@@ -191,7 +244,8 @@ class Product
 			product_unit='" . $unit . "',
 			category_id='" . $category . "',
 			tax_id='" . $tax . "',
-			alert_units='" . $alert . "'
+			alert_units='" . $alert . "',
+			photo='" . $photo . "'
 			WHERE product_id='" . $edit_product . "'
 		";
 		$result = $db->query($query) or die($db->error);
@@ -216,6 +270,51 @@ class Product
 		larg='" . $larg . "',
 		haut='" . $haut . "',
 		poids='" . $poids . "'
+	
+		WHERE product_id='" . $edit_product . "'
+		";
+		$result_dimensions = $db->query($update_dimensions) or die($db->error);
+		//Updating dimensions ends here.
+
+		return 'Product was updated successfuly.';
+	} //update product ends here.
+
+	function moid_update_product($edit_product, $product_name, $unit, $cost, $price, $tax, $alert, $long_pr, $larg, $haut, $poids, $photo, $pounds, $ounces)
+	{
+
+		global $db;
+		$query = "UPDATE products SET
+			product_name='" . $product_name . "',
+			product_unit='" . $unit . "',
+			tax_id='" . $tax . "',
+			alert_units='" . $alert . "',
+			photo='" . $photo . "'
+			WHERE product_id='" . $edit_product . "'
+		";
+		$result = $db->query($query) or die($db->error);
+
+		//update price.
+		$update_price = "UPDATE price SET
+		cost='" . $cost . "',
+		selling_price='" . $price . "'
+		WHERE product_id='" . $edit_product . " ORDER by price_id ASC LIMIT 1'
+		";
+		$result_price = $db->query($update_price) or die($db->error);
+		//Updating price ends here.
+		$update_rate = "UPDATE product_rates SET
+		default_rate='" . $price . "'
+		WHERE product_id='" . $edit_product . "'
+		";
+		$rate_query = $db->query($update_rate) or die($db->error);
+
+		//update dimensions.
+		$update_dimensions = "UPDATE dimensions SET
+		long_pr='" . $long_pr . "',
+		larg='" . $larg . "',
+		haut='" . $haut . "',
+		poids='" . $poids . "',
+		pounds='" . $pounds . "',
+		ounces='" . $ounces . "'
 		WHERE product_id='" . $edit_product . "'
 		";
 		$result_dimensions = $db->query($update_dimensions) or die($db->error);
@@ -283,6 +382,15 @@ class Product
 				$content .= '<span class="text-danger">Alert</span>';
 			}
 			$content .= '</td>';
+			if ($row['photo'] != null) {
+				$content .= '<td>';
+				$content .= '<img width="100" height="100" src="upload/' . $row['photo'] . '"/>';
+				$content .= '</td>';
+			} else {
+				$content .= '<td>';
+				$content .= '</td>';
+			}
+
 			if (partial_access('admin') or ($user_function == 'manager')) {
 				$content .= '<td class="no-print">';
 				$content .= '<form method="post" name="edit" action="editproduct.php">';

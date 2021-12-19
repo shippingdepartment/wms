@@ -18,8 +18,10 @@ if ($_SESSION['user_type'] != "admin") {
 }
 
 $important = new ImportantFunctions();
+$product = new Product();
 
 $response = $important->CallAPI('GET', "v-beta/sales_orders/" . $orderId);
+
 $content = '';
 // var_dump($response);
 // return;
@@ -74,6 +76,8 @@ $content = '';
                 <?php
 
                 foreach ($response->sales_order_items as $key => $value) {
+                    $product->moid_set_product_through_sku($value->line_item_details->sku);
+
                     $details = '';
                     $details = '<div class="row">';
                     $details .= '<div class="col">';
@@ -84,11 +88,11 @@ $content = '';
                     $details .= '<div class="media-body my-auto text-right">';
                     $details .= '<div class="row my-auto flex-column flex-md-row">';
                     $details .= '<div class="col my-auto">';
-                    $details .= '<h6 class="mb-0">' . $value->line_item_details->name . '</h6>';
+                    $details .= '<div class="col my-auto"> <small>SKU: ' . $value->line_item_details->sku . ' </small></div>';
                     $details .= '</div>';
                     $details .= '<div class="col-auto my-auto"> <small>Quantity: ' . $value->quantity . ' </small></div>';
-                    $details .= '<div class="col my-auto"> <small>SKU: ' . $value->line_item_details->sku . ' </small></div>';
-                    $details .= '<div class="col my-auto"> <small>Weight: ' . $value->line_item_details->weight->value . ' ' . $value->line_item_details->weight->unit . ' </small></div>';
+                    $details .= '<div class="col my-auto">' . $value->line_item_details->name . '</div>';
+                    $details .= '<div class="col my-auto"> <small>Weight: ' . $product->pounds . 'lb ' . ($product->ounces * $value->quantity) . 'oz <br>Size: ' . $product->long_pr . 'l ' . $product->larg . 'w ' . ($product->haut * $value->quantity) . 'h' . ' </small></div>';
                     $details .= ' <div class="col my-auto"> <small class="mb-0">' . $value->requested_shipping_options->shipping_service  . '</small> </div>';
                     $details .= ' <div class="col my-auto"> <h6 class="mb-0">' . $value->price_summary->unit_price->amount . ' ' . strtoupper($value->price_summary->unit_price->currency) . '</h6> </div>';
                     $details .= '</div>';
@@ -116,7 +120,7 @@ $content = '';
                                 <p class="mb-1"><b>Total</b></p>
                             </div>
                             <div class="flex-sm-col col-auto">
-                                <p class="mb-1"><?php echo $response->payment_details->grand_total->amount . ' ' .strtoupper( $response->payment_details->grand_total->currency) ?></p>
+                                <p class="mb-1"><?php echo $response->payment_details->grand_total->amount . ' ' . strtoupper($response->payment_details->grand_total->currency) ?></p>
                             </div>
                         </div> -->
 
@@ -125,7 +129,7 @@ $content = '';
                                 <p class="mb-1"><b> Tax</b></p>
                             </div>
                             <div class="flex-sm-col col-auto">
-                                <p class="mb-1"><?php echo $response->payment_details->estimated_tax->amount . ' ' .strtoupper( $response->payment_details->estimated_tax->currency) ?></p>
+                                <p class="mb-1"><?php echo $response->payment_details->estimated_tax->amount . ' ' . strtoupper($response->payment_details->estimated_tax->currency) ?></p>
                             </div>
                         </div>
                         <div class="row justify-content-between">
@@ -133,7 +137,7 @@ $content = '';
                                 <p class="mb-1"><b> Shipping</b></p>
                             </div>
                             <div class="flex-sm-col col-auto">
-                                <p class="mb-1"><?php echo $response->payment_details->estimated_shipping->amount . ' ' .strtoupper( $response->payment_details->estimated_shipping->currency) ?></p>
+                                <p class="mb-1"><?php echo $response->payment_details->estimated_shipping->amount . ' ' . strtoupper($response->payment_details->estimated_shipping->currency) ?></p>
                             </div>
                         </div>
 
@@ -142,7 +146,7 @@ $content = '';
                                 <p class="mb-1"><b> Total</b></p>
                             </div>
                             <div class="flex-sm-col col-auto">
-                            <p class="mb-1"><?php echo $response->payment_details->grand_total->amount . ' ' .strtoupper( $response->payment_details->grand_total->currency) ?></p>
+                                <p class="mb-1"><?php echo $response->payment_details->grand_total->amount . ' ' . strtoupper($response->payment_details->grand_total->currency) ?></p>
                             </div>
                         </div>
                     </div>
