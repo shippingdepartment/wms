@@ -23,6 +23,8 @@ $product = new Product();
 $response = $important->CallAPI('GET', "v-beta/sales_orders/" . $orderId);
 
 $content = '';
+$totalWeight = 0;
+$totalSize = 0;
 // var_dump($response);
 // return;
 
@@ -104,10 +106,20 @@ $content = '';
                     $details .= '</div>';
                     $details .= '</div>';
                     echo $details;
+                    $totalWeight += ($product->ounces * $value->quantity);
+                    $tempSize = ($product->long_pr * $product->larg * ($product->haut * $value->quantity)) / 1728;
+                    $totalSize += $tempSize;
                 }
 
                 ?>
+                <div class="w-100 d-flex mt-3 justify-content-between">
+                  
+                    <span class="ml-3 text-muted">Total Weight: <?php echo $totalWeight . 'oz' ?></span>
+                    <span class="ml-3 text-muted">Total Size: <?php echo number_format((float)$totalSize, 5, '.', '') . ' ft3' ?></span>
+                    <span class="ml-3 text-muted">Bag Size: <?php echo $important->getBagSize($totalSize) ?></span>
+                    <span class="ml-3 text-muted">Box Size: <?php echo $important->getBoxSize($totalSize) ?></span>
 
+                </div>
 
 
                 <div class="row mt-4">
