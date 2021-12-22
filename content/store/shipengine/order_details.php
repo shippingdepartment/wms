@@ -19,14 +19,111 @@ if ($_SESSION['user_type'] != "admin") {
 
 $important = new ImportantFunctions();
 $product = new Product();
+$estimatedShippingCost = 0.0;
+$shippingService = null;
 
 $response = $important->CallAPI('GET', "v-beta/sales_orders/" . $orderId);
+$shippingCarriers = $important->CallAPI('GET', 'v1/carriers');
+// var_dump($shippingCarriers);
+// return;
 
 $content = '';
 $totalWeight = 0;
 $totalSize = 0;
-// var_dump($response);
-// return;
+
+$details = '';
+foreach ($response->sales_order_items as $key => $value) {
+    $product->moid_set_product_through_sku($value->line_item_details->sku);
+    $details .= '<div class="row">';
+    $details .= '<div class="col">';
+    $details .= '<div class="card card-2">';
+    $details .= '<div class="card-body">';
+    $details .= '<div class="media">';
+    $details .= '<div class="sq align-self-center "> </div>';
+    $details .= '<div class="media-body my-auto text-right">';
+    $details .= '<div class="row my-auto flex-column flex-md-row">';
+    $details .= '<div class="col my-auto">';
+    $details .= '<div class="col my-auto"> <small>SKU: ' . $value->line_item_details->sku . ' </small></div>';
+    $details .= '</div>';
+    $details .= '<div class="col-auto my-auto"> <small>Quantity: ' . $value->quantity . ' </small></div>';
+    $details .= '<div class="col my-auto">' . $value->line_item_details->name . '</div>';
+    $details .= '<div class="col my-auto"> <small>Weight: ' . $product->pounds . 'lb ' . ($product->ounces * $value->quantity) . 'oz <br>Size: ' . $product->long_pr . 'l ' . $product->larg . 'w ' . ($product->haut * $value->quantity) . 'h' . ' </small></div>';
+    $details .= ' <div class="col my-auto"> <small class="mb-0">' . $value->requested_shipping_options->shipping_service  . '</small> </div>';
+    $details .= ' <div class="col my-auto"> <h6 class="mb-0">' . $value->price_summary->unit_price->amount . ' ' . strtoupper($value->price_summary->unit_price->currency) . '</h6> </div>';
+    $details .= '</div>';
+    $details .= '</div>';
+    $details .= '</div>';
+    $details .= '<hr class="my-3 ">';
+    $details .= '</div>';
+    $details .= '</div>';
+    $details .= '</div>';
+    $details .= '</div>';
+
+    $totalWeight += ($product->ounces * $value->quantity);
+    $tempSize = ($product->long_pr * $product->larg * ($product->haut * $value->quantity)) / 1728;
+    $totalSize += $tempSize;
+}
+
+// If the order is less than 16 oz then we can default to usps first class
+// setting the postObject for shipping rates
+$shippingObject = array(
+    'carrier_ids' => ["se-647551"],
+    'from_country_code' => 'US',
+    'from_postal_code' => '46226',
+    'to_country_code' => $response->ship_to->country_code,
+    'to_postal_code' => $response->ship_to->postal_code,
+    'to_city_locality' => $response->ship_to->city_locality,
+    'to_state_province' => $response->ship_to->state_province,
+    'weight' => (array('value' => intval($totalWeight), 'unit' => 'ounce')),
+    'dimensions' => (array('unit' => 'inch', 'length' => 5.0, 'width' => 5.0, 'height' => 5.0)),
+);
+
+
+
+
+if ($totalWeight <= 16) {
+
+    $shippingObject = array(
+        'carrier_ids' => ["se-647551"],
+        'from_country_code' => 'US',
+        'from_postal_code' => '46226',
+        'to_country_code' => $response->ship_to->country_code,
+        'to_postal_code' => $response->ship_to->postal_code,
+        'to_city_locality' => $response->ship_to->city_locality,
+        'to_state_province' => $response->ship_to->state_province,
+        'weight' => (array('value' => intval($totalWeight), 'unit' => 'ounce')),
+        'dimensions' => (array('unit' => 'inch', 'length' => 5.0, 'width' => 5.0, 'height' => 5.0)),
+    );
+    $shippingCarriers = $important->CallAPI('POST', 'v1/rates/estimate', json_encode($shippingObject));
+    $estimatedShippingCost = $shippingCarriers[1]->shipping_amount->amount . ' ' . strtoupper($shippingCarriers[1]->shipping_amount->currency);
+    $shippingService = $shippingCarriers[1]->carrier_friendly_name;
+    $packageType = $shippingCarriers[1]->package_type;
+} else {
+
+    foreach ($shippingCarriers->carriers as $key => $carrier) {
+        $shippingObject = array(
+            'carrier_ids' => [$carrier->carrier_id],
+            'from_country_code' => 'US',
+            'from_postal_code' => '78756',
+            'to_country_code' => $response->ship_to->country_code,
+            'to_postal_code' => $response->ship_to->postal_code,
+            'to_city_locality' => $response->ship_to->city_locality,
+            'to_state_province' => $response->ship_to->state_province,
+            'weight' => (array('value' => intval($totalWeight), 'unit' => 'ounce')),
+            'dimensions' => (array('unit' => 'inch', 'length' => 5.0, 'width' => 5.0, 'height' => 5.0)),
+        );
+        $shippingCarriers = $important->CallAPI('POST', 'v1/rates/estimate', json_encode($shippingObject));
+
+
+        if ($estimatedShippingCost <= $shippingCarriers[1]->shipping_amount->amount) {
+            $estimatedShippingCost = $shippingCarriers[1]->shipping_amount->amount . ' ' . strtoupper($shippingCarriers[1]->shipping_amount->currency);
+            $shippingService = $shippingCarriers[1]->carrier_friendly_name;
+            $packageType = $shippingCarriers[1]->package_type;
+        } else {
+        }
+    }
+}
+
 
 
 ?>
@@ -76,49 +173,24 @@ $totalSize = 0;
                     <div class="col-auto "> <small>Order Date: &nbsp;<?php echo date("m-d-Y", strtotime($response->order_date)); ?></small> </div>
                 </div>
                 <?php
-
-                foreach ($response->sales_order_items as $key => $value) {
-                    $product->moid_set_product_through_sku($value->line_item_details->sku);
-
-                    $details = '';
-                    $details = '<div class="row">';
-                    $details .= '<div class="col">';
-                    $details .= '<div class="card card-2">';
-                    $details .= '<div class="card-body">';
-                    $details .= '<div class="media">';
-                    $details .= '<div class="sq align-self-center "> </div>';
-                    $details .= '<div class="media-body my-auto text-right">';
-                    $details .= '<div class="row my-auto flex-column flex-md-row">';
-                    $details .= '<div class="col my-auto">';
-                    $details .= '<div class="col my-auto"> <small>SKU: ' . $value->line_item_details->sku . ' </small></div>';
-                    $details .= '</div>';
-                    $details .= '<div class="col-auto my-auto"> <small>Quantity: ' . $value->quantity . ' </small></div>';
-                    $details .= '<div class="col my-auto">' . $value->line_item_details->name . '</div>';
-                    $details .= '<div class="col my-auto"> <small>Weight: ' . $product->pounds . 'lb ' . ($product->ounces * $value->quantity) . 'oz <br>Size: ' . $product->long_pr . 'l ' . $product->larg . 'w ' . ($product->haut * $value->quantity) . 'h' . ' </small></div>';
-                    $details .= ' <div class="col my-auto"> <small class="mb-0">' . $value->requested_shipping_options->shipping_service  . '</small> </div>';
-                    $details .= ' <div class="col my-auto"> <h6 class="mb-0">' . $value->price_summary->unit_price->amount . ' ' . strtoupper($value->price_summary->unit_price->currency) . '</h6> </div>';
-                    $details .= '</div>';
-                    $details .= '</div>';
-                    $details .= '</div>';
-                    $details .= '<hr class="my-3 ">';
-                    $details .= '</div>';
-                    $details .= '</div>';
-                    $details .= '</div>';
-                    $details .= '</div>';
-                    echo $details;
-                    $totalWeight += ($product->ounces * $value->quantity);
-                    $tempSize = ($product->long_pr * $product->larg * ($product->haut * $value->quantity)) / 1728;
-                    $totalSize += $tempSize;
-                }
-
+                echo $details;
                 ?>
                 <div class="w-100 d-flex mt-3 justify-content-between">
-                  
+
                     <span class="ml-3 text-muted">Total Weight: <?php echo $totalWeight . 'oz' ?></span>
                     <span class="ml-3 text-muted">Total Size: <?php echo number_format((float)$totalSize, 5, '.', '') . ' ft3' ?></span>
                     <span class="ml-3 text-muted">Bag Size: <?php echo $important->getBagSize($totalSize) ?></span>
                     <span class="ml-3 text-muted">Box Size: <?php echo $important->getBoxSize($totalSize) ?></span>
 
+                </div>
+                <hr>
+                <div class="w-100">
+                    <small class="text-danger text-center">(Cheapest One)</small>
+                </div>
+                <div class="w-100 d-flex mt-1 justify-content-between">
+                    <span class="ml-3 text-muted">Estimated Shipping Cost: <?php echo $estimatedShippingCost ?></span>
+                    <span class="ml-3 text-muted"> Shipping Service: <?php echo $shippingService ?></span>
+                    <span class="ml-3 text-muted"> Package Type: <?php echo $packageType ?></span>
                 </div>
 
 

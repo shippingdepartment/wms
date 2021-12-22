@@ -27,7 +27,8 @@ class ImportantFunctions
         // Optional Authentication:
         // curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
         curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-            'API-Key: ' . $apiKey
+            'API-Key: ' . $apiKey,
+            'Content-Type: application/json',
         ));
         // curl_setopt($curl, CURLOPT_USERPWD, "username:password");
 
@@ -78,5 +79,63 @@ class ImportantFunctions
         else {
             return '13 x 13 x 13';
         }
+    }
+
+    public function getAllUserAssignedOrders()
+    {
+        global $db;
+
+        $query = "SELECT * from assign_order ORDER by id DESC";
+        $result = $db->query($query) or die($db->error);
+        $content = '';
+        $user = new Users();
+        while ($row = $result->fetch_array()) {
+            extract($row);
+            $userName = $user->get_user_info($user_id, 'first_name');
+            $userName .= ' ' . $user->get_user_info($user_id, 'last_name');
+
+            $content .= '<tr class="">';
+            $content .= '<td>';
+            $content .= $order_no;
+            $content .= '</td><td>';
+            $content .= $userName;
+            $content .= '</td>';
+            $content .= '<td>';
+            $content .= '<a href="shipengine/order_details.php?id=' . $order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a>';
+            $content .= '</td>';
+            $content .= '</tr>';
+        }
+        echo $content;
+    }
+
+    public function checkOrderIsAssigned($order_id)
+    {
+        global $db;
+        $order_detail = "SELECT * from assign_order WHERE order_id='" . $order_id . "'";
+        $result = $db->query($order_detail) or die($db->error);
+        $num_rows = $result->num_rows;
+        if ($num_rows > 0)
+            return true;
+        else
+            return false;
+    }
+
+    public function assignOrdersTORandom($orderNo, $orderId)
+    {
+        global $db;
+
+        $lastAssignOrder = 'SELECT user_id from assign_order ORDER BY id DESC LIMIT 1 ';
+        $lastAssignOrderResult = $db->query($lastAssignOrder) or die($db->error);
+        $lastOrderAssignedUserId = ($lastAssignOrderResult->fetch_array())[0];
+
+        do {
+            $randomIdQuery = 'SELECT user_id from users ORDER BY RAND() LIMIT 1';
+            $result = $db->query($randomIdQuery) or die($db->error);
+
+            $currentUser = ($result->fetch_array())[0];
+        } while ($currentUser == $lastOrderAssignedUserId);
+
+        $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "','" . $orderNo . "')";
+        $result = $db->query($query) or die($db->error);
     }
 }

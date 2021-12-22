@@ -15,7 +15,7 @@ include('classes/warehouse.php');
 include('classes/client.php');
 include('classes/purchase.php');
 include('classes/purchase_return.php');
-require_once('includes/functions.php');
+include('includes/functions.php');
 include('classes/announcements.php');
 include('classes/expenses.php');
 include('classes/transfer.php');
