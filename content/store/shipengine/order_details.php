@@ -171,6 +171,7 @@ if ($totalWeight <= 16) {
 
                         Select Cart
                         <select name="cart_option" id="cart_option">
+                            <option value="" disabled>Select</option>
                             <?php
                             foreach ($currentCarts as $key => $value) {
                                 echo '  <option value="' . $value . '">' . $value . '</option>';
