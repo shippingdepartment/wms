@@ -307,9 +307,15 @@ class ImportantFunctions
         $result = $db->query($query) or die($db->error);
         $content = '';
         $user = new Users();
+        $packingUrl = '#';
         while ($row = $result->fetch_array()) {
             extract($row);
-
+            $orderNoQuery = "SELECT * FROM assign_order WHERE user_id='" . $_SESSION['user_id'] . "' AND order_no='" . $order_no . "' LIMIT 1";
+            $orderNoQueryResult = $db->query($orderNoQuery) or die($db->error);
+            if ($orderNoQueryResult->num_rows>0) {
+                $data = ($orderNoQueryResult->fetch_array());
+                $packingUrl = 'packing_slip.php?order_id=' . $data['order_id'];
+            }
 
             $content .= '<tr class="">';
             $content .= '<td>';
@@ -324,7 +330,7 @@ class ImportantFunctions
             $content .= $tracking_number;
             $content .= '</td>';
             $content .= '<td>';
-            $content .= '<a href=' . $pdf . ' download target="_blank"><i class="fa fa-print" style="font-size:16px"></i></a> ';
+            $content .= '<a href=' . $pdf . ' download target="_blank"><i class="fa fa-tag" style="font-size:16px"></i></a> / <a href=' . $packingUrl . '  target="_blank"><i class="fa fa-print" style="font-size:16px"></i></a>';
             $content .= '</td>';
             $content .= '</tr>';
         }
