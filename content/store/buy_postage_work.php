@@ -45,5 +45,5 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
 
     $important->storeShippingLabelInfo($response->label_id, $response->shipment_id, $response->ship_date, $response->tracking_number, $response->label_download->pdf, $assignId,$assignResponse['order_no']);
 
-    header('Location: ' . $response->label_download->pdf);
+    header('Location: ' .'buy_postage.php');
 }
