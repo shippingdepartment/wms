@@ -5,84 +5,20 @@ include('system_load.php');
 authenticate_user('subscriber');
 
 $user_id = $_SESSION['user_id'];
-$store_id = $_GET['id']; // store id;
 $function_id = $user->get_user_info($user_id, "user_function");
 
-if ($_SESSION['user_type'] != "admin") {
-    if ($function_id != 'storem' or $function_id != 'manager') {
-        HEADER('LOCATION: warehouse.php?msg=lstcust');
-    }
-}
+// if ($_SESSION['user_type'] != "admin") {
+//     if ($function_id != 'storem' or $function_id != 'manager') {
+//         HEADER('LOCATION: warehouse.php?msg=lstcust');
+//     }
+// }
 
 $important = new ImportantFunctions();
-// return;
 $user = new Users();
 
-$response = $important->CallAPI('GET', "v-beta/sales_orders?order_source_id=" . $store_id . "&sort_dir=desc&page_size=300");
-$content = '';
-// var_dump($response);
-// return;
 
 
-
-
-
-// $content .= '</tr>';
-foreach ($response->sales_orders as $key => $value) {
-    $product = new Product();
-
-    foreach ($value->sales_order_items as $key => $lineItems) {
-        $lineItemsDetails = $lineItems->line_item_details;
-
-        $resp = $product->moidAddProduct(
-            $lineItemsDetails->sku,
-            $lineItemsDetails->name,
-            $lineItemsDetails->weight->unit,
-            $lineItems->price_summary->estimated_tax->amount,
-            $lineItems->price_summary->unit_price->amount,
-            $lineItems->price_summary->unit_price->amount,
-            100,
-            $value->external_order_number
-        );
-    }
-   
-    $lastOrderSourceId = $important->getLastOrderId();
-    $isOrderExists = $important->checkIfOrderExists($value->external_order_number, $value->sales_order_id);
-    if ($isOrderExists) {
-    } else {
-       
-        $important->assignOrdersTORandom($value->external_order_number, $value->sales_order_id);
-   
-    }
-
-
-    $isAssigned = $important->checkOrderIsAssigned($value->sales_order_id) == true ? 'Assigned' : 'Not-Assigend';
-    $content .= '<tr class="">';
-    $content .= '<td>';
-    $content .= $value->external_order_number;
-    $content .= '</td><td>';
-    $content .= $value->sales_order_status->fulfillment_status;
-    $content .= '</td><td>';
-    $content .= ($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->name;
-    $content .= '</td>';
-    $content .= '</td><td>';
-    $content .= ($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->sku;
-    $content .= '</td>';
-    $content .= '</td><td>';
-    $content .=  date("m-d-Y", strtotime($value->order_date));
-    $content .= '</td><td>';
-    $content .= $isAssigned;
-    $content .= '</td>';
-    $content .= '<td > ' . $value->sales_order_id;
-    $content .= '</td>';
-    $content .= '<td> <a href="shipengine/order_details.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a>';
-
-    $content .= '</td>';
-    $content .= '</tr>';
-}
-
-
-$page_title = 'Orders List'; //You can edit this to change your page title.
+$page_title = 'Finished Orders'; //You can edit this to change your page title.
 
 
 ?>
@@ -160,11 +96,6 @@ $page_title = 'Orders List'; //You can edit this to change your page title.
                 ?>
 
 
-                <label style="margin-top:25px">Assign User</label>
-                <?php $user->getUsersForAssignOrders() ?>
-                <button class="btn btn-primary" style="margin-top: 10px;" onclick="AssignUser()">Assigned User</button>
-
-
                 <div class="row">
                     <div class="col-md-12">
                         <!-- <div class="panel panel-white"> -->
@@ -179,24 +110,21 @@ $page_title = 'Orders List'; //You can edit this to change your page title.
                         <div class="panel-body" id="printlist">
 
                             <div class="table-responsive">
-                                <table id="example3" class="display table" style="width: 100%;">
+                                <table id="example3" class="display table" style="width: 100%; cellspacing: 0;">
                                     <thead>
                                         <tr>
-                                            <th>Order #</th>
-                                            <th>Fulfillment Status</th>
-                                            <th>Item</th>
-                                            <th>Item SKU</th>
-                                            <th>Order Date</th>
-                                            <th>Is Assigned</th>
-                                            <th>Order Source Id</th>
-                                            <th>Actions</th>
-
+                                            <th>Order No</th>
+                                            <th>label Id</th>
+                                            <th>Shipping Id</th>
+                                            <th>Tracking #</th>
+                                            <th>Shipping Label</th>
+                                            <!-- <th>Action</th> -->
 
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
-                                        echo $content;
+                                        echo $important->getUserFinishedOrderData();
                                         // $client->list_clients();
 
                                         ?>
@@ -256,70 +184,5 @@ $page_title = 'Orders List'; //You can edit this to change your page title.
             ]
 
         });
-
-        $(document).ready(function() {
-            var table = $('#example3').DataTable();
-
-            $('#example3 tbody').on('click', 'tr', function() {
-                $(this).toggleClass('selected');
-            });
-
-            $('#button').click(function() {
-                var table = $('#example3').DataTable();
-                console.log(table.rows('.selected').data());
-                // alert(table.rows('.selected').data().length + ' row(s) selected');
-            });
-        });
-
-        function AssignUser() {
-            var table = $('#example3').DataTable();
-            var list = [];
-            var data = table.rows('.selected').data();
-            var selectedUser = $('#assigned_user').val();
-            if (data.length == 0) {
-                alert('Please select the order first');
-                return;
-            } else {
-
-                $.each(data, function(index, value) {
-                    var obj = {
-                        'user_id': selectedUser,
-                        'order_source_id': value[6],
-                        'order_no': value[0]
-                    }
-                    list.push(obj);
-                });
-                var params = {
-                    myarray: list
-                };
-
-                var paramJSON = JSON.stringify(params);
-
-                // return;
-
-                $.post(
-                    'shipengine/assign_orders_ajax.php', {
-                        data: paramJSON
-                    },
-                    function(data) {
-                        // var result = JSON.parse(data);
-                    }
-                );
-                // $.ajax({
-                //     url: 'classes/functions.php?assigned=user',
-                //     method: 'POST',
-                //     data: paramJSON,
-                //     contentType: 'application/json',
-                //     success: function(data) {
-                //         alert('data send successfully');
-                //     },
-                //     error: function(XMLHttpRequest, textStatus, errorThrown) {
-                //         alert(errorThrown);
-                //     }
-                // });
-
-            }
-
-        }
     </script>
 </body>

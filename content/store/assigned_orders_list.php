@@ -7,12 +7,15 @@ authenticate_user('subscriber');
 $user_id = $_SESSION['user_id'];
 $function_id = $user->get_user_info($user_id, "user_function");
 
-if ($_SESSION['user_type'] != "admin") {
-    if ($function_id != 'storem' or $function_id != 'manager') {
-        HEADER('LOCATION: warehouse.php?msg=lstcust');
-    }
+// if ($_SESSION['user_type'] != "admin") {
+//     if ($function_id != 'storem' or $function_id != 'manager') {
+//         HEADER('LOCATION: warehouse.php?msg=lstcust');
+//     }
+// }
+$isForAdmin = true;
+if (isset($_GET['t']) && $_GET['t'] == 'user') {
+    $isForAdmin = false;
 }
-
 $important = new ImportantFunctions();
 $user = new Users();
 
@@ -95,7 +98,7 @@ $page_title = 'Assigned Users Orders List'; //You can edit this to change your p
                 }
                 ?>
 
-              
+
                 <div class="row">
                     <div class="col-md-12">
                         <!-- <div class="panel panel-white"> -->
@@ -115,13 +118,14 @@ $page_title = 'Assigned Users Orders List'; //You can edit this to change your p
                                         <tr>
                                             <th>Order No</th>
                                             <th>Assigned To</th>
+                                            <th>Status</th>
                                             <th>Action</th>
-                                           
+
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
-                                        echo $important->getAllUserAssignedOrders();
+                                        echo $isForAdmin ? $important->getAllUserAssignedOrders() : $important->getCurrentUserAssignedOrders();
                                         // $client->list_clients();
 
                                         ?>

@@ -11,11 +11,7 @@ $orderId = $_GET['id']; // store id;
 
 $function_id = $user->get_user_info($user_id, "user_function");
 
-if ($_SESSION['user_type'] != "admin") {
-    if ($function_id != 'storem' or $function_id != 'manager') {
-        HEADER('LOCATION: warehouse.php?msg=lstcust');
-    }
-}
+// 
 
 $important = new ImportantFunctions();
 $product = new Product();
@@ -30,9 +26,16 @@ $shippingCarriers = $important->CallAPI('GET', 'v1/carriers');
 $content = '';
 $totalWeight = 0;
 $totalSize = 0;
+$totalItems = 0;
 
 $details = '';
+$assignID = 0;
+if (isset($_GET['assign_id'])) {
+    $assignID = $_GET['assign_id'];
+}
 foreach ($response->sales_order_items as $key => $value) {
+    $productname = $value->line_item_details->name;
+
     $product->moid_set_product_through_sku($value->line_item_details->sku);
     $details .= '<div class="row">';
     $details .= '<div class="col">';
@@ -53,6 +56,8 @@ foreach ($response->sales_order_items as $key => $value) {
     $details .= '</div>';
     $details .= '</div>';
     $details .= '</div>';
+    $details .= '<div class="text-right"> <button id=' . $value->line_item_details->sku . ' type="button" class="btn btn-success" data-product-quantity=' . $value->quantity . '  data-product-name=' . $productname . ' data-sku=' . $value->line_item_details->sku . ' onclick="verifyThePick(this)" > Verify Pick </button> </div>';
+
     $details .= '<hr class="my-3 ">';
     $details .= '</div>';
     $details .= '</div>';
@@ -62,7 +67,14 @@ foreach ($response->sales_order_items as $key => $value) {
     $totalWeight += ($product->ounces * $value->quantity);
     $tempSize = ($product->long_pr * $product->larg * ($product->haut * $value->quantity)) / 1728;
     $totalSize += $tempSize;
+
+    $totalItems++;
 }
+
+$currentCarts = $important->getFreeCarts();
+$carrierCode = '';
+$carrierId = '';
+// return;
 
 // If the order is less than 16 oz then we can default to usps first class
 // setting the postObject for shipping rates
@@ -98,6 +110,8 @@ if ($totalWeight <= 16) {
     $estimatedShippingCost = $shippingCarriers[1]->shipping_amount->amount . ' ' . strtoupper($shippingCarriers[1]->shipping_amount->currency);
     $shippingService = $shippingCarriers[1]->carrier_friendly_name;
     $packageType = $shippingCarriers[1]->package_type;
+    $serviceCode = $shippingCarriers[1]->service_code;
+    $carrierId = "se-647551";
 } else {
 
     foreach ($shippingCarriers->carriers as $key => $carrier) {
@@ -119,6 +133,8 @@ if ($totalWeight <= 16) {
             $estimatedShippingCost = $shippingCarriers[1]->shipping_amount->amount . ' ' . strtoupper($shippingCarriers[1]->shipping_amount->currency);
             $shippingService = $shippingCarriers[1]->carrier_friendly_name;
             $packageType = $shippingCarriers[1]->package_type;
+            $serviceCode = $shippingCarriers[1]->service_code;
+            $carrierId = $carrier->carrier_id;
         } else {
         }
     }
@@ -135,7 +151,11 @@ if ($totalWeight <= 16) {
     <link rel="stylesheet" type="text/css" media="all" href="reports.css" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- for Modal -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
     <link href="../../../assets/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 </head>
 
@@ -146,6 +166,22 @@ if ($totalWeight <= 16) {
                 <div class="media flex-sm-row flex-column-reverse justify-content-between ">
                     <div class="col my-auto">
                         <h4 class="mb-0"><span class="change-color"><?php echo $response->order_source->order_source_nickname ?></span> </h4>
+                    </div>
+                    <div class="col my-auto d-none" id="isEveryThingDone">
+
+                        Select Cart
+                        <select name="cart_option" id="cart_option">
+                            <?php
+                            foreach ($currentCarts as $key => $value) {
+                                echo '  <option value="' . $value . '">' . $value . '</option>';
+                            }
+                            ?>
+
+
+                        </select>
+
+                        <button type="button" id="confirmedBtn" style="margin-left: 20px;;" class="btn btn-success">Done</button>
+
                     </div>
                     <div class="col-auto text-center my-auto pl-0 pt-sm-4">
                         <p class="">Order# &nbsp;<?php echo $response->external_order_number ?></p>
@@ -263,6 +299,109 @@ if ($totalWeight <= 16) {
             </div> -->
         </div>
     </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="verifyPickModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <span id="informQuantity" class="text-muted"></span>
+                    <input type="hidden" name="" id="requiredQuantity">
+                    <input type="hidden" name="" id="sku">
+                    <input type="text" class="form-control mt-3" id="enteredQuantity" placeholder="Enter Quantity">
+                    <div id="errorMsg" class="errorMsg text-center d-none">
+                        <p class="text-danger ">Invalid Quantity Selected</p>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="confirmPick" class="btn btn-primary">Confirm Pick</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
+<script>
+    var pickedItems = 0;
+    var totalItems = <?php echo $totalItems; ?>;
+    var selectedCart = '1';
+
+    function verifyThePick(e) {
+        $('#exampleModalLongTitle').text(e.getAttribute('data-sku'))
+        $('#informQuantity').text('You have to pick ' + e.getAttribute('data-product-name') + ' with quantity  ' + e.getAttribute('data-product-quantity'));
+        $('#requiredQuantity').val(e.getAttribute('data-product-quantity'));
+        $('#sku').val(e.getAttribute('data-sku'));
+        // alert(e.getAttribute("data-sku"));
+        // data-product-quantity
+        $('#verifyPickModal').modal('toggle');
+
+    }
+
+    $('#confirmPick').click(function(e) {
+        var requiredQuantity = $('#requiredQuantity').val();
+        var enteredQuantity = $('#enteredQuantity').val();
+        var sku = $('#sku').val();
+        if (requiredQuantity === enteredQuantity) {
+            pickedItems++;
+            $('#' + sku).addClass('d-none');
+            $('#errorMsg').addClass('d-none');
+            if (pickedItems === totalItems) {
+                $('#isEveryThingDone').removeClass('d-none');
+                $('#verifyPickModal').modal('toggle');
+
+            } else {
+                $('#isEveryThingDone').addClass('d-none');
+
+                return;
+
+            }
+
+
+        } else {
+            $('#errorMsg').removeClass('d-none');
+            return;
+        }
+
+
+        $('#enteredQuantity').val(null);
+
+    });
+    $('#cart_option').on('change', function() {
+        selectedCart = this.value;
+    });
+    $('#confirmedBtn').click(function(e) {
+        var assignID = <?php echo $assignID; ?>;
+        var serviceCode = "<?php echo ($serviceCode); ?>";
+        var carrierId = "<?php echo ($carrierId); ?>";
+        var totalWeight = "<?php echo ($totalWeight); ?>";
+
+
+        paramJSON = {
+            'assign_order_id': parseInt(assignID),
+            'cart': selectedCart,
+            'service_code': serviceCode,
+            'carrier_id': carrierId,
+            'total_weight': totalWeight,
+        }
+        $.post(
+            'assign_cart_ajax.php', {
+                data: JSON.stringify(paramJSON),
+            },
+            function(data) {
+                window.location.href = "../buy_postage.php"
+                // var result = JSON.parse(data);
+            }
+        );
+    });
+</script>
 
 </html>
