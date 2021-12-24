@@ -64,7 +64,7 @@ foreach ($response->sales_order_items as $key => $value) {
     $details .= '</div>';
     $details .= '</div>';
 
-    $totalWeight += ($product->ounces * $value->quantity);
+    $totalWeight += ((($product->pounds)*16)*$value->quantity )+($product->ounces * $value->quantity);
     $tempSize = ($product->long_pr * $product->larg * ($product->haut * $value->quantity)) / 1728;
     $totalSize += $tempSize;
 
@@ -171,10 +171,10 @@ if ($totalWeight <= 16) {
 
                         Select Cart
                         <select name="cart_option" id="cart_option">
-                            <option value="" disabled>Select</option>
+                            <option value="" disabled>----Select----</option>
                             <?php
                             foreach ($currentCarts as $key => $value) {
-                                echo '  <option value="' . $value . '">' . $value . '</option>';
+                                echo '<option value="' . $value . '">' . $value . '</option>';
                             }
                             ?>
 
@@ -334,7 +334,6 @@ if ($totalWeight <= 16) {
 <script>
     var pickedItems = 0;
     var totalItems = <?php echo $totalItems; ?>;
-    var selectedCart = '1';
 
     function verifyThePick(e) {
         $('#exampleModalLongTitle').text(e.getAttribute('data-sku'))
@@ -388,7 +387,7 @@ if ($totalWeight <= 16) {
 
         paramJSON = {
             'assign_order_id': parseInt(assignID),
-            'cart': selectedCart,
+            'cart': $('#cart_option').find(":selected").text(),
             'service_code': serviceCode,
             'carrier_id': carrierId,
             'total_weight': totalWeight,

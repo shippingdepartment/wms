@@ -46,22 +46,15 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
     $important->storeShippingLabelInfo($response->label_id, $response->shipment_id, $response->ship_date, $response->tracking_number, $response->label_download->pdf, $assignId, $assignResponse['order_no']);
 
     $URL = $response->label_download->pdf;
-   
-    set_time_limit(0);
-    $file = file_get_contents($URL);
-    file_put_contents('file' . time() . '.pdf', $file);
+    
 
     echo "<script type='text/javascript'> let a= document.createElement('a');
-        a.target= '_blank'; a.href= '{$URL}';
-        a.setAttribute('download', '');
+        a.href= '{$URL}';
+      
         a.click();</script>";
 
-        echo "<script type='text/javascript'> let as= document.createElement('a');
-        as.target= '_blank'; as.href= 'packing_slip.php?order_id='.$orderId;
-        as.setAttribute('download', '');
-        as.click();</script>";
 
-        
+
 
     // echo "<script type='text/javascript'>document.location.href='{$URL}';</script>";
     // echo '<META HTTP-EQUIV="refresh" content="0;URL=' . $URL . '">';
