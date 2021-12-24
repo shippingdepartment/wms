@@ -336,4 +336,13 @@ class ImportantFunctions
         }
         echo $content;
     }
+
+    function add_inventory($inn=0, $out_inv, $product_id) {
+		global $db;
+		//$datetime = strtotime(date());
+		$datetime = date('Y-m-d');
+		$query = "INSERT into inventory(inventory_id, dateinventory, inn, out_inv, product_id, warehouse_id) VALUES(NULL, '".$datetime."', '".$inn."', '".$out_inv."', '".$product_id."', '".$_SESSION['warehouse_id']."')";
+		$result = $db->query($query) or die($db->error);
+		return $db->insert_id;	
+	}
 }

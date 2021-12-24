@@ -398,7 +398,7 @@ if ($totalWeight <= 16) {
                 data: JSON.stringify(paramJSON),
             },
             function(data) {
-                window.location.href = "../buy_postage.php"
+                window.location.href = "../assigned_orders_list.php"
                 // var result = JSON.parse(data);
             }
         );
