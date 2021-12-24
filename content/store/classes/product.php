@@ -1186,6 +1186,15 @@ class Product
 		return $row[$term];
 	} //get user email ends here.
 
+	function get_product_info_through_sku($product_id, $term)
+	{
+		global $db;
+		$query = "SELECT * from products WHERE product_manual_id='" . $product_id . "'";
+		$result = $db->query($query) or die($db->error);
+		$row = $result->fetch_array();
+		return $row[$term];
+	} //get user email ends here.
+
 	function get_product_rate($product_id, $term)
 	{
 		global $db;

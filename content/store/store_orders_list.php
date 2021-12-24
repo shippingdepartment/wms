@@ -160,9 +160,9 @@ $page_title = 'Orders List'; //You can edit this to change your page title.
                 ?>
 
 
-                <label style="margin-top:25px">Assign User</label>
-                <?php $user->getUsersForAssignOrders() ?>
-                <button class="btn btn-primary" style="margin-top: 10px;" onclick="AssignUser()">Assigned User</button>
+                <!-- <label style="margin-top:25px">Assign User</label> -->
+            <!-- $user->getUsersForAssignOrders()  -->
+                <!-- <button class="btn btn-primary" style="margin-top: 10px;" onclick="AssignUser()">Assigned User</button> -->
 
 
                 <div class="row">

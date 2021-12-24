@@ -236,7 +236,7 @@ class ImportantFunctions
             $content .= $cart;
             $content .= '</td>';
             $content .= '<td>';
-            $content .= '<a href="buy_postage_work.php?assign_id=' . $assign_order_id . '&cart_id=' . $id . '"><i class="fa fa-print" style="font-size:16px"></i></a> ';
+            $content .= '<a href="buy_postage_work.php?assign_id=' . $assign_order_id . '&cart_id=' . $id . '"><i class="fa fa-tag" style="font-size:16px"></i></a> / <a href=packing_slip.php?order_id=' . $data['order_id'] . '  onclick="window.open(this.href).print(); return false"><i class="fa fa-print" style="font-size:16px"></i></a>';
             $content .= '</td>';
             $content .= '</tr>';
         }
@@ -312,7 +312,7 @@ class ImportantFunctions
             extract($row);
             $orderNoQuery = "SELECT * FROM assign_order WHERE user_id='" . $_SESSION['user_id'] . "' AND order_no='" . $order_no . "' LIMIT 1";
             $orderNoQueryResult = $db->query($orderNoQuery) or die($db->error);
-            if ($orderNoQueryResult->num_rows>0) {
+            if ($orderNoQueryResult->num_rows > 0) {
                 $data = ($orderNoQueryResult->fetch_array());
                 $packingUrl = 'packing_slip.php?order_id=' . $data['order_id'];
             }
@@ -337,12 +337,13 @@ class ImportantFunctions
         echo $content;
     }
 
-    function add_inventory($inn=0, $out_inv, $product_id) {
-		global $db;
-		//$datetime = strtotime(date());
-		$datetime = date('Y-m-d');
-		$query = "INSERT into inventory(inventory_id, dateinventory, inn, out_inv, product_id, warehouse_id) VALUES(NULL, '".$datetime."', '".$inn."', '".$out_inv."', '".$product_id."', '".$_SESSION['warehouse_id']."')";
-		$result = $db->query($query) or die($db->error);
-		return $db->insert_id;	
-	}
+    function add_inventory($inn, $out_inv, $product_id)
+    {
+        global $db;
+        //$datetime = strtotime(date());
+        $datetime = date('Y-m-d');
+        $query = "INSERT into inventory(inventory_id, dateinventory, inn, out_inv, product_id, warehouse_id) VALUES(NULL, '" . $datetime . "', '" . $inn . "', '" . $out_inv . "', '" . $product_id . "', '" . $_SESSION['warehouse_id'] . "')";
+        $result = $db->query($query) or die($db->error);
+        return $db->insert_id;
+    }
 }

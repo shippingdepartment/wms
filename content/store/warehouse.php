@@ -249,7 +249,7 @@
 								</a>
 							</div>
 							<div class="col-lg-3 col-md-3">
-								<a style="display:block warh-bloc" href="orders.php?s_s=<?php echo session_id(); ?>">
+								<a style="display:block warh-bloc" href="assigned_orders_list.php?t=user">
 									<div class="panel warh-bloc" style="background-color:#ffbb33;opacity:0.8">
 										<div class="panel-body" >
 											<div class="pull-left">

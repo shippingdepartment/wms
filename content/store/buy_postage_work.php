@@ -2,12 +2,23 @@
 include('system_load.php');
 
 $important  = new ImportantFunctions();
+$product = new Product();
 if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
     $assignId = $_GET['assign_id'];
     $cartId = $_GET['cart_id'];
     $assignResponse = ($important->getDataThroughAssignId($assignId));
     $orderId = ($important->getDataThroughAssignId($assignId)['order_id']);
     $cartData = $important->getDataThroughCartAssigning($cartId);
+
+    $response = $important->CallAPI('GET', "v-beta/sales_orders/" . $orderId);
+    $skus = array();
+    foreach ($response->sales_order_items as $key => $value) {
+        $skus[] =  $value->line_item_details->sku;
+        $id =   $product->get_product_info_through_sku($value->line_item_details->sku, 'product_id');
+        $important->add_inventory(0, $value->quantity, $id);
+    }
+
+
 
     $printLabelObject = array(
         "label_format" => "pdf",
@@ -46,7 +57,7 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
     $important->storeShippingLabelInfo($response->label_id, $response->shipment_id, $response->ship_date, $response->tracking_number, $response->label_download->pdf, $assignId, $assignResponse['order_no']);
 
     $URL = $response->label_download->pdf;
-    
+
 
     echo "<script type='text/javascript'> let a= document.createElement('a');
         a.href= '{$URL}';

@@ -64,7 +64,7 @@ foreach ($response->sales_order_items as $key => $value) {
     $details .= '</div>';
     $details .= '</div>';
 
-    $totalWeight += ((($product->pounds)*16)*$value->quantity )+($product->ounces * $value->quantity);
+    $totalWeight += ((($product->pounds) * 16) * $value->quantity) + ($product->ounces * $value->quantity);
     $tempSize = ($product->long_pr * $product->larg * ($product->haut * $value->quantity)) / 1728;
     $totalSize += $tempSize;
 
@@ -91,7 +91,7 @@ $shippingObject = array(
 );
 
 
-
+$sf = [];
 
 if ($totalWeight <= 16) {
 
@@ -113,6 +113,7 @@ if ($totalWeight <= 16) {
     $serviceCode = $shippingCarriers[1]->service_code;
     $carrierId = "se-647551";
 } else {
+    unset($shippingCarriers->carriers[0]);
 
     foreach ($shippingCarriers->carriers as $key => $carrier) {
         $shippingObject = array(
@@ -128,17 +129,31 @@ if ($totalWeight <= 16) {
         );
         $shippingCarriers = $important->CallAPI('POST', 'v1/rates/estimate', json_encode($shippingObject));
 
+        foreach ($shippingCarriers as $keyj => $ship) {
 
-        if ($estimatedShippingCost <= $shippingCarriers[1]->shipping_amount->amount) {
-            $estimatedShippingCost = $shippingCarriers[1]->shipping_amount->amount . ' ' . strtoupper($shippingCarriers[1]->shipping_amount->currency);
-            $shippingService = $shippingCarriers[1]->carrier_friendly_name;
-            $packageType = $shippingCarriers[1]->package_type;
-            $serviceCode = $shippingCarriers[1]->service_code;
+            $estimatedShippingCost = $ship->shipping_amount->amount . ' ' . strtoupper($ship->shipping_amount->currency);
+            $shippingService = $ship->carrier_friendly_name;
+            $packageType = 'Package';
+            $serviceCode = $ship->service_code;
             $carrierId = $carrier->carrier_id;
-        } else {
+            $sf[] = array('amount' => $ship->shipping_amount->amount, 'shippingService' => $ship->carrier_friendly_name, 'serviceCode' => $ship->service_code, 'carrierId' => $carrier->carrier_id);
         }
     }
+    $sf =  min($sf);
+    // echo "<pre>";
+    //  print_r(($sf));
+    // echo "</pre>";
+    // exit;
+    $estimatedShippingCost = $sf['amount'] . ' USD';
+    $shippingService = $sf['shippingService'];
+    $serviceCode = $sf['serviceCode'];
+    $carrierId = $sf['carrierId'];
+    // echo "<pre>";
+    // print_r(min($sf));
+    // echo "</pre>";
+    // exit;
 }
+
 
 
 
@@ -227,6 +242,7 @@ if ($totalWeight <= 16) {
                 <div class="w-100 d-flex mt-1 justify-content-between">
                     <span class="ml-3 text-muted">Estimated Shipping Cost: <?php echo $estimatedShippingCost ?></span>
                     <span class="ml-3 text-muted"> Shipping Service: <?php echo $shippingService ?></span>
+                    <span class="ml-3 text-muted"> Service Code: <?php echo $serviceCode ?></span>
                     <span class="ml-3 text-muted"> Package Type: <?php echo $packageType ?></span>
                 </div>
 
@@ -337,11 +353,10 @@ if ($totalWeight <= 16) {
 
     function verifyThePick(e) {
         $('#exampleModalLongTitle').text(e.getAttribute('data-sku'))
-        $('#informQuantity').text('You have to pick ' + e.getAttribute('data-product-name') + ' with quantity  ' + e.getAttribute('data-product-quantity'));
+        $('#informQuantity').text('Quantity ' + e.getAttribute('data-product-quantity'));
         $('#requiredQuantity').val(e.getAttribute('data-product-quantity'));
         $('#sku').val(e.getAttribute('data-sku'));
-        // alert(e.getAttribute("data-sku"));
-        // data-product-quantity
+
         $('#verifyPickModal').modal('toggle');
 
     }
@@ -351,20 +366,11 @@ if ($totalWeight <= 16) {
         var enteredQuantity = $('#enteredQuantity').val();
         var sku = $('#sku').val();
         if (requiredQuantity === enteredQuantity) {
-            pickedItems++;
             $('#' + sku).addClass('d-none');
             $('#errorMsg').addClass('d-none');
-            if (pickedItems === totalItems) {
-                $('#isEveryThingDone').removeClass('d-none');
-                $('#verifyPickModal').modal('toggle');
 
-            } else {
-                $('#isEveryThingDone').addClass('d-none');
-
-                return;
-
-            }
-
+            $('#verifyPickModal').modal('toggle');
+            $('#isEveryThingDone').removeClass('d-none');
 
         } else {
             $('#errorMsg').removeClass('d-none');
