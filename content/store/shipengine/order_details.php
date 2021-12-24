@@ -113,9 +113,12 @@ if ($totalWeight <= 16) {
     $serviceCode = $shippingCarriers[1]->service_code;
     $carrierId = "se-647551";
 } else {
-    unset($shippingCarriers->carriers[0]);
+    // unset($shippingCarriers->carriers[0]);
 
     foreach ($shippingCarriers->carriers as $key => $carrier) {
+        if ($carrier->carrier_id == 'se-647512') {
+            continue; //ignoring the FEDX SHIPPING
+        }
         $shippingObject = array(
             'carrier_ids' => [$carrier->carrier_id],
             'from_country_code' => 'US',
@@ -130,13 +133,15 @@ if ($totalWeight <= 16) {
         $shippingCarriers = $important->CallAPI('POST', 'v1/rates/estimate', json_encode($shippingObject));
 
         foreach ($shippingCarriers as $keyj => $ship) {
-
-            $estimatedShippingCost = $ship->shipping_amount->amount . ' ' . strtoupper($ship->shipping_amount->currency);
-            $shippingService = $ship->carrier_friendly_name;
-            $packageType = 'Package';
-            $serviceCode = $ship->service_code;
-            $carrierId = $carrier->carrier_id;
-            $sf[] = array('amount' => $ship->shipping_amount->amount, 'shippingService' => $ship->carrier_friendly_name, 'serviceCode' => $ship->service_code, 'carrierId' => $carrier->carrier_id);
+            //usps_media_mail is not required
+            if ($ship->service_code != 'usps_media_mail') {
+                $estimatedShippingCost = $ship->shipping_amount->amount . ' ' . strtoupper($ship->shipping_amount->currency);
+                $shippingService = $ship->carrier_friendly_name;
+                $packageType = 'Package';
+                $serviceCode = $ship->service_code;
+                $carrierId = $carrier->carrier_id;
+                $sf[] = array('amount' => $ship->shipping_amount->amount, 'shippingService' => $ship->carrier_friendly_name, 'serviceCode' => $ship->service_code, 'carrierId' => $carrier->carrier_id);
+            }
         }
     }
     $sf =  min($sf);
