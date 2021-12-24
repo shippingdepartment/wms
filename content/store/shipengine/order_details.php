@@ -87,7 +87,7 @@ $shippingObject = array(
     'to_city_locality' => $response->ship_to->city_locality,
     'to_state_province' => $response->ship_to->state_province,
     'weight' => (array('value' => intval($totalWeight), 'unit' => 'ounce')),
-    'dimensions' => (array('unit' => 'inch', 'length' => 5.0, 'width' => 5.0, 'height' => 5.0)),
+    'dimensions' => (array('unit' => 'inch', 'length' => 1.0, 'width' => 1.0, 'height' => 1.0)),
 );
 
 
