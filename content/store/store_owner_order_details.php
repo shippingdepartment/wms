@@ -313,9 +313,9 @@ if ($shippingObject != null) {
                         function(data) {
                             console.log(data);
                             $('#alertSuccess').removeClass('d-none');
-                            // setTimeout(function() {
-                            //     window.location.reload();
-                            // }, 2000);
+                            setTimeout(function() {
+                                window.location.reload();
+                            }, 2000);
 
                         }
                     );
