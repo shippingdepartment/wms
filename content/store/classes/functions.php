@@ -567,7 +567,7 @@ class ImportantFunctions
 
             echo $content;
         } else {
-            echo 'Hello world';
+            // echo 'Hello world';
         }
     }
 
