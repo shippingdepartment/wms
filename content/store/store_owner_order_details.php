@@ -227,7 +227,7 @@ if ($shippingObject != null) {
                                 <p class="mb-1"><b> Total</b></p>
                             </div>
                             <div class="flex-sm-col col-auto">
-                                <p class="mb-1"><?php echo $response->payment_details->grand_total->amount + $shippingObject['shipment_cost'] . ' ' . strtoupper($response->payment_details->grand_total->currency) ?></p>
+                                <p class="mb-1"><?php echo $response->payment_details->grand_total->amount?? 0.0 + $shippingObject['shipment_cost']??0.0 . ' ' . strtoupper($response->payment_details->grand_total->currency) ?></p>
                             </div>
                         </div>
                     </div>

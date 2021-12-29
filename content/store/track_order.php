@@ -19,12 +19,12 @@ if (isset($_POST['order_no'])) {
     $orderNo = $_POST['order_no'];
     $orderResponse =   $important->getOrderTrackingStatus($orderNo);
     $orderFromLocal = $important->getOrderForShipengine($orderNo);
-    $orderID = $orderFromLocal['order_id'];
-    $orderData = $important->getOrderDataThroughOrderIDShipengine($orderID);
+    // $orderID = $orderFromLocal['order_id'];
+    $orderData = $important->getOrderDataThroughOrderIDShipengin($orderNo);
     if ($orderResponse != null) { //ORDER HAS BEEN SHIPPED
         $response =   $important->CallAPI('GET', '/v1/labels/' . $orderResponse['label_id'] . '/track');
         if ($response == null) {
-            $message = 'Sorry, Order Not found';
+            $message = 'Sorry, label not found';
         } else {
             $istracking = true;
             $label_id = $orderResponse['label_id'];
@@ -198,12 +198,12 @@ if (isset($_POST['order_no'])) {
                                 </div>
                                 <div class="col-md-4">
                                     <div class="trackingNo ">
-                                        <h5><span class="text-danger">Fulfilment:</span> <?php echo strtoupper($orderFromLocal['status']); ?></h5>
+                                        <h5><span class="text-danger">Fulfilment:</span> <?php echo strtoupper($orderFromLocal['status'] ?? 'Not-Assigned') ; ?></h5>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="trackingNo">
-                                        <h5>Status: <?php echo strtoupper($orderFromLocal['status']); ?></h5>
+                                        <h5>Status: <?php echo strtoupper($orderFromLocal['status'] ?? 'Not-Assigned'); ?></h5>
                                     </div>
                                 </div>
                             </div>

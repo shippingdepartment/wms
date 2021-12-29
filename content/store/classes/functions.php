@@ -385,10 +385,10 @@ class ImportantFunctions
     }
 
     //getting orderDATA FROM SHIPENGINE THROUGH ORDER_ID
-    public function getOrderDataThroughOrderIDShipengine($orderId)
+    public function getOrderDataThroughOrderIDShipengin($orderId)
     {
         if (isset($orderId) && $orderId != '') {
-            $response = $this->CallAPI('GET', 'v-beta/sales_orders/' . $orderId);
+            $response = $this->CallAPI('GET', 'v-beta/sales_orders?external_order_id' . $orderId);
             return $response;
         }
         return null;
