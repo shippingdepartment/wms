@@ -94,6 +94,8 @@ if ($shippingObject != null) {
     $shipmentPayment = $shippingObject['shipment_cost'] + $paymentFromProduct;
 }
 
+$orderStatus = ($important->getOrderStatus($response->external_order_number, $response->sales_order_id));
+
 ?>
 
 <html>
@@ -125,13 +127,26 @@ if ($shippingObject != null) {
                     <div class="col my-auto">
                         <h4 class="mb-0"><span class="change-color"><?php echo $response->order_source->order_source_nickname ?></span> </h4>
                         <div class="text-center">
-                            <button type="button" onClick="window.location.reload();" class="btn btn-primary">Refresh Order</button>
-                            <!-- <button type="button" class="btn btn-danger">Redo Order</button> -->
+                            <?php if ($orderStatus != 'Fulfilled' && $orderStatus != 'shipped' ) { ?>
+                                <button type="button" onClick="window.location.reload();" class="btn btn-success">Refresh Order</button>
+                            <?php } ?>
+
+                            <?php if ($orderStatus == 'inprogress' || $orderStatus == 'Not-Assigned') { ?>
+
+                                <button id="cancelOrder" type="button" class="btn btn-primary <?php echo  $orderStatus == 'Not-Assigned' ? 'd-none' : '' ?> ">Cancel Order</button>
+                                <!-- <button id="redoOrder" type="button" class="btn btn-danger">Change Address</button> -->
+
+                            <?php } ?>
+
+                            <?php if ($orderStatus == 'shipped') { ?>
+                                <button id="redoOrder" type="button" class="btn btn-danger">Reship Order</button>
+                            <?php } ?>
+
+
+
+
                         </div>
                     </div>
-
-
-
 
 
                     <div class="col-auto text-center my-auto pl-0 pt-sm-4">
@@ -152,7 +167,7 @@ if ($shippingObject != null) {
                     <p class=" Glasses">Payment Status &nbsp; <span class="text-success"> <?php echo strtoupper($response->sales_order_status->payment_status) ?> </span>
 
                         <br>
-                        Order Status &nbsp;<span class="text-success"> <?php echo strtoupper($important->getOrderStatus($response->external_order_number, $response->sales_order_id)) ?></span>
+                        Order Status &nbsp;<span class="text-success"> <?php echo strtoupper($orderStatus); ?></span>
 
 
                         <?php if ($orderPaidData != null) { ?>
@@ -227,7 +242,7 @@ if ($shippingObject != null) {
                                 <p class="mb-1"><b> Total</b></p>
                             </div>
                             <div class="flex-sm-col col-auto">
-                                <p class="mb-1"><?php echo $response->payment_details->grand_total->amount?? 0.0 + $shippingObject['shipment_cost']??0.0 . ' ' . strtoupper($response->payment_details->grand_total->currency) ?></p>
+                                <p class="mb-1"><?php echo $response->payment_details->grand_total->amount ?? 0.0 + $shippingObject['shipment_cost'] ?? 0.0 . ' ' . strtoupper($response->payment_details->grand_total->currency) ?></p>
                             </div>
                         </div>
                     </div>
@@ -327,6 +342,63 @@ if ($shippingObject != null) {
         }
     }).render('#paypal-button-container');
     //This function displays Smart Payment Buttons on your web page.
+
+
+    $('#redoOrder').click(function() {
+        var orderNo = "<?php echo  $response->external_order_number ?>";
+        paramJSON = {
+            'order_no': orderNo,
+            'status': 'reship',
+        }
+        $.post(
+            'shipengine/redo_order.php', {
+                data: JSON.stringify(paramJSON),
+            },
+            function(data) {
+                var response = (data);
+                if (response.success === true) {
+                    $('#alertSuccess').text('Order reship request has been sent successfully');
+                    $('#alertSuccess').removeClass('d-none');
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 2000);
+
+                } else {
+                    $('#alertDanger').text('Some Error Occured');
+                    $('#alertDanger').removeClass('d-none');
+                }
+
+            }
+        );
+    });
+
+    $('#cancelOrder').click(function() {
+        var orderNo = "<?php echo  $response->external_order_number ?>";
+        paramJSON = {
+            'order_no': orderNo,
+            'status': 'canceled',
+        }
+        $.post(
+            'shipengine/redo_order.php', {
+                data: JSON.stringify(paramJSON),
+            },
+            function(data) {
+                var response = (data);
+                if (response.success === true) {
+                    $('#alertSuccess').text('Order canceled successfully');
+                    $('#alertSuccess').removeClass('d-none');
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 2000);
+
+                } else {
+                    $('#alertDanger').text('Some Error Occured');
+                    $('#alertDanger').removeClass('d-none');
+                }
+
+            }
+        );
+    });
 </script>
 
 </html>

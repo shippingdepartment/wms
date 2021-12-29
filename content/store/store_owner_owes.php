@@ -18,7 +18,7 @@ if (!isset($_SESSION['warehouse_id']) || $_SESSION['warehouse_id'] == '') {
 } //select company redirect ends here.
 
 
-$page_title = 'Store Pricing List'; //You can edit this to change your page title.
+$page_title = 'Store Owner Owes'; //You can edit this to change your page title.
 
 $important = new ImportantFunctions();
 ?>
@@ -53,15 +53,11 @@ $important = new ImportantFunctions();
     <link href="../../assets/css/space.min.css" rel="stylesheet">
     <link href="../../assets/css/custom.css" rel="stylesheet">
 
+    <script src="../../assets/plugins/jquery/jquery-3.1.0.min.js"></script>
+    <script type="text/javascript" src="../../assets/js/export/tableExport.js"></script>
+    <script type="text/javascript" src="../../assets/js/export/jquery.base64.js"></script>
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
 
-    
 
 
 </head>
@@ -98,21 +94,25 @@ $important = new ImportantFunctions();
                     <div class="col-md-12">
                         <div class="panel panel-white">
                             <div class="panel-body">
-                                <div class="table-responsive">
+
+                                <a class="btn btn-info btn-addon mb-5" onClick="$('#example3').tableExport({type:'excel',mso:{fileFormat:'csv',}});"> <i class="fa fa-file-excel-o"></i> Export to CSV</a>
+
+                                <div class="table-responsive" style="margin-top:14px">
                                     <table id="example3" class="display table" style="width: 100%; cellspacing: 0;">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
                                                 <th>Store Name</th>
-                                                <th>First Item Price</th>
-                                                <th>Each Item Price</th>
-                                                <?php if (partial_access('admin')) { ?>
-                                                    <th>Actions</th><?php } ?>
+                                                <th>Order# </th>
+                                                <th>Shipping Cost</th>
+                                                <th>Quantities</th>
+                                                <th>Date</th>
                                             </tr>
                                         </thead>
                                         <tbody>
+
                                             <?php
-                                            $important->getStoreListPrices();
+                                            $important->getStoreOwes();
 
                                             ?>
                                         </tbody>
@@ -138,9 +138,9 @@ $important = new ImportantFunctions();
     </div>
 
     </div>
-
     <!-- Javascripts -->
-    <script src="../../assets/plugins/jquery/jquery-3.1.0.min.js"></script>
+
+
     <script src="../../assets/plugins/bootstrap/js/bootstrap.min.js"></script>
     <script src="../../assets/plugins/jquery-slimscroll/jquery.slimscroll.min.js"></script>
     <script src="../../assets/plugins/uniform/js/jquery.uniform.standalone.js"></script>

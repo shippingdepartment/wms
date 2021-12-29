@@ -92,7 +92,7 @@ class ImportantFunctions
     public function getAllUserAssignedOrders()
     {
         global $db;
-        $query = "SELECT * from assign_order WHERE status='inprogress' ORDER by id DESC";
+        $query = "SELECT * from assign_order WHERE status='inprogress' OR  status='reship' OR  status='canceled' ORDER by id DESC";
         $result = $db->query($query) or die($db->error);
         $content = '';
         $user = new Users();
@@ -179,7 +179,7 @@ class ImportantFunctions
     public function getCurrentUserAssignedOrders()
     {
         global $db;
-        $query = "SELECT * from assign_order WHERE user_id='" . $_SESSION['user_id'] . "' AND status='inprogress' ORDER by id DESC";
+        $query = "SELECT * from assign_order WHERE user_id='" . $_SESSION['user_id'] . "' AND status='inprogress' OR  status='reship' OR  status='canceled' ORDER by id DESC";
         $result = $db->query($query) or die($db->error);
         $content = '';
         $user = new Users();
@@ -609,6 +609,53 @@ class ImportantFunctions
             echo $content;
         } else {
             echo 'Hello world';
+        }
+    }
+
+    function storeOwes($orderNo, $storeName, $shippingCost, $quantities)
+    {
+        global $db;
+        $datetime = date('Y-m-d');
+
+        $query = "INSERT into store_owner_owes VALUES(NULL, '" . $orderNo . "', '" . $storeName . "', '" . $shippingCost . "', '" . $quantities . "', '" . $datetime . "')";
+
+        $result = $db->query($query) or die($db->error);
+    }
+
+    function getStoreOwes()
+    {
+        global $db;
+        $content='';
+        $query = 'SELECT * FROM store_owner_owes';
+        $result = $db->query($query) or die($db->error);
+
+        if ($result->num_rows > 0) {
+            $count = 0;
+            while ($row = $result->fetch_array()) {
+                extract($row);
+                $count++;
+
+                $content .= '<tr>';
+                $content .= '<td>';
+                $content .= $count;
+                $content .= '</td>';
+                $content .= '<td>';
+                $content .= $store_name;
+                $content .= '</td><td>';
+                $content .=  $order_no;
+                $content .= '</td><td>';
+                $content .= $shipping_cost;
+                $content .= '</td>';
+                $content .= '<td>';
+                $content .= $quantities;
+                $content .= '</td>';
+                $content .= '<td>';
+                $content .= $created_at;
+                $content .= '</td>';
+            }
+            $content .= '</tr>';
+
+            echo $content;
         }
     }
 }

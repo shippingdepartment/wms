@@ -3,6 +3,8 @@ include('system_load.php');
 
 $important  = new ImportantFunctions();
 $product = new Product();
+$totalQuantities = 0;
+$storeName = null;
 if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
     $assignId = $_GET['assign_id'];
     $cartId = $_GET['cart_id'];
@@ -11,12 +13,16 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
     $cartData = $important->getDataThroughCartAssigning($cartId);
 
     $response = $important->CallAPI('GET', "v-beta/sales_orders/" . $orderId);
+    $storeName = $response->order_source->order_source_nickname;
     $skus = array();
     foreach ($response->sales_order_items as $key => $value) {
         $skus[] =  $value->line_item_details->sku;
         $id =   $product->get_product_info_through_sku($value->line_item_details->sku, 'product_id');
         $important->add_inventory(0, $value->quantity, $id);
+        $totalQuantities += $value->quantity;
     }
+
+
 
 
 
@@ -54,6 +60,7 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
     $response =  $important->CallAPI('POST', 'v-beta/labels/sales_order/' . $orderId, json_encode($printLabelObject));
 
 
+    $important->storeOwes($assignResponse['order_no'], $storeName, $response->shipment_cost->amount, $totalQuantities);
     $important->storeShippingLabelInfo($response->label_id, $response->shipment_id, $response->ship_date, $response->tracking_number, $response->label_download->pdf, $assignId, $assignResponse['order_no'], $response->shipment_cost->amount);
 
     $URL = $response->label_download->pdf;
