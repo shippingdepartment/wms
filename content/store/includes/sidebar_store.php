@@ -13,7 +13,7 @@ $function_id = $user->get_user_info($user_id, "user_function");
         <div class="page-sidebar-menu">
             <ul class="accordion-menu">
                 <li class="active-page">
-                    <a href="warehouse.php">
+                    <a href="store_owner_dashboard.php">
                         <i class="menu-icon icon-home4"></i><span>Dashboard</span>
                     </a>
                 </li>
