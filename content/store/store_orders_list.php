@@ -42,17 +42,17 @@ foreach ($response->sales_orders as $key => $value) {
             $lineItems->price_summary->unit_price->amount,
             $lineItems->price_summary->unit_price->amount,
             100,
-            $value->external_order_number
+            $value->external_order_number,
+            $store_id,
         );
     }
-   
+
     $lastOrderSourceId = $important->getLastOrderId();
     $isOrderExists = $important->checkIfOrderExists($value->external_order_number, $value->sales_order_id);
     if ($isOrderExists) {
     } else {
-       
+
         $important->assignOrdersTORandom($value->external_order_number, $value->sales_order_id);
-   
     }
 
 
@@ -60,8 +60,6 @@ foreach ($response->sales_orders as $key => $value) {
     $content .= '<tr class="">';
     $content .= '<td>';
     $content .= $value->external_order_number;
-    $content .= '</td><td>';
-    $content .= $value->sales_order_status->fulfillment_status;
     $content .= '</td><td>';
     $content .= ($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->name;
     $content .= '</td>';
@@ -161,7 +159,7 @@ $page_title = 'Orders List'; //You can edit this to change your page title.
 
 
                 <!-- <label style="margin-top:25px">Assign User</label> -->
-            <!-- $user->getUsersForAssignOrders()  -->
+                <!-- $user->getUsersForAssignOrders()  -->
                 <!-- <button class="btn btn-primary" style="margin-top: 10px;" onclick="AssignUser()">Assigned User</button> -->
 
 
@@ -183,7 +181,6 @@ $page_title = 'Orders List'; //You can edit this to change your page title.
                                     <thead>
                                         <tr>
                                             <th>Order #</th>
-                                            <th>Fulfillment Status</th>
                                             <th>Item</th>
                                             <th>Item SKU</th>
                                             <th>Order Date</th>

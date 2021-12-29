@@ -4,8 +4,10 @@ class ImportantFunctions
 {
     public $base_url = 'http://api.shipengine.com/';
 
-    function CallAPI($method, $url, $data = false)
+    function CallAPI($method, $url, $data = false, $changeURL = false)
     {
+        if ($changeURL)
+            $this->base_url = '';
         // echo '<pre>';
 
         // print_r($data);
@@ -90,7 +92,7 @@ class ImportantFunctions
     public function getAllUserAssignedOrders()
     {
         global $db;
-        $query = "SELECT * from assign_order WHERE status='new' ORDER by id DESC";
+        $query = "SELECT * from assign_order WHERE status='inprogress' ORDER by id DESC";
         $result = $db->query($query) or die($db->error);
         $content = '';
         $user = new Users();
@@ -148,7 +150,7 @@ class ImportantFunctions
 
 
 
-        $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'new')";
+        $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress')";
 
         $result = $db->query($query) or die($db->error);
     }
@@ -177,7 +179,7 @@ class ImportantFunctions
     public function getCurrentUserAssignedOrders()
     {
         global $db;
-        $query = "SELECT * from assign_order WHERE user_id='" . $_SESSION['user_id'] . "' AND status='new' ORDER by id DESC";
+        $query = "SELECT * from assign_order WHERE user_id='" . $_SESSION['user_id'] . "' AND status='inprogress' ORDER by id DESC";
         $result = $db->query($query) or die($db->error);
         $content = '';
         $user = new Users();
@@ -201,14 +203,6 @@ class ImportantFunctions
         echo $content;
     }
 
-    // public function getAssignOrderData($id)
-    // {
-    //     global $db;
-    //     $query = "SELECT * from assign_order WHERE id='" . $id . "'  ";
-    //     $result = $db->query($query) or die($db->error);
-    //     return 
-
-    // }
 
     public function getCurrentUserAssignedOrdersWithCart()
     {
@@ -259,12 +253,12 @@ class ImportantFunctions
         return $result->fetch_array();
     }
 
-    public function storeShippingLabelInfo($label_id, $shipping_id, $ship_date, $tracking_number, $pdf, $assingId, $order_no)
+    public function storeShippingLabelInfo($label_id, $shipping_id, $ship_date, $tracking_number, $pdf, $assingId, $order_no, $shipmentCost)
     {
         global $db;
-        $query = "INSERT into shipping_labels VALUES(NULL, '" . $label_id . "', '" . $shipping_id . "', '" . $ship_date . "' , '" . $tracking_number . "', '" . $pdf . "', '" . $_SESSION['user_id'] . "', '" . $order_no . "')";
+        $query = "INSERT into shipping_labels VALUES(NULL, '" . $label_id . "', '" . $shipping_id . "', '" . $ship_date . "' , '" . $tracking_number . "', '" . $pdf . "', '" . $_SESSION['user_id'] . "', '" . $order_no . "', '" . $shipmentCost . "' )";
         $result = $db->query($query) or die($db->error);
-        $query = "UPDATE  assign_order SET status='printed' WHERE ID='" . $assingId . "'";
+        $query = "UPDATE  assign_order SET status='shipped' WHERE ID='" . $assingId . "'";
         $result = $db->query($query) or die($db->error);
         $query = "DELETE FROM  cart_assigning  WHERE assign_order_id='" . $assingId . "'";
         $result = $db->query($query) or die($db->error);
@@ -345,5 +339,276 @@ class ImportantFunctions
         $query = "INSERT into inventory(inventory_id, dateinventory, inn, out_inv, product_id, warehouse_id) VALUES(NULL, '" . $datetime . "', '" . $inn . "', '" . $out_inv . "', '" . $product_id . "', '" . $_SESSION['warehouse_id'] . "')";
         $result = $db->query($query) or die($db->error);
         return $db->insert_id;
+    }
+
+
+    //for store owners
+
+    function getOrderSourceIdForCurrentOwner()
+    {
+        global $db;
+        $query = "SELECT * from store WHERE user_id='" . $_SESSION['user_id'] . "' LIMIT 1";
+        $result = $db->query($query) or die($db->error);
+        return $result->fetch_array()['store_source_id'];
+    }
+
+    function getTotalOrdersCount()
+    {
+        $response = $this->CallAPI('GET', 'v-beta/sales_orders?order_source_id=' . $_SESSION['order_source_id']);
+        return $response->total;
+        // echo "<pre>";
+        // print_r($response->total);
+        // echo "</pre>";
+        // exit;
+    }
+
+    public function getOrderStatus($orderNo, $orderId)
+    {
+        global $db;
+        $query = "SELECT * from assign_order WHERE order_id='" . $orderId . "' AND order_no='" . $orderNo . "' LIMIT 1";
+        $result = $db->query($query) or die($db->error);
+        if ($result->num_rows > 0)
+            return $result->fetch_array()['status'];
+        else
+            return 'Not-Assigned';
+    }
+
+    function getOrderTrackingStatus($orderNo)
+    {
+        global $db;
+        $query = "SELECT * from shipping_labels WHERE order_no='" . $orderNo . "' LIMIT 1";
+        $result = $db->query($query) or die($db->error);
+        if ($result->num_rows > 0) {
+            return $result->fetch_array();
+        }
+        return null;
+    }
+
+    //getting orderDATA FROM SHIPENGINE THROUGH ORDER_ID
+    public function getOrderDataThroughOrderIDShipengine($orderId)
+    {
+        if (isset($orderId) && $orderId != '') {
+            $response = $this->CallAPI('GET', 'v-beta/sales_orders/' . $orderId);
+            return $response;
+        }
+        return null;
+    }
+
+    public function getOrderForShipengine($orderNo)
+    {
+        global $db;
+        $query = "SELECT * from assign_order WHERE order_no='" . $orderNo . "' LIMIT 1";
+        $result = $db->query($query) or die($db->error);
+        if ($result->num_rows > 0) {
+            return $result->fetch_array();
+        }
+        return null;
+    }
+
+
+    public function updateOrderShipengine($orderId, $object)
+    {
+        $response =  $this->CallAPI('PUT', 'v-beta/sales_orders/' . $orderId, $object);
+        return $response;
+    }
+
+    public function getProductsByStoreId()
+    {
+        global $db;
+        $content = '';
+        $query = "SELECT * from products WHERE store_id='" . $_SESSION['order_source_id'] . "' ORDER by product_name ASC";
+        $result = $db->query($query) or die($db->error);
+        $content .= '<select name="product_sku" class="form-control" >';
+        while ($row = $result->fetch_array()) {
+            $content .= '<option selected="selected" value=' . $row['product_manual_id'] . '>' . $row['product_manual_id'] . '</option>';
+        }
+        $content .= '</select>';
+
+        echo $content;
+        // echo "<pre>";
+        // print_r($result->fetch_array());
+        // echo "<pre";
+    }
+
+    public function getStoreByItsId($store_id)
+    {
+        global $db;
+        $query = "SELECT * from store WHERE store_source_id='" . $store_id . "' LIMIT 1";
+        $result = $db->query($query) or die($db->error);
+
+        return $result->fetch_array();
+    }
+
+    public function getStoreListPrices()
+    {
+        global $db;
+        $user = new Users();
+        $query = "SELECT * from store_price ";
+        $content = '';
+        $result = $db->query($query) or die($db->error);
+
+
+        if ($result->num_rows > 0) {
+            $count = 0;
+            while ($row = $result->fetch_array()) {
+                extract($row);
+                $count++;
+                $storeData = $this->getStoreByItsId($row['store_source_id']);
+                $userDATA =  $user->get_user_info($storeData['user_id'], 'first_name') . ' ' .  $user->get_user_info($storeData['user_id'], 'last_name');
+
+                $content .= '<tr>';
+                $content .= '<td>';
+                $content .= $count;
+                $content .= '</td>';
+                $content .= '<td>';
+                $content .= $userDATA;
+                $content .= '</td><td>';
+                $content .= '$' . $row['first_item_price'];
+                $content .= '</td><td>';
+                $content .= '$' . $row['each_item_price'];
+                $content .= '</td>';
+                $content .= '<td>';
+                $content .= '<a href="store_owner_price_list_edit.php?id=' . $id . '"><i class="fa fa-edit" style="font-size:16px"></i></a> ';
+
+                $content .= '</td>';
+            }
+            $content .= '</tr>';
+
+            echo $content;
+        } else {
+            echo 'Hello world';
+        }
+    }
+
+    function getStorePrices($id)
+    {
+        global $db;
+        $query = "SELECT * from store_price where id='" . $id . "' LIMIT 1";
+        $result = $db->query($query) or die($db->error);
+        if ($result) {
+            return $result->fetch_array();
+        }
+        return false;
+    }
+
+    function getStorePricesFromSourceId($store_source_id)
+    {
+        global $db;
+        $query = "SELECT * from store_price where store_source_id='" . $store_source_id . "' LIMIT 1";
+        $result = $db->query($query) or die($db->error);
+        if ($result) {
+            return $result->fetch_array();
+        }
+        return false;
+    }
+
+    function editStorePrice($firstItemPrice, $eachItemPrice, $id)
+    {
+        global $db;
+
+        $query = "UPDATE store_price SET first_item_price='" . $firstItemPrice . "' , each_item_price='" . $eachItemPrice . "' WHERE id='" . $id . "'";
+        $result = $db->query($query) or die($db->error);
+
+
+        if ($result) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function orderPaidData($orderNo)
+    {
+        global $db;
+
+        $query = "SELECT * FROM payments WHERE order_no='" . $orderNo . "' LIMIT 1";
+        $result = $db->query($query) or die($db->error);
+
+        if ($result->num_rows > 0)
+            return $result->fetch_array();
+        else
+            return false;
+    }
+
+    function getTransactionHistoryForStore()
+    {
+        global $db;
+        $query = "SELECT * from payments where store_source_id='" . $_SESSION['order_source_id'] . "'";
+        $content = '';
+        $result = $db->query($query) or die($db->error);
+
+
+        if ($result->num_rows > 0) {
+            $count = 0;
+            while ($row = $result->fetch_array()) {
+                extract($row);
+                $count++;
+                $storeData = $this->getStoreByItsId($row['store_source_id']);
+
+                $content .= '<tr>';
+                $content .= '<td>';
+                $content .= $count;
+                $content .= '</td>';
+                $content .= '<td>';
+                $content .= $order_no;
+                $content .= '</td><td>';
+                $content .= '$' . $amount_paid;
+                $content .= '</td><td>';
+                $content .= $txt_id;
+                $content .= '</td>';
+                $content .= '<td>';
+                $content .= $paid_by;
+                $content .= '</td>';
+                $content .= '<td>';
+                $content .= $created_at;
+                $content .= '</td>';
+            }
+            $content .= '</tr>';
+
+            echo $content;
+        } else {
+            echo 'Hello world';
+        }
+    }
+
+    function getTransactionHistoryForAdmin()
+    {
+        global $db;
+        $query = "SELECT * from payments ";
+        $content = '';
+        $result = $db->query($query) or die($db->error);
+
+
+        if ($result->num_rows > 0) {
+            $count = 0;
+            while ($row = $result->fetch_array()) {
+                extract($row);
+                $count++;
+                $storeData = $this->getStoreByItsId($row['store_source_id']);
+
+                $content .= '<tr>';
+                $content .= '<td>';
+                $content .= $count;
+                $content .= '</td>';
+                $content .= '<td>';
+                $content .= $order_no;
+                $content .= '</td><td>';
+                $content .= '$' . $amount_paid;
+                $content .= '</td><td>';
+                $content .= $txt_id;
+                $content .= '</td>';
+                $content .= '<td>';
+                $content .= $paid_by;
+                $content .= '</td>';
+                $content .= '<td>';
+                $content .= $created_at;
+                $content .= '</td>';
+            }
+            $content .= '</tr>';
+
+            echo $content;
+        } else {
+            echo 'Hello world';
+        }
     }
 }

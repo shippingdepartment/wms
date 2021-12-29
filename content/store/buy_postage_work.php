@@ -54,7 +54,7 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
     $response =  $important->CallAPI('POST', 'v-beta/labels/sales_order/' . $orderId, json_encode($printLabelObject));
 
 
-    $important->storeShippingLabelInfo($response->label_id, $response->shipment_id, $response->ship_date, $response->tracking_number, $response->label_download->pdf, $assignId, $assignResponse['order_no']);
+    $important->storeShippingLabelInfo($response->label_id, $response->shipment_id, $response->ship_date, $response->tracking_number, $response->label_download->pdf, $assignId, $assignResponse['order_no'], $response->shipment_cost->amount);
 
     $URL = $response->label_download->pdf;
 

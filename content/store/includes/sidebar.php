@@ -141,9 +141,9 @@ $function_id = $user->get_user_info($user_id, "user_function");
                             <?php if (partial_access('admin')) { ?>
                                 <li><a href="assigned_orders_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> All Assigned Orders</span></a></li>
                             <?php  } ?>
-                            <li><a href="assigned_orders_list.php?t=user"><span class="text-success"><i class="fa fa-caret-right"></i>  Assigned Orders</span></a></li>
-                            <li><a href="buy_postage.php"><span class="text-success"><i class="fa fa-caret-right"></i>  Buy Postage </span></a></li>
-                            <li><a href="finished_orders.php"><span class="text-success"><i class="fa fa-caret-right"></i>  Finished Orders </span></a></li>
+                            <li><a href="assigned_orders_list.php?t=user"><span class="text-success"><i class="fa fa-caret-right"></i> Assigned Orders</span></a></li>
+                            <li><a href="buy_postage.php"><span class="text-success"><i class="fa fa-caret-right"></i> Buy Postage </span></a></li>
+                            <li><a href="finished_orders.php"><span class="text-success"><i class="fa fa-caret-right"></i> Finished Orders </span></a></li>
                             <!-- <li><a href="orders.php"><span class="text-success"><i class="fa fa-caret-right"></i> View Orders</span></a></li>
                             <li><a href="ordersbysupplier.php"><span class="text-success"><i class="fa fa-caret-right"></i> Orders Per Supplier</span></a></li> -->
 
@@ -185,6 +185,32 @@ $function_id = $user->get_user_info($user_id, "user_function");
                                 <li><a href="productreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Product Reports</span></a></li>
                                 <li><a href="orderreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Order Reports</span></a></li>
                                 <li><a href="deliveryreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Delivery Reports</span></a></li>
+                            </ul>
+                        </li>
+                    <?php } ?>
+
+                    <?php if (partial_access('admin')) { ?>
+                        <li>
+                            <a href="javascript:void(0)">
+                                <i class="menu-icon fa fa-bar-chart"></i><span>Store Owner <i class="accordion-icon fa fa-angle-right"></i> </span>
+                            </a>
+                            <ul class="sub-menu">
+                                <li><a href="store_owner_price_list.php"><span class="text-success"><i class="fa fa-caret-right"></i>Adjust Price</span></a></li>
+                                <!-- <li><a href="productreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Product Reports</span></a></li>
+                                <li><a href="orderreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Order Reports</span></a></li>
+                                <li><a href="deliveryreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Delivery Reports</span></a></li> -->
+                            </ul>
+                        </li>
+                    <?php } ?>
+
+                    <?php if (partial_access('admin')) { ?>
+                        <li>
+                            <a href="javascript:void(0)">
+                                <i class="menu-icon fa fa-dollar"></i><span>Payments<i class="accordion-icon fa fa-angle-right"></i> </span>
+                            </a>
+                            <ul class="sub-menu">
+                                <li><a href="all_payment_list.php"><span class="text-success"><i class="fa fa-caret-right"></i>Payment List</span></a></li>
+
                             </ul>
                         </li>
                     <?php } ?>

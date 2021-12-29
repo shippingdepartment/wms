@@ -113,7 +113,7 @@ $page_title = 'Assigned Users Orders List'; //You can edit this to change your p
                         <div class="panel-body" id="printlist">
 
                             <div class="table-responsive">
-                                <table id="example3" class="display table" style="width: 100%; cellspacing: 0;">
+                                <table id="example3" class="display table" style="width: 100%; ">
                                     <thead>
                                         <tr>
                                             <th>Order No</th>

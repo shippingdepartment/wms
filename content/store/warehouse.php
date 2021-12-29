@@ -103,7 +103,7 @@
         <div class="page-container">
 			<!-- Side Bar -->
 			<?php require_once("includes/sidebar.php"); //including sidebar file. ?>
-			<!-- End Side Bar 
+			<!-- End Side Bar -->
             <!-- Page Content -->
             <div class="page-content">
 				<!-- Header -->

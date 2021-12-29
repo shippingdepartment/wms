@@ -143,7 +143,7 @@ class Product
 
 	/***** MOID WORKS STARTS HERE */
 
-	function moidAddProduct($product_manual_id, $product_name, $product_unit, $tax_id, $product_cost, $product_selling_price, $alert_units, $order_id)
+	function moidAddProduct($product_manual_id, $product_name, $product_unit, $tax_id, $product_cost, $product_selling_price, $alert_units, $order_id, $storeId)
 	{
 
 		global $db;
@@ -155,7 +155,7 @@ class Product
 		} else {
 			$warehouse = new Warehouse;
 
-			$query = "INSERT into products (product_id, product_manual_id, product_name, product_unit, tax_id, alert_units, warehouse_id,order_id) VALUES(NULL, '" . $product_manual_id . "', '" . $product_name . "',  '" . $product_unit . "',  '" . $tax_id . "', '" . $alert_units . "', '" . $_SESSION['warehouse_id'] . "', '" . $order_id . "' )";
+			$query = "INSERT into products (product_id, product_manual_id, product_name, product_unit, tax_id, alert_units, warehouse_id,order_id,store_id) VALUES(NULL, '" . $product_manual_id . "', '" . $product_name . "',  '" . $product_unit . "',  '" . $tax_id . "', '" . $alert_units . "', '" . $_SESSION['warehouse_id'] . "', '" . $order_id . "' , '" . $storeId . "')";
 			$result = $db->query($query) or die($db->error);
 			$product_id = $db->insert_id;
 
@@ -553,6 +553,67 @@ class Product
 			}
 		} //loop ends here.
 		echo $content;
+	}
+
+	public function list_product_alert_shipengine()
+	{
+		global $db;
+		$query = "SELECT * from products WHERE store_id='" . $_SESSION['order_source_id'] . "' ORDER by product_name ASC";
+		$result = $db->query($query) or die($db->error);
+		$content = '';
+		$count = 0;
+		if ($result->num_rows > 0) {
+			while ($row = $result->fetch_array()) {
+				extract($row);
+				$inventory = "SELECT SUM(inn), SUM(out_inv) FROM inventory WHERE product_id='" . $product_id . "' AND warehouse_id='" . $warehouse_id . "'";
+				$inventory_result = $db->query($inventory) or die($db->error);
+				$inventory_row = $inventory_result->fetch_array();
+
+				$inventory = $inventory_row['SUM(inn)'] - $inventory_row['SUM(out_inv)'];
+				if ($inventory < $alert_units) {
+
+					$count++;
+					if ($count % 2 == 0) {
+						$class = 'even';
+					} else {
+						$class = 'odd';
+					}
+					$content .= '<tr >';
+					$content .= '<td>';
+					$content .= $product_manual_id;
+					$content .= '</td><td>';
+					$content .= $product_name;
+					$content .= '</td><td>';
+					$content .= $product_unit;
+					$content .= '</td><td>';
+					$product_category = new ProductCategory;
+					$content .= $product_category->get_category_info($category_id, 'category_name');
+					$content .= '</td><td align="right">';
+					$content .= number_format($alert_units, 2);
+					$content .= '</td><td align="right">';
+					$content .= number_format($inventory, 2);
+					$content .= '</td>';
+					//query cost and selling price.
+					$query_cost = "SELECT * from price WHERE product_id='" . $product_id . "' AND warehouse_id='" . $_SESSION['warehouse_id'] . "' ORDER by price_id ASC LIMIT 1";
+					$result_cost = $db->query($query_cost) or die($db->error);
+					$row_cost = $result_cost->fetch_array();
+
+					$content .= '<td <td <td align="center">';
+					if ($inventory >  $alert_units) {
+						$content .= '<span class="text-success">Available</span>';
+					} else {
+						$content .= '<span class="text-danger">Alert</span>';
+					}
+					$content .= '</td>';
+
+					$content .= '</tr>';
+					unset($class);
+				}
+			} //loop ends here.
+			if (empty($content))
+				echo '<p>No Stock Alert Found</p>';;
+		} else {
+		}
 	}
 
 	function list_alert_inventory()
@@ -1404,5 +1465,50 @@ class Product
 		} //loop ends here.
 		$content .= '<tr><td colspan="6" style="color:#CC0000;font-size:14px"><i> History of ' . $product_name . ' :' . $count . ' movements found</i></tr>';
 		echo $content;
+	}
+
+
+	function getStockAlertCount()
+	{
+		global $db;
+		$query = "SELECT * from products  ORDER by product_name ASC";
+		$result = $db->query($query) or die($db->error);
+		$content = '';
+		$count = 0;
+		while ($row = $result->fetch_array()) {
+			extract($row);
+			$inventory = "SELECT SUM(inn), SUM(out_inv) FROM inventory WHERE product_id='" . $product_id . "' ";
+			$inventory_result = $db->query($inventory) or die($db->error);
+			$inventory_row = $inventory_result->fetch_array();
+
+			$inventory = $inventory_row['SUM(inn)'] - $inventory_row['SUM(out_inv)'];
+			if ($inventory < $alert_units) {
+				$count++;
+			}
+		} //loop ends here.
+		echo $count;
+	}
+
+	function getOutOfStockCount()
+	{
+		global $db;
+		$user = new Users;
+		$query = "SELECT * from products ORDER by product_name ASC";
+		$result = $db->query($query) or die($db->error);
+		$content = '';
+		$count = 0;
+		while ($row = $result->fetch_array()) {
+			extract($row);
+			$inventory = "SELECT SUM(inn), SUM(out_inv) FROM inventory WHERE product_id='" . $product_id . "'";
+			$inventory_result = $db->query($inventory) or die($db->error);
+			$inventory_row = $inventory_result->fetch_array();
+
+			$inventory = $inventory_row['SUM(inn)'] - $inventory_row['SUM(out_inv)'];
+			if ($inventory <= '0') {
+
+				$count++;
+			}
+		} //loop ends here.
+		echo $count;
 	}
 }//class ends here.

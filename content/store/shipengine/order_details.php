@@ -218,7 +218,7 @@ if ($totalWeight <= 16) {
                 </div>
                 <div class="pull-right">
                     <p class=" Glasses">Payment Status &nbsp; <span class="text-success"> <?php echo strtoupper($response->sales_order_status->payment_status) ?> </span><br>
-                        Fullfillment Status &nbsp;<span style="color:red;"> <?php echo strtoupper($response->sales_order_status->fulfillment_status) ?></span></p>
+                        </span></p>
 
                 </div>
             </div>

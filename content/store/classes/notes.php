@@ -61,7 +61,7 @@ class Notes {
 	function add_note($note_title, $note_detail) { 
 		global $db;
 		global $language;
-		$query = 'INSERT into notes VALUES(NULL, "'.date("Y-m-d").'", "'.$note_title.'", "'.$note_detail.'", "'.$_SESSION['user_id'].'", "'.$_SESSION['warehouse_id'].'", "0")';
+		$query = 'INSERT into notes VALUES(NULL, "'.date("Y-m-d").'", "'.$note_title.'", "'.$note_detail.'", "'.$_SESSION['user_id'].'", "'. 1 .'", "0")';
 		$result = $db->query($query) or die($db->error);
 		return $language["note_added_success"];
 	}//add notes ends here.
