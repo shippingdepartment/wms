@@ -240,7 +240,7 @@ if ($shippingObject != null) {
                     </div>
                 </div>
             </div>
-            <?php if ($orderPaidData == null) { ?>
+            <?php if (($important->getOrderStatus($response->external_order_number, $response->sales_order_id) == 'shipped') && $orderPaidData == null) { ?>
                 <div class="card-footer">
                     <div class="jumbotron-fluid">
                         <div class="row justify-content-between ">
