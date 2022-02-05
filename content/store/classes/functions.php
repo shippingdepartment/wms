@@ -138,12 +138,12 @@ class ImportantFunctions
         } else {
             $lastOrderAssignedUserId = 1;
         }
-        $randomIdQuery = 'SELECT user_id from users ORDER BY RAND() LIMIT 1';
+        $randomIdQuery = 'SELECT user_id from users WHERE user_type <> "store_owner"  ORDER BY RAND() LIMIT 1';
         $result = $db->query($randomIdQuery) or die($db->error);
         $currentUser = ($result->fetch_array())[0];
 
         while (intval($currentUser) == $lastOrderAssignedUserId) {
-            $randomIdQuery = 'SELECT user_id from users ORDER BY RAND() LIMIT 1';
+            $randomIdQuery = 'SELECT user_id  from users WHERE user_type <> "store_owner" ORDER BY RAND() LIMIT 1';
             $result = $db->query($randomIdQuery) or die($db->error);
             $currentUser = ($result->fetch_array())[0];
         }
@@ -499,7 +499,7 @@ class ImportantFunctions
         if ($result) {
             return $result->fetch_array();
         }
-        return false;
+        return null;
     }
 
     function editStorePrice($firstItemPrice, $eachItemPrice, $id)
@@ -625,7 +625,7 @@ class ImportantFunctions
     function getStoreOwes()
     {
         global $db;
-        $content='';
+        $content = '';
         $query = 'SELECT * FROM store_owner_owes';
         $result = $db->query($query) or die($db->error);
 
