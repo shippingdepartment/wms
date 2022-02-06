@@ -150,7 +150,7 @@ class ImportantFunctions
 
 
 
-        $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress','" . $storeId . "')";
+        $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress','" . $storeId . "', date('d-m-Y - H:i:s'), date('d-m-Y - H:i:s'))";
 
         $result = $db->query($query) or die($db->error);
     }
@@ -730,7 +730,7 @@ class ImportantFunctions
         $productExists = $this->checkProductExist($sku);
         if ($productExists) {
             $now = date("Y-m-d H:i:s");
-            $query = "INSERT into send_inventory VALUES(NULL, '" . $_SESSION['order_source_id'] . "','" . $sku . "', '" . $quantity . "', '" . $tracking . "', '".$now."',0)";
+            $query = "INSERT into send_inventory VALUES(NULL, '" . $_SESSION['order_source_id'] . "','" . $sku . "', '" . $quantity . "', '" . $tracking . "', '" . $now . "',0)";
             $result = $db->query($query) or die($db->error);
             return 'Inventory send successfully';
         } else {
