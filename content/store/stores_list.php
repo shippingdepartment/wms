@@ -20,24 +20,25 @@ $content = '';
 $site_url = get_option('site_url');
 
 foreach ($response->order_sources as $key => $value) {
-    $content .= '<tr class="">';
-    $content .= '<td>';
-    $content .= $key + 1;
-    $content .= '</td><td>';
-    $content .= $value->order_source_nickname;
-    $content .= '</td><td>';
-    $content .= $value->order_source_friendly_name;
-    $content .= '</td>';
-    $content .= '</td><td>';
-    $content .= $value->active ? 'active' : 'not-active';
-    $content .= '</td>';
-    $content .= '</td><td>';
-    $content .= $value->order_source_id;
-    $content .= '</td><td>';
-    $content .= ' <a href="store_orders_list.php?id=' . $value->order_source_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a><br>';
-
-    // $content .= '<a href="orders_list.php?id='.$value->order_source_id.'"><span class="fa fa-eye">Hekko</span></a>';
-    $content .= '</td>';
+    if ($value->active) {
+        $content .= '<tr class="">';
+        $content .= '<td>';
+        $content .= $key + 1;
+        $content .= '</td><td>';
+        $content .= $value->order_source_nickname;
+        $content .= '</td><td>';
+        $content .= $value->order_source_friendly_name;
+        $content .= '</td>';
+        $content .= '</td><td>';
+        $content .= 'active';
+        $content .= '</td>';
+        $content .= '</td><td>';
+        $content .= $value->order_source_id;
+        $content .= '</td><td>';
+        $content .= ' <a href="store_orders_list.php?id=' . $value->order_source_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a><br>';
+        // $content .= '<a href="orders_list.php?id='.$value->order_source_id.'"><span class="fa fa-eye">Hekko</span></a>';
+        $content .= '</td>';
+    }
 
 
 
@@ -162,7 +163,7 @@ $page_title = 'Stores List'; //You can edit this to change your page title.
                         <div class="panel-body" id="printlist">
 
                             <div class="table-responsive">
-                                <table id="example3" class="display table" style="width: 100%; cellspacing: 0;">
+                                <table id="example3" class="display table" style="width: 100%;">
                                     <thead>
                                         <tr>
                                             <th>ID</th>

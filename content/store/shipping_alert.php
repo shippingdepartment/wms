@@ -2,47 +2,43 @@
 include('system_load.php');
 //This loads system.
 //user Authentication.
-authenticate_user('store_owner');
+// authenticate_user('store_owner');
 
 $user_id = $_SESSION['user_id'];
-$store_id = $_SESSION['order_source_id']; // store id;
+$function_id = $user->get_user_info($user_id, "user_function");
 
-
+// if ($_SESSION['user_type'] != "admin") {
+//     if ($function_id != 'storem' or $function_id != 'manager') {
+//         HEADER('LOCATION: warehouse.php?msg=lstcust');
+//     }
+// }
 
 $important = new ImportantFunctions();
 // return;
 $user = new Users();
 
-$response = $important->CallAPI('GET', "v-beta/sales_orders?order_source_id=" . $store_id . "&sort_dir=desc&page_size=500");
+$response = $important->getStoreShippingAlerts($_SESSION['order_source_id']);
 $content = '';
+// var_dump($response);
+// return;
 
-foreach ($response->sales_orders as $key => $value) {
-    if ($value->sales_order_status->fulfillment_status == 'unfulfilled') {
-        $orderStatus = ($important->getOrderStatus($value->external_order_number, $value->sales_order_id));
+if (isset($response) && count($response) > 0) {
+    foreach ($response as $key => $order) {
         $content .= '<tr class="">';
         $content .= '<td>';
-        $content .= $value->external_order_number;
+        $content .= $order['order_no'];
         $content .= '</td><td>';
-        $content .= $value->sales_order_status->fulfillment_status;
-        $content .= '</td><td>';
-        $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->name;
+        $content .= ($order['status']);
         $content .= '</td>';
         $content .= '</td><td>';
-        $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->sku;
+        $content .= $order['updated_at'];
         $content .= '</td>';
-        $content .= '</td><td>';
-        $content .=  date("m-d-Y", strtotime($value->order_date));
-        $content .= '</td>';
-        $content .= '<td > ' . $value->sales_order_id;
-        $content .= '</td>';
-        $content .= '<td > ' . $orderStatus;
-        $content .= '</td>';
-        $content .= '<td> <a href="store_owner_order_details.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a>';
-
-        $content .= '</td>';
-        $content .= '</tr>';
     }
 }
+
+
+
+
 
 
 $page_title = 'Orders List'; //You can edit this to change your page title.
@@ -146,13 +142,9 @@ $page_title = 'Orders List'; //You can edit this to change your page title.
                                     <thead>
                                         <tr>
                                             <th>Order #</th>
-                                            <th>Fulfillment Status</th>
-                                            <th>Item</th>
-                                            <th>Item SKU</th>
-                                            <th>Order Date</th>
-                                            <th>Order Source Id</th>
-                                            <th>Order Status</th>
-                                            <th>Actions</th>
+                                            <th>Status</th>
+                                            <th>Last Updated </th>
+
 
 
                                         </tr>
@@ -160,6 +152,7 @@ $page_title = 'Orders List'; //You can edit this to change your page title.
                                     <tbody>
                                         <?php
                                         echo $content;
+                                        // $client->list_clients();
 
                                         ?>
                                     </tbody>
@@ -210,11 +203,79 @@ $page_title = 'Orders List'; //You can edit this to change your page title.
     <script>
         $('#example3').dataTable({
             'iDisplayLength': 100,
-
+            'select': {
+                style: 'multi'
+            },
             "order": [
                 [0, "desc"]
             ]
 
         });
+
+        $(document).ready(function() {
+            var table = $('#example3').DataTable();
+
+            $('#example3 tbody').on('click', 'tr', function() {
+                $(this).toggleClass('selected');
+            });
+
+            $('#button').click(function() {
+                var table = $('#example3').DataTable();
+                console.log(table.rows('.selected').data());
+                // alert(table.rows('.selected').data().length + ' row(s) selected');
+            });
+        });
+
+        function AssignUser() {
+            var table = $('#example3').DataTable();
+            var list = [];
+            var data = table.rows('.selected').data();
+            var selectedUser = $('#assigned_user').val();
+            if (data.length == 0) {
+                alert('Please select the order first');
+                return;
+            } else {
+
+                $.each(data, function(index, value) {
+                    var obj = {
+                        'user_id': selectedUser,
+                        'order_source_id': value[6],
+                        'order_no': value[0]
+                    }
+                    list.push(obj);
+                });
+                var params = {
+                    myarray: list,
+
+                };
+
+                var paramJSON = JSON.stringify(params);
+
+                // return;
+
+                $.post(
+                    'shipengine/assign_orders_ajax.php', {
+                        data: paramJSON
+                    },
+                    function(data) {
+                        // var result = JSON.parse(data);
+                    }
+                );
+                // $.ajax({
+                //     url: 'classes/functions.php?assigned=user',
+                //     method: 'POST',
+                //     data: paramJSON,
+                //     contentType: 'application/json',
+                //     success: function(data) {
+                //         alert('data send successfully');
+                //     },
+                //     error: function(XMLHttpRequest, textStatus, errorThrown) {
+                //         alert(errorThrown);
+                //     }
+                // });
+
+            }
+
+        }
     </script>
 </body>

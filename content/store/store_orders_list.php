@@ -33,7 +33,6 @@ foreach ($response->sales_orders as $key => $value) {
 
     foreach ($value->sales_order_items as $key => $lineItems) {
         $lineItemsDetails = $lineItems->line_item_details;
-
         $resp = $product->moidAddProduct(
             $lineItemsDetails->sku,
             $lineItemsDetails->name,
@@ -46,37 +45,40 @@ foreach ($response->sales_orders as $key => $value) {
             $store_id,
         );
     }
+    if ($value->sales_order_status->fulfillment_status == 'unfulfilled') {
+        $lastOrderSourceId = $important->getLastOrderId();
+        $isOrderExists = $important->checkIfOrderExists($value->external_order_number, $value->sales_order_id);
+        if ($isOrderExists) {
+            $orderStatus =  $important->getOrderStatus($value->external_order_number, $value->sales_order_id);
+            if ($orderStatus == 'Fulfilled')
+                continue;
+        } else {
+            $important->assignOrdersTORandom($value->external_order_number, $value->sales_order_id, $value->order_source->order_source_id);
+        }
 
-    $lastOrderSourceId = $important->getLastOrderId();
-    $isOrderExists = $important->checkIfOrderExists($value->external_order_number, $value->sales_order_id);
-    if ($isOrderExists) {
-    } else {
 
-        $important->assignOrdersTORandom($value->external_order_number, $value->sales_order_id);
+        $isAssigned = $important->checkOrderIsAssigned($value->sales_order_id) == true ? 'Assigned' : 'Not-Assigend';
+        $content .= '<tr class="">';
+        $content .= '<td>';
+        $content .= $value->external_order_number;
+        $content .= '</td><td>';
+        $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->name;
+        $content .= '</td>';
+        $content .= '</td><td>';
+        $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->sku;
+        $content .= '</td>';
+        $content .= '</td><td>';
+        $content .=  date("m-d-Y", strtotime($value->order_date));
+        $content .= '</td><td>';
+        $content .= $isAssigned;
+        $content .= '</td>';
+        $content .= '<td > ' . $value->sales_order_id;
+        $content .= '</td>';
+        $content .= '<td> <a href="shipengine/order_details.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a>';
+
+        $content .= '</td>';
+        $content .= '</tr>';
     }
-
-
-    $isAssigned = $important->checkOrderIsAssigned($value->sales_order_id) == true ? 'Assigned' : 'Not-Assigend';
-    $content .= '<tr class="">';
-    $content .= '<td>';
-    $content .= $value->external_order_number;
-    $content .= '</td><td>';
-    $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->name;
-    $content .= '</td>';
-    $content .= '</td><td>';
-    $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->sku;
-    $content .= '</td>';
-    $content .= '</td><td>';
-    $content .=  date("m-d-Y", strtotime($value->order_date));
-    $content .= '</td><td>';
-    $content .= $isAssigned;
-    $content .= '</td>';
-    $content .= '<td > ' . $value->sales_order_id;
-    $content .= '</td>';
-    $content .= '<td> <a href="shipengine/order_details.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a>';
-
-    $content .= '</td>';
-    $content .= '</tr>';
 }
 
 
@@ -287,7 +289,8 @@ $page_title = 'Orders List'; //You can edit this to change your page title.
                     list.push(obj);
                 });
                 var params = {
-                    myarray: list
+                    myarray: list,
+
                 };
 
                 var paramJSON = JSON.stringify(params);

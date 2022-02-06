@@ -40,9 +40,7 @@ if (isset($_GET['assign_id'])) {
 foreach ($response->sales_order_items as $key => $value) {
 
     $productname = $value->line_item_details->name;
-    $product->moid_set_product_through_sku($value->line_item_details->sku);
-
-
+    $product->moid_set_product_through_sku($value->line_item_details->sku, $response->external_order_number);
     $details .= '<div class="row">';
     $details .= '<div class="col">';
     $details .= '<div class="card card-2">';
@@ -127,7 +125,7 @@ $orderStatus = ($important->getOrderStatus($response->external_order_number, $re
                     <div class="col my-auto">
                         <h4 class="mb-0"><span class="change-color"><?php echo $response->order_source->order_source_nickname ?></span> </h4>
                         <div class="text-center">
-                            <?php if ($orderStatus != 'Fulfilled' && $orderStatus != 'shipped' ) { ?>
+                            <?php if ($orderStatus != 'Fulfilled' && $orderStatus != 'shipped') { ?>
                                 <button type="button" onClick="window.location.reload();" class="btn btn-success">Refresh Order</button>
                             <?php } ?>
 
@@ -208,17 +206,7 @@ $orderStatus = ($important->getOrderStatus($response->external_order_number, $re
 
                 <div class="row mt-4">
                     <div class="col">
-                        <!-- <div class="row justify-content-between">
-                            <div class="col-auto">
-                                <p class="mb-1 text-dark"><b>Pricing Details</b></p>
-                            </div>
-                            <div class="flex-sm-col text-right col">
-                                <p class="mb-1"><b>Total</b></p>
-                            </div>
-                            <div class="flex-sm-col col-auto">
-                                <p class="mb-1"><?php echo $response->payment_details->grand_total->amount . ' ' . strtoupper($response->payment_details->grand_total->currency) ?></p>
-                            </div>
-                        </div> -->
+
 
                         <div class="row justify-content-between">
                             <div class="flex-sm-col text-right col">

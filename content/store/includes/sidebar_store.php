@@ -47,6 +47,27 @@ $function_id = $user->get_user_info($user_id, "user_function");
                     </ul>
                 </li>
 
+                <li>
+                    <a href="voidLabels.php">
+                        <i class="menu-icon fa fa-tag"></i><span>Return Label <i class="accordion-icon fa fa-angle-right"></i> </span>
+                    </a>
+                    <!-- <ul class="sub-menu">
+                        <li><a href="store_payment_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> Transaction History</span></a></li>
+                    </ul> -->
+                </li>
+
+                <li>
+                    <a href="javascript:void(0)">
+                        <i class="menu-icon fa fa-list-ol"></i><span>Inventory <i class="accordion-icon fa fa-angle-right"></i></span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="inventproducts.php"><span class="text-success" title="Inventory by Warehouse"><i class="fa fa-caret-right"></i> Inventory</span></a></li>
+                        <li><a href="lowstock.php"><span class="text-success" title="Low Stock"><i class="fa fa-caret-right"></i> Low Stock </span></a></li>
+                        <li><a href="outstock.php"><span class="text-success" title="Low Stock"><i class="fa fa-caret-right"></i> Out Of Stock </span></a></li>
+                        <li><a href="send_inventory.php"><span class="text-success" title="Send Inventory"><i class="fa fa-caret-right"></i> Send Inventory</span></a></li>
+                    </ul>
+                </li>
+
 
 
             </ul>

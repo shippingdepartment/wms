@@ -18,7 +18,7 @@ if (isset($_POST['data'])) {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'success' => true,
-            'message' => 'Order Cancel Successfully',
+            'message' => 'Order Canceled Successfully',
         ]);
     } else {
         header('Content-Type: application/json; charset=utf-8');

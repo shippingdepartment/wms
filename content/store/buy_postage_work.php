@@ -14,6 +14,7 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
 
     $response = $important->CallAPI('GET', "v-beta/sales_orders/" . $orderId);
     $storeName = $response->order_source->order_source_nickname;
+    $storeID = $response->order_source->order_source_id;
     $skus = array();
     foreach ($response->sales_order_items as $key => $value) {
         $skus[] =  $value->line_item_details->sku;
@@ -61,7 +62,7 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
 
 
     $important->storeOwes($assignResponse['order_no'], $storeName, $response->shipment_cost->amount, $totalQuantities);
-    $important->storeShippingLabelInfo($response->label_id, $response->shipment_id, $response->ship_date, $response->tracking_number, $response->label_download->pdf, $assignId, $assignResponse['order_no'], $response->shipment_cost->amount);
+    $important->storeShippingLabelInfo($response->label_id, $response->shipment_id, $response->ship_date, $response->tracking_number, $response->label_download->pdf, $assignId, $assignResponse['order_no'], $response->shipment_cost->amount, $storeID);
 
     $URL = $response->label_download->pdf;
 

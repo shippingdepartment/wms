@@ -17,7 +17,7 @@ $important = new ImportantFunctions();
 $product = new Product();
 $estimatedShippingCost = 0.0;
 $shippingService = null;
-
+$orderStatus = null;
 $response = $important->CallAPI('GET', "v-beta/sales_orders/" . $orderId);
 $shippingCarriers = $important->CallAPI('GET', 'v1/carriers');
 // var_dump($shippingCarriers);
@@ -72,6 +72,7 @@ foreach ($response->sales_order_items as $key => $value) {
 }
 
 $currentCarts = $important->getFreeCarts();
+$orderStatus = $important->getOrderStatus($response->external_order_number, $response->sales_order_id);
 $carrierCode = '';
 $carrierId = '';
 // return;
@@ -183,6 +184,12 @@ if ($totalWeight <= 16) {
     <div class="container-fluid my-5 d-flex justify-content-center">
         <div class="card card-1">
             <div class="card-header bg-white">
+                <div id="alertSuccess" class="alert alert-success d-none">
+
+                </div>
+                <div id="alertDanger" class="alert alert-danger d-none">
+
+                </div>
                 <div class="media flex-sm-row flex-column-reverse justify-content-between ">
                     <div class="col my-auto">
                         <h4 class="mb-0"><span class="change-color"><?php echo $response->order_source->order_source_nickname ?></span> </h4>
@@ -300,6 +307,28 @@ if ($totalWeight <= 16) {
                         <p class="mb-1"> <b> Customer Phone</b> :<?php echo $response->ship_to->phone ?? 'Not Available' ?></p>
                     </div>
                 </div>
+                <div class="media flex-sm-row flex-column-reverse justify-content-between ">
+                    <div class="col my-auto">
+                        <h4 class="mb-0"><span class="change-color"><?php echo $response->order_source->order_source_nickname ?></span> </h4>
+                        <div class="text-center">
+                            <?php if ($orderStatus != 'Fulfilled' && $orderStatus != 'shipped') { ?>
+                                <button type="button" onClick="window.location.reload();" class="btn btn-success">Refresh Order</button>
+                            <?php } ?>
+
+                            <?php if ($orderStatus == 'inprogress' || $orderStatus == 'Not-Assigned') { ?>
+
+                                <button id="cancelOrder" type="button" class="btn btn-primary <?php echo  $orderStatus == 'Not-Assigned' ? 'd-none' : '' ?> ">Cancel Order</button>
+                                <!-- <button id="redoOrder" type="button" class="btn btn-danger">Change Address</button> -->
+
+                            <?php } ?>
+
+                            <?php if ($orderStatus == 'shipped') { ?>
+                                <button id="redoOrder" type="button" class="btn btn-danger">Reship Order</button>
+                            <?php } ?>
+
+                        </div>
+                    </div>
+                </div>
             </div>
             <!-- <div class="card-footer">
                 <div class="jumbotron-fluid">
@@ -361,9 +390,7 @@ if ($totalWeight <= 16) {
         $('#informQuantity').text('Quantity ' + e.getAttribute('data-product-quantity'));
         $('#requiredQuantity').val(e.getAttribute('data-product-quantity'));
         $('#sku').val(e.getAttribute('data-sku'));
-
         $('#verifyPickModal').modal('toggle');
-
     }
 
     $('#confirmPick').click(function(e) {
@@ -410,6 +437,37 @@ if ($totalWeight <= 16) {
             function(data) {
                 window.location.href = "../assigned_orders_list.php"
                 // var result = JSON.parse(data);
+            }
+        );
+
+
+    });
+
+    $('#cancelOrder').click(function(e) {
+        e.preventDefault();
+        var orderNo = "<?php echo  $response->external_order_number ?>";
+        paramJSON = {
+            'order_no': orderNo,
+            'status': 'canceled',
+        }
+        $.post(
+            'redo_order.php', {
+                data: JSON.stringify(paramJSON),
+            },
+            function(data) {
+                var response = (data);
+                if (response.success === true) {
+                    $('#alertSuccess').text('Order canceled successfully');
+                    $('#alertSuccess').removeClass('d-none');
+                    setTimeout(function() {
+                        window.location.href = "../assigned_orders_list.php"
+                    }, 2000);
+
+                } else {
+                    $('#alertDanger').text('Some Error Occured');
+                    $('#alertDanger').removeClass('d-none');
+                }
+
             }
         );
     });

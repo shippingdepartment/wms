@@ -88,7 +88,7 @@ $totalOrdersCount = $important->getTotalOrdersCount();
                 ?>
                 <div id="main-wrapper">
                     <div class="row">
-                        <div class="col-lg-4 col-md-6">
+                        <div class="col-lg-3 col-md-6">
                             <div class="panel panel-white stats-widget dashed-primary">
                                 <div class="panel-body">
                                     <div class="pull-left">
@@ -101,7 +101,7 @@ $totalOrdersCount = $important->getTotalOrdersCount();
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-md-6">
+                        <div class="col-lg-3 col-md-6">
                             <div class="panel panel-white stats-widget dashed-warning">
                                 <div class="panel-body">
                                     <div class="pull-left">
@@ -114,7 +114,7 @@ $totalOrdersCount = $important->getTotalOrdersCount();
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-md-6">
+                        <div class="col-lg-3 col-md-6">
                             <div class="panel panel-white stats-widget dashed-danger">
                                 <div class="panel-body">
                                     <div class="pull-left">
@@ -124,9 +124,24 @@ $totalOrdersCount = $important->getTotalOrdersCount();
                                     <div class="pull-right">
                                         <i class="fa fa-warning" style="font-size:48px;color:#CC0000"></i>
                                     </div>
-                                </div>
+                                </div>  
                             </div>
                         </div>
+                        <a href="shipping_alert.php">
+                            <div class="col-lg-3 col-md-6">
+                                <div class="panel panel-white stats-widget dashed-primary">
+                                    <div class="panel-body">
+                                        <div class="pull-left">
+                                            <span class="stats-number" style="font-size:30px;color:black"><?php echo count($important->getStoreShippingAlerts($_SESSION['order_source_id'])); ?></span>
+                                            <p class="stats-info" style="font-size:20px;color:black">Shipping Alert</p>
+                                        </div>
+                                        <div class="pull-right">
+                                            <i class="fa fa-truck" style="font-size:48px;color:black"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
 
                     </div><!-- Row -->
                     <div class="row">

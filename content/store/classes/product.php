@@ -23,50 +23,73 @@ class Product
 	public $ounces;
 	public $photo;
 
-	function moid_set_product_through_sku($sku)
+	function moid_set_product_through_sku($sku, $store_id = '')
 	{
 		global $db;
+		$important = new ImportantFunctions();
 		$query = "SELECT * from products WHERE product_manual_id='" . $sku . "' LIMIT 1";
 		$result = $db->query($query) or die($db->error);
-		$row = $result->fetch_array();
-		// die(($row[0]));
-		extract($row);
+		if ($result->num_rows == 0) {
+			$response = $important->getOrderDataThroughOrderIDShipengin($store_id);
+			foreach ($response->sales_orders as $key => $value) {
+				$product = new Product();
 
-		$this->product_manual_id = $product_manual_id;
-		$this->product_name = $product_name;
-		$this->photo = $row['photo'];
-		//$this->product_description = $product_description;
-		$this->product_unit = $product_unit;
-		$this->category_id = $category_id;
-		$this->tax_id = $tax_id;
-		//$this->product_image = $product_image;
-		$this->alert_units = $alert_units;
-		//query supplier.
-		// $query_supplier = "SELECT * from suppliers WHERE supplier_id='" . $supplier_id . "'";
-		// $result_supplier = $db->query($query_supplier) or die($db->error);
-		// $row_supplier = $result_supplier->fetch_array();
+				foreach ($value->sales_order_items as $key => $lineItems) {
+					$lineItemsDetails = $lineItems->line_item_details;
+					$resp = $product->moidAddProduct(
+						$lineItemsDetails->sku,
+						$lineItemsDetails->name,
+						$lineItemsDetails->weight->unit,
+						$lineItems->price_summary->estimated_tax->amount,
+						$lineItems->price_summary->unit_price->amount,
+						$lineItems->price_summary->unit_price->amount,
+						100,
+						$value->external_order_number,
+						$store_id,
+					);
+				}
+			}
+		} else {
+			$row = $result->fetch_array();
+			extract($row);
+			$this->product_manual_id = $product_manual_id;
+			$this->product_name = $product_name;
+			$this->photo = $row['photo'];
+			//$this->product_description = $product_description;
+			$this->product_unit = $product_unit;
+			$this->category_id = $category_id;
+			$this->tax_id = $tax_id;
+			//$this->product_image = $product_image;
+			$this->alert_units = $alert_units;
+			//query supplier.
+			// $query_supplier = "SELECT * from suppliers WHERE supplier_id='" . $supplier_id . "'";
+			// $result_supplier = $db->query($query_supplier) or die($db->error);
+			// $row_supplier = $result_supplier->fetch_array();
 
-		// $this->supplier = $row_supplier['full_name'];
+			// $this->supplier = $row_supplier['full_name'];
 
-		//query cost and selling price.
-		$query_cost = "SELECT * from price WHERE product_id='" . $row[0] . "' ORDER by price_id ASC LIMIT 1";
-		$result_cost = $db->query($query_cost) or die($db->error);
-		$row_cost = $result_cost->fetch_array();
+			//query cost and selling price.
+			$query_cost = "SELECT * from price WHERE product_id='" . $row[0] . "' ORDER by price_id ASC LIMIT 1";
+			$result_cost = $db->query($query_cost) or die($db->error);
+			$row_cost = $result_cost->fetch_array();
 
-		$this->product_cost = $row_cost['cost'];
-		$this->product_selling_price = $row_cost['selling_price'];
-		//query dimensions
-		$query_dimensions = "SELECT * from dimensions WHERE product_id='" . $row[0] . "'";
-		$result_dimensions = $db->query($query_dimensions) or die($db->error);
-		$row_dimensions = $result_dimensions->fetch_array();
+			$this->product_cost = $row_cost['cost'];
+			$this->product_selling_price = $row_cost['selling_price'];
+			//query dimensions
+			$query_dimensions = "SELECT * from dimensions WHERE product_id='" . $row[0] . "'";
+			$result_dimensions = $db->query($query_dimensions) or die($db->error);
+			$row_dimensions = $result_dimensions->fetch_array();
 
-		$this->long_pr = $row_dimensions['long_pr'];
-		$this->larg = $row_dimensions['larg'];
-		$this->haut = $row_dimensions['haut'];
-		$this->poids = $row_dimensions['poids'];
-		$this->pounds = $row_dimensions['pounds'];
-		$this->ounces = $row_dimensions['ounces'];
+			$this->long_pr = $row_dimensions['long_pr'];
+			$this->larg = $row_dimensions['larg'];
+			$this->haut = $row_dimensions['haut'];
+			$this->poids = $row_dimensions['poids'];
+			$this->pounds = $row_dimensions['pounds'];
+			$this->ounces = $row_dimensions['ounces'];
+		}
 	}
+
+
 	function set_product($product_id)
 	{
 		global $db;
@@ -154,7 +177,6 @@ class Product
 			return 'A product already exist with this id.';
 		} else {
 			$warehouse = new Warehouse;
-
 			$query = "INSERT into products (product_id, product_manual_id, product_name, product_unit, tax_id, alert_units, warehouse_id,order_id,store_id) VALUES(NULL, '" . $product_manual_id . "', '" . $product_name . "',  '" . $product_unit . "',  '" . $tax_id . "', '" . $alert_units . "', '" . $_SESSION['warehouse_id'] . "', '" . $order_id . "' , '" . $storeId . "')";
 			$result = $db->query($query) or die($db->error);
 			$product_id = $db->insert_id;

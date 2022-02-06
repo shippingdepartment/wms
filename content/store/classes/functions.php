@@ -128,7 +128,7 @@ class ImportantFunctions
             return false;
     }
 
-    public function assignOrdersTORandom($orderNo, $orderId)
+    public function assignOrdersTORandom($orderNo, $orderId, $storeId)
     {
         global $db;
         $lastAssignOrder = 'SELECT user_id from assign_order ORDER BY id DESC LIMIT 1 ';
@@ -150,7 +150,7 @@ class ImportantFunctions
 
 
 
-        $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress')";
+        $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress','" . $storeId . "')";
 
         $result = $db->query($query) or die($db->error);
     }
@@ -253,12 +253,12 @@ class ImportantFunctions
         return $result->fetch_array();
     }
 
-    public function storeShippingLabelInfo($label_id, $shipping_id, $ship_date, $tracking_number, $pdf, $assingId, $order_no, $shipmentCost)
+    public function storeShippingLabelInfo($label_id, $shipping_id, $ship_date, $tracking_number, $pdf, $assingId, $order_no, $shipmentCost, $store_id)
     {
         global $db;
-        $query = "INSERT into shipping_labels VALUES(NULL, '" . $label_id . "', '" . $shipping_id . "', '" . $ship_date . "' , '" . $tracking_number . "', '" . $pdf . "', '" . $_SESSION['user_id'] . "', '" . $order_no . "', '" . $shipmentCost . "' )";
+        $query = "INSERT into shipping_labels VALUES(NULL, '" . $label_id . "', '" . $shipping_id . "', '" . $ship_date . "' , '" . $tracking_number . "', '" . $pdf . "', '" . $_SESSION['user_id'] . "', '" . $order_no . "', '" . $shipmentCost . "', '" . $store_id . "' )";
         $result = $db->query($query) or die($db->error);
-        $query = "UPDATE  assign_order SET status='shipped' WHERE ID='" . $assingId . "'";
+        $query = "UPDATE  assign_order SET status='shipped' , updated_at=now() WHERE ID='" . $assingId . "'";
         $result = $db->query($query) or die($db->error);
         $query = "DELETE FROM  cart_assigning  WHERE assign_order_id='" . $assingId . "'";
         $result = $db->query($query) or die($db->error);
@@ -370,7 +370,7 @@ class ImportantFunctions
         if ($result->num_rows > 0)
             return $result->fetch_array()['status'];
         else
-            return 'Not-Assigned';
+            return null;
     }
 
     function getOrderTrackingStatus($orderNo)
@@ -656,6 +656,85 @@ class ImportantFunctions
             $content .= '</tr>';
 
             echo $content;
+        }
+    }
+
+    function getLabelsForStores($store_id)
+    {
+        global $db;
+        $query = "SELECT * from shipping_labels WHERE store_id='" . $store_id . "' AND is_void=0  ORDER by id ";
+        $result = $db->query($query) or die($db->error);
+        $content = '';
+        while ($row = $result->fetch_array()) {
+            extract($row);
+            $content .= '<tr class="">';
+            $content .= '<td>';
+            $content .= $order_no;
+            $content .= '</td><td>';
+            $content .= $label_id;
+
+            $content .= '</td><td>';
+            $content .= $tracking_number;
+            $content .= '</td>';
+            $content .= '<td>';
+            $content .= $shipment_id;
+            $content .= '</td>';
+            $content .= '<td>';
+            $content .= '<button id="voidLabelBtn" value=' . $label_id . ' class="btn btn-danger" onclick="voidLabel(this.value)" >Void Label</button>';
+            $content .= '</td>';
+            $content .= '</tr>';
+        }
+        return $content;
+    }
+
+    public function getStoreShippingAlerts($store_id)
+    {
+        global $db;
+        $query = "SELECT * from assign_order WHERE store_id='" . $store_id . "' AND status='Fulfilled'  ORDER by id ";
+        $orderList = array();
+        $result = $db->query($query) or die($db->error);
+
+        while ($row = $result->fetch_array()) {
+            extract($row);
+            $now = date("Y-m-d H:i:s");
+            $now = new DateTime($now);
+            $date2 = new DateTime($updated_at);
+            $diff = $date2->diff($now);
+            $hours = $diff->h;
+            $hours = $hours + ($diff->days * 24);
+
+            if ($hours >= 36) {
+                $arr = array("order_no" => $order_no, "updated_at" => $updated_at, "status" => $status);
+                $orderList[] = $row;
+            }
+        }
+
+
+        return $orderList;
+    }
+
+
+    function checkProductExist($sku)
+    {
+        global $db;
+        $query = "SELECT * from products WHERE product_manual_id='" . $sku . "'  ";
+        $lastAssignOrderResult = $db->query($query) or die($db->error);
+        if ($lastAssignOrderResult->num_rows > 0)
+            return true;
+        return false;;
+    }
+    function sendInventoryFromStore($sku, $tracking, $quantity)
+    {
+        //Transfer save krwana hai..
+        global $db;
+        $productExists = $this->checkProductExist($sku);
+        if ($productExists) {
+            $now = date("Y-m-d H:i:s");
+            $query = "INSERT into send_inventory VALUES(NULL, '" . $_SESSION['order_source_id'] . "','" . $sku . "', '" . $quantity . "', '" . $tracking . "', '".$now."',0)";
+            $result = $db->query($query) or die($db->error);
+            return 'Inventory send successfully';
+        } else {
+            return 'Product Not Found';
         }
     }
 }

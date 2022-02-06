@@ -2,17 +2,21 @@
 include('system_load.php');
 //This loads system.
 //user Authentication.
-authenticate_user('subscriber');
+// authenticate_user('subscriber');
 //creating company object.
 $user = new Users;
 
 $user_id = $_SESSION['user_id'];
+$_SESSION['warehouse_id']=1;
 $function_id = $user->get_user_info($user_id, "user_function");
 
-if (partial_access('admin') || $warehouse_access->have_module_access('products')) {
-} else {
-	HEADER('LOCATION: warehouse.php?message=products');
-}
+
+
+
+// if (partial_access('admin') || $warehouse_access->have_module_access('products')) {
+// } else {
+// 	HEADER('LOCATION: warehouse.php?message=products');
+// }
 
 if (!isset($_SESSION['warehouse_id']) || $_SESSION['warehouse_id'] == '') {
 	HEADER('LOCATION: warehouses.php?message=1');
@@ -22,7 +26,7 @@ if (isset($_POST['delete_product']) && $_POST['delete_product'] != '') {
 	$message = $product->delete_product($_POST['delete_product']);
 }
 
-$warehouses->set_warehouse($_SESSION['warehouse_id']); //setting store.
+ $warehouses->set_warehouse($_SESSION['warehouse_id']); //setting store.
 $page_title = 'Inventory / ' . date("d-m-Y - H:i:s"); //You can edit this to change your page title.
 
 ?>
@@ -77,10 +81,11 @@ $page_title = 'Inventory / ' . date("d-m-Y - H:i:s"); //You can edit this to cha
 	<!-- Page Container -->
 	<div class="page-container">
 		<!-- Side Bar -->
-		<?php require_once("includes/sidebar.php"); //including sidebar file. 
-		?>
-		<!-- End Side Bar 
-            <!-- Page Content -->
+		<?php if (partial_access('store_owner')) require_once("includes/sidebar_store.php");
+        else require_once("includes/sidebar.php"); //including sidebar file. 
+        ?>
+		<!-- End Side Bar -->
+		<!-- Page Content -->
 		<div class="page-content">
 			<!-- Header -->
 			<?php require_once("includes/header.php"); //including sidebar file. 
@@ -189,5 +194,5 @@ $page_title = 'Inventory / ' . date("d-m-Y - H:i:s"); //You can edit this to cha
 	<script src="../../assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 	<script src="../../assets/js/pages/table-data.js"></script>
 
-	
+
 </body>
