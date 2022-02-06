@@ -147,10 +147,10 @@ class ImportantFunctions
             $result = $db->query($randomIdQuery) or die($db->error);
             $currentUser = ($result->fetch_array())[0];
         }
+        $now =  date("d-m-Y - H:i:s");
 
 
-
-        $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress','" . $storeId . "', date('d-m-Y - H:i:s'), date('d-m-Y - H:i:s'))";
+        $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress','" . $storeId . "', '".$now."', '".$now."')";
 
         $result = $db->query($query) or die($db->error);
     }
