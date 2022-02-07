@@ -80,7 +80,7 @@ $page_title = 'Products'; //You can edit this to change your page title.
 		<?php require_once("includes/sidebar.php"); //including sidebar file. 
 		?>
 		<!-- End Side Bar -->
-            <!-- Page Content -->
+		<!-- Page Content -->
 		<div class="page-content">
 			<!-- Header -->
 			<?php require_once("includes/header.php"); //including sidebar file. 

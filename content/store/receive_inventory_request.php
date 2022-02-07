@@ -2,39 +2,47 @@
 include('system_load.php');
 //This loads system.
 //user Authentication.
-// authenticate_user('subscriber');
+authenticate_user('subscriber');
 
 $user_id = $_SESSION['user_id'];
 $function_id = $user->get_user_info($user_id, "user_function");
 
-// if ($_SESSION['user_type'] != "admin") {
-//     if ($function_id != 'storem' or $function_id != 'manager') {
-//         HEADER('LOCATION: warehouse.php?msg=lstcust');
-//     }
-// }
+if ($_SESSION['user_type'] != "admin") {
+    if ($function_id != 'storem' or $function_id != 'manager') {
+        HEADER('LOCATION: warehouse.php?msg=lstcust');
+    }
+}
 
 $important = new ImportantFunctions();
+// return;
+$user = new Users();
+$request = $important->getInventoryRequest();
+$key = 0;
+$content = '';
+while ($row = $request->fetch_array()) {
+    extract($row);
+    $key++;
+    $content .= '<tr class="">';
+    $content .= '<td>';
+    $content .= $key;
+    $content .= '</td><td>';
+    $content .= $sku;
+    $content .= '</td>';
+    $content .= '</td><td>';
+    $content .= $quantity;
+    $content .= '</td>';
+    $content .= '</td><td>';
+    $content .=  $tracking_no;
+    $content .= '</td>';
+    $content .= '<td><button id="approveBtnInventory"   value=' . $id . ' class="btn btn-success" onclick="approveInventory(this.value)" >Approve</button>';
+    $content .= '</td>';
+    $content .= '</tr>';
+}
 
-$content = $important->getLabelsForStores($_SESSION['order_source_id']);
-$site_url = get_option('site_url');
 
 
+$page_title = 'Inventory List'; //You can edit this to change your page title.
 
-
-
-
-
-
-$page_title = 'Labels List'; //You can edit this to change your page title.
-
-
-
-// FROM MADDY
-
-
-
-
-// TILL MADDY
 
 ?>
 <!DOCTYPE html>
@@ -79,11 +87,6 @@ $page_title = 'Labels List'; //You can edit this to change your page title.
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <![endif]-->
 </head>
-<style>
-    .d-none {
-        display: none;
-    }
-</style>
 
 <body class="page-sidebar-fixed page-header-fixed">
 
@@ -91,7 +94,7 @@ $page_title = 'Labels List'; //You can edit this to change your page title.
     <!-- Page Container -->
     <div class="page-container">
         <!-- Side Bar -->
-        <?php require_once("includes/sidebar_store.php"); //including sidebar file. 
+        <?php require_once("includes/sidebar.php"); //including sidebar file. 
         ?>
         <!-- End Side Bar -->
         <!-- Page Content -->
@@ -106,31 +109,24 @@ $page_title = 'Labels List'; //You can edit this to change your page title.
                 <div class="page-title">
                     <h3 class="breadcrumb-header"><?php echo $page_title; ?></h3>
                 </div>
-                <?php
-                //display message if exist.
-                if (isset($message) && $message != '') {
-                    echo '<div class="alert alert-success">';
-                    echo $message;
-                    echo '</div>';
-                }
-                ?>
 
-                <div id="alertMessage" class="alert alert-danger d-none">
+                <div id="successDiv" class="alert alert-success d-none">
+
                 </div>
 
+
+                <!-- <label style="margin-top:25px">Assign User</label> -->
+                <!-- $user->getUsersForAssignOrders()  -->
+                <!-- <button class="btn btn-primary" style="margin-top: 10px;" onclick="AssignUser()">Assigned User</button> -->
 
 
                 <div class="row">
                     <div class="col-md-12">
                         <!-- <div class="panel panel-white"> -->
-
-
-
-
                         <!-- <div class="panel-body"> -->
 
-                        <!-- <a href="reports/listCustomers.php" target="_blank" class="btn btn-info btn-addon"> <i class="fa fa-print"></i> Print Customer List</a>
-                                        <a class="btn btn-info btn-addon" onClick="$('#example3').tableExport({type:'excel',escape:'false'});"> <i class="fa fa-file-excel-o"></i> Export to CSV</a> -->
+                        <!-- <a href="reports/listCustomers.php" target="_blank" class="btn btn-info btn-addon"> <i class="fa fa-print"></i> Print Customer List</a>-->
+                        <!-- <a class="btn btn-info btn-addon" onClick="$('#example3').tableExport({type:'excel',escape:'false'});"> <i class="fa fa-file-excel-o"></i> Export to CSV</a>  -->
                         <!-- </div> -->
                         <!-- </div> -->
                         </br>
@@ -138,22 +134,19 @@ $page_title = 'Labels List'; //You can edit this to change your page title.
                         <div class="panel-body" id="printlist">
 
                             <div class="table-responsive">
-                                <table id="example3" class="display table" style="width: 100%; cellspacing: 0;">
+                                <table id="example3" class="display table" style="width: 100%;">
                                     <thead>
                                         <tr>
-                                            <th>Order#</th>
-                                            <th>Label#</th>
+                                            <th> #</th>
+                                            <th>SKU</th>
+                                            <th>Quantity</th>
                                             <th>Tracking#</th>
-                                            <th>Shipment#</th>
-
                                             <th>Actions</th>
-                                        </tr>
+
                                     </thead>
                                     <tbody>
                                         <?php
                                         echo $content;
-                                        // $client->list_clients();
-
                                         ?>
                                     </tbody>
 
@@ -199,60 +192,29 @@ $page_title = 'Labels List'; //You can edit this to change your page title.
     <script src="../../assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="../../assets/js/pages/table-data.js"></script>
 
+
     <script>
         $('#example3').dataTable({
-            paging: false
+            'iDisplayLength': 100,
         });
 
 
-
-        function voidLabel(labelId) {
-            var myHeaders = new Headers();
-            myHeaders.append("Host", "api.shipengine.com");
-            myHeaders.append("API-Key", "YCMccKJkFczSrSWMb21zY2lJCugPtJNlgwO+XTDX9Jk");
-
-            var requestOptions = {
-                method: 'PUT',
-                headers: myHeaders,
-                redirect: 'follow'
-            };
-            fetch("https://api.shipengine.com/v1/labels/" + labelId + "/void", requestOptions)
-                .then(response => response.json())
-                .then(result => {
-                    console.log(result);
-                    if (result.approved) {
-                        $('#alertMessage').removeClass('d-none');
-                        $('#alertMessage').addClass('alert-success');
-                        $('#alertMessage').text(result.message);
-                        paramJSON = {
-                            'label_id': labelId,
-                        }
-                        $.post(
-                            'shipengine/void_label.php', {
-                                data: JSON.stringify(paramJSON),
-                            },
-                            function(data) {
-                                setTimeout(function() {
-                                    window.location.reload();
-                                }, 2000);
-                            }
-                        );
-
-                    } else {
-                        $('#alertMessage').removeClass('d-none');
-                        $('#alertMessage').addClass('alert-danger');
-                        $('#alertMessage').text(result.message);
-
-                    }
-
-
+        function approveInventory(id) {
+            paramJSON = {
+                'id': id,
+            }
+            $.post(
+                'shipengine/approve_inventory.php', {
+                    data: JSON.stringify(paramJSON)
+                },
+                function(data) {
+                    $('#successDiv').removeClass('d-none');
+                    $('#successDiv').text(data.message);
                     setTimeout(function() {
-                        $('#alertMessage').addClass('d-none');
+                        window.location.reload();
                     }, 2000);
-                })
-                .catch(error => console.log('error', error));
-
+                }
+            );
         }
     </script>
-
 </body>

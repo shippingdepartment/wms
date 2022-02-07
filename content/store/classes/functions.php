@@ -150,7 +150,7 @@ class ImportantFunctions
         $now =  date("d-m-Y - H:i:s");
 
 
-        $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress','" . $storeId . "', '".$now."', '".$now."')";
+        $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress','" . $storeId . "', '" . $now . "', '" . $now . "')";
 
         $result = $db->query($query) or die($db->error);
     }
@@ -735,6 +735,26 @@ class ImportantFunctions
             return 'Inventory send successfully';
         } else {
             return 'Product Not Found';
+        }
+    }
+
+    function getInventoryRequest()
+    {
+        global $db;
+        $query = "SELECT * FROM send_inventory WHERE is_approve=0";
+        $result = $db->query($query) or die($db->error);
+        return $result;
+    }
+
+    function getProductId($sku)
+    {
+        global $db;
+        $query = "SELECT * from products WHERE product_manual_id='" . $sku . "' LIMIT 1";
+        $result = $db->query($query) or die($db->error);
+        if ($result->num_rows > 0) {
+            return ($result->fetch_array())[0];
+        } else {
+            return null;
         }
     }
 }
