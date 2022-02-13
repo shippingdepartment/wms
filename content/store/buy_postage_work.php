@@ -9,6 +9,9 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
     $assignId = $_GET['assign_id'];
     $cartId = $_GET['cart_id'];
     $assignResponse = ($important->getDataThroughAssignId($assignId));
+    if ($assignResponse == null) {
+        return 'Something bad happend, Please try again later';
+    }
     $orderId = ($important->getDataThroughAssignId($assignId)['order_id']);
     $cartData = $important->getDataThroughCartAssigning($cartId);
 

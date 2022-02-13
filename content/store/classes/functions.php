@@ -242,7 +242,10 @@ class ImportantFunctions
         global $db;
         $query = "SELECT * from assign_order WHERE id='" . $id . "'  LIMIT 1";
         $result = $db->query($query) or die($db->error);
-        return $result->fetch_array();
+        if ($result->num_rows > 0)
+            return $result->fetch_array();
+        else
+            return null;
     }
 
     public function getDataThroughCartAssigning($id)
