@@ -64,9 +64,10 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
 
 
     $response =  $important->CallAPI('POST', 'v-beta/labels/sales_order/' . $orderId, json_encode($printLabelObject));
+    if (count($response['errors']) > 0) {
+        HEADER('LOCATION: buy_postage.php?message=error');
+    }
 
-    print_r($response);
-    exit;
 
 
     $important->storeOwes($assignResponse['order_no'], $storeName, $response->shipment_cost->amount, $totalQuantities);

@@ -6,16 +6,13 @@ authenticate_user('subscriber');
 
 $user_id = $_SESSION['user_id'];
 $function_id = $user->get_user_info($user_id, "user_function");
-
-// if ($_SESSION['user_type'] != "admin") {
-//     if ($function_id != 'storem' or $function_id != 'manager') {
-//         HEADER('LOCATION: warehouse.php?msg=lstcust');
-//     }
-// }
+$message=null;
 $isForAdmin = true;
 if (isset($_GET['t']) && $_GET['t'] == 'user') {
     $isForAdmin = false;
 }
+
+
 $important = new ImportantFunctions();
 $user = new Users();
 
@@ -92,8 +89,8 @@ $page_title = 'Buy Postage Orders'; //You can edit this to change your page titl
                 <?php
                 //display message if exist.
                 if (isset($message) && $message != '') {
-                    echo '<div class="alert alert-success">';
-                    echo $message;
+                    echo '<div class="alert alert-error">';
+                    echo 'Some error occured';
                     echo '</div>';
                 }
                 ?>
