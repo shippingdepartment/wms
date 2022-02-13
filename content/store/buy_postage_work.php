@@ -14,6 +14,8 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
     }
     $orderId = ($important->getDataThroughAssignId($assignId)['order_id']);
     $cartData = $important->getDataThroughCartAssigning($cartId);
+    if ($cartData == null)
+        return 'Something really bad happend';
 
     $response = $important->CallAPI('GET', "v-beta/sales_orders/" . $orderId);
     $storeName = $response->order_source->order_source_nickname;
