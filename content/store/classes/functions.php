@@ -258,6 +258,8 @@ class ImportantFunctions
 
     public function storeShippingLabelInfo($label_id, $shipping_id, $ship_date, $tracking_number, $pdf, $assingId, $order_no, $shipmentCost, $store_id)
     {
+        print_r('asdfas');
+        exit;
         global $db;
         $query = "INSERT into shipping_labels VALUES(NULL, '" . $label_id . "', '" . $shipping_id . "', '" . $ship_date . "' , '" . $tracking_number . "', '" . $pdf . "', '" . $_SESSION['user_id'] . "', '" . $order_no . "', '" . $shipmentCost . "', '" . $store_id . "' )";
         $result = $db->query($query) or die($db->error);
