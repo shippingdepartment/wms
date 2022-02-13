@@ -88,8 +88,8 @@ $page_title = 'Buy Postage Orders'; //You can edit this to change your page titl
                 </div>
                 <?php
                 //display message if exist.
-                if (isset($message) && $message != '') {
-                    echo '<div class="alert alert-error">';
+                if (isset($message) || $message == 'error') {
+                    echo '<div class="alert alert-danger">';
                     echo 'Some error occured';
                     echo '</div>';
                 }

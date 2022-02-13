@@ -500,6 +500,72 @@ class Product
 		echo $content;
 	}
 
+	function list_products_inventory_for_store()
+	{
+		global $db;
+		$user = new Users;
+		$user_function = $user->get_user_info($_SESSION['user_id'], 'user_function');
+		$query = "SELECT * from products WHERE warehouse_id='" . $_SESSION['warehouse_id'] . "' AND store_id='".$_SESSION['order_source_id']."' ORDER by product_name ASC";
+		$result = $db->query($query) or die($db->error);
+		$content = '';
+		$count = 0;
+		while ($row = $result->fetch_array()) {
+			extract($row);
+			$count++;
+			if ($count % 2 == 0) {
+				$class = 'even';
+			} else {
+				$class = 'odd';
+			}
+			$content .= '<tr >';
+			$content .= '<td>';
+			$content .= $product_manual_id;
+			$content .= '</td><td>';
+			$content .= $product_name;
+			$content .= '</td><td>';
+			$content .= $product_unit;
+			$content .= '</td><td>';
+			//category and tax objects to get related information.
+			$product_category = new ProductCategory;
+			//$product_tax = new ProductTax;
+
+			$content .= $product_category->get_category_info($category_id, 'category_name');
+			$content .= '</td><td align="center">';
+			$inventory = "SELECT SUM(inn), SUM(out_inv) FROM inventory WHERE product_id='" . $product_id . "' AND warehouse_id='" . $warehouse_id . "'";
+			$inventory_result = $db->query($inventory) or die($db->error);
+			$inventory_row = $inventory_result->fetch_array();
+
+			$inventory = $inventory_row['SUM(inn)'] - $inventory_row['SUM(out_inv)'];
+			$content .= number_format($alert_units, 2);
+			$content .= '</td><td align="center">';
+			$content .= number_format($inventory, 2);
+			$content .= '</td>';
+			//query cost and selling price.
+			$query_cost = "SELECT * from price WHERE product_id='" . $product_id . "' AND warehouse_id='" . $_SESSION['warehouse_id'] . "' ORDER by price_id ASC LIMIT 1";
+			$result_cost = $db->query($query_cost) or die($db->error);
+			$row_cost = $result_cost->fetch_array();
+			if (partial_access('admin') or ($user_function == 'manager')) {
+				$content .= '<td align="right">';
+				$content .= number_format($row_cost['cost'], 2) . ' $';;
+				$content .= '</td><td <td align="right">';
+
+				$content .= number_format($row_cost['selling_price'], 2) . ' $';
+				$content .= '</td>';
+			}
+			$content .= '<td <td <td align="center">';
+			if ($inventory >  $alert_units) {
+				$content .= '<span class="text-success">Available</span>';
+			} else {
+				$content .= '<span class="text-danger">Alert</span>';
+			}
+			$content .= '</td>';
+
+			$content .= '</tr>';
+			unset($class);
+		} //loop ends here.
+		echo $content;
+	}
+
 
 	function list_products_alert()
 	{

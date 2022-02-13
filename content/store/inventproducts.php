@@ -146,7 +146,7 @@ $page_title = 'Inventory / ' . date("d-m-Y - H:i:s"); //You can edit this to cha
 										</thead>
 										<tbody>
 											<?php
-											$product->list_products_inventory();
+										 (partial_access('admin'))?	$product->list_products_inventory():	$product->list_products_inventory_for_store();
 											?>
 										</tbody>
 

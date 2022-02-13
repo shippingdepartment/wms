@@ -109,7 +109,7 @@ class ImportantFunctions
             $content .= $status;
             $content .= '</td>';
             $content .= '<td>';
-            $content .= '<a href="shipengine/order_details.php?id=' . $order_id . '&assign_id=' . $id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a>';
+            $content .= '<a href="shipengine/order_details.php?id=' . $order_id . '&assign_id=' . $id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a> / <a href="shipengine/redo_order_btn.php?order_no=' . $order_no . '&status=canceled" ><i class="fa fa-times" style="font-size:16px;color:red"></i></a>';
             $content .= '</td>';
             $content .= '</tr>';
         }
@@ -258,7 +258,7 @@ class ImportantFunctions
 
     public function storeShippingLabelInfo($label_id, $shipping_id, $ship_date, $tracking_number, $pdf, $assingId, $order_no, $shipmentCost, $store_id)
     {
-       
+
         global $db;
         $query = "INSERT into shipping_labels VALUES(NULL, '" . $label_id . "', '" . $shipping_id . "', '" . $ship_date . "' , '" . $tracking_number . "', '" . $pdf . "', '" . $_SESSION['user_id'] . "', '" . $order_no . "', '" . $shipmentCost . "', '" . $store_id . "', 0 )";
         $result = $db->query($query) or die($db->error);

@@ -19,8 +19,10 @@ if (isset($_GET['t']) && $_GET['t'] == 'user') {
 $important = new ImportantFunctions();
 $user = new Users();
 
-
-
+$message=null;
+if(isset($_GET['message'])){
+$message=$_GET['message'];
+}
 $page_title = 'Assigned Users Orders List'; //You can edit this to change your page title.
 
 
@@ -91,7 +93,7 @@ $page_title = 'Assigned Users Orders List'; //You can edit this to change your p
                 </div>
                 <?php
                 //display message if exist.
-                if (isset($message) && $message != '') {
+                if (isset($message) && $_GET['message'] != '') {
                     echo '<div class="alert alert-success">';
                     echo $message;
                     echo '</div>';
