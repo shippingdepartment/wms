@@ -505,7 +505,7 @@ class Product
 		global $db;
 		$user = new Users;
 		$user_function = $user->get_user_info($_SESSION['user_id'], 'user_function');
-		$query = "SELECT * from products WHERE warehouse_id='" . $_SESSION['warehouse_id'] . "' AND store_id='".$_SESSION['order_source_id']."' ORDER by product_name ASC";
+		$query = "SELECT * from products WHERE warehouse_id=1 AND store_id='".$_SESSION['order_source_id']."' ORDER by product_name ASC";
 		$result = $db->query($query) or die($db->error);
 		$content = '';
 		$count = 0;

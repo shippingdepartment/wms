@@ -7,7 +7,7 @@ include('system_load.php');
 $user = new Users;
 
 $user_id = $_SESSION['user_id'];
-$_SESSION['warehouse_id']=1;
+$_SESSION['warehouse_id'] = 1;
 $function_id = $user->get_user_info($user_id, "user_function");
 
 
@@ -26,7 +26,7 @@ if (isset($_POST['delete_product']) && $_POST['delete_product'] != '') {
 	$message = $product->delete_product($_POST['delete_product']);
 }
 
- $warehouses->set_warehouse($_SESSION['warehouse_id']); //setting store.
+$warehouses->set_warehouse($_SESSION['warehouse_id']); //setting store.
 $page_title = 'Inventory / ' . date("d-m-Y - H:i:s"); //You can edit this to change your page title.
 
 ?>
@@ -82,8 +82,8 @@ $page_title = 'Inventory / ' . date("d-m-Y - H:i:s"); //You can edit this to cha
 	<div class="page-container">
 		<!-- Side Bar -->
 		<?php if (partial_access('store_owner')) require_once("includes/sidebar_store.php");
-        else require_once("includes/sidebar.php"); //including sidebar file. 
-        ?>
+		else require_once("includes/sidebar.php"); //including sidebar file. 
+		?>
 		<!-- End Side Bar -->
 		<!-- Page Content -->
 		<div class="page-content">
@@ -146,7 +146,7 @@ $page_title = 'Inventory / ' . date("d-m-Y - H:i:s"); //You can edit this to cha
 										</thead>
 										<tbody>
 											<?php
-										 (partial_access('admin'))?	$product->list_products_inventory():	$product->list_products_inventory_for_store();
+											(partial_access('admin')) ?	$product->list_products_inventory() :	$product->list_products_inventory_for_store();
 											?>
 										</tbody>
 
