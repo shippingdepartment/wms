@@ -4,6 +4,10 @@ class ImportantFunctions
 {
     public $base_url = 'http://api.shipengine.com/';
 
+    public function getStoreId(){
+        
+    }
+
     function CallAPI($method, $url, $data = false, $changeURL = false)
     {
         if ($changeURL)
