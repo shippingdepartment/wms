@@ -26,6 +26,9 @@ class Product
 	function moid_set_product_through_sku($sku, $store_id = '')
 	{
 		global $db;
+		if($store_id==''){
+			$store_id=$_SESSION['order_source_id'];
+		}
 		$important = new ImportantFunctions();
 		$query = "SELECT * from products WHERE product_manual_id='" . $sku . "' LIMIT 1";
 		$result = $db->query($query) or die($db->error);
