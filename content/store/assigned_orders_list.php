@@ -19,9 +19,9 @@ if (isset($_GET['t']) && $_GET['t'] == 'user') {
 $important = new ImportantFunctions();
 $user = new Users();
 
-$message=null;
-if(isset($_GET['message'])){
-$message=$_GET['message'];
+$message = null;
+if (isset($_GET['message'])) {
+    $message = $_GET['message'];
 }
 $page_title = 'Assigned Users Orders List'; //You can edit this to change your page title.
 
@@ -102,7 +102,20 @@ $page_title = 'Assigned Users Orders List'; //You can edit this to change your p
 
 
                 <div class="row">
+                    <div class=" d-flex justify-content-center">
+                        <div class="col-md-6">
+                            <?php if (!$isForAdmin) { ?>
+                                <p>Total Orders Assigned : <span style="color:red;font-weight:bold"><?php echo $important->getCurrentUserAssignedOrdersCount() ?></span></p>
+                            <?php } ?>
+                        </div>
+                        <div class="col-md-6">
+                            <?php if (!$isForAdmin &&  ($important->getCurrentUserAssignedOrdersCount())<25) { ?>
+                                <button class="btn btn-primary">Request Order</button>
+                            <?php } ?>
+                        </div>
+                    </div>
                     <div class="col-md-12">
+
                         <!-- <div class="panel panel-white"> -->
                         <!-- <div class="panel-body"> -->
 

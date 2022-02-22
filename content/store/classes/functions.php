@@ -4,8 +4,8 @@ class ImportantFunctions
 {
     public $base_url = 'http://api.shipengine.com/';
 
-    public function getStoreId(){
-        
+    public function getStoreId()
+    {
     }
 
     function CallAPI($method, $url, $data = false, $changeURL = false)
@@ -132,7 +132,7 @@ class ImportantFunctions
             return false;
     }
 
-    public function assignOrdersTORandom($orderNo, $orderId, $storeId)
+    public function  assignOrdersTORandom($orderNo, $orderId, $storeId)
     {
         global $db;
         $lastAssignOrder = 'SELECT user_id from assign_order ORDER BY id DESC LIMIT 1 ';
@@ -142,21 +142,25 @@ class ImportantFunctions
         } else {
             $lastOrderAssignedUserId = 1;
         }
-        $randomIdQuery = 'SELECT user_id from users WHERE user_type <> "store_owner"  ORDER BY RAND() LIMIT 1';
+        $randomIdQuery = 'SELECT user_id,is_request from users WHERE user_type <> "store_owner"  ORDER BY RAND() LIMIT 1';
         $result = $db->query($randomIdQuery) or die($db->error);
         $currentUser = ($result->fetch_array())[0];
-
-        while (intval($currentUser) == $lastOrderAssignedUserId) {
+        $assignOrdersCount = $this->getUserAssignedOrdersCount($currentUser);
+        $isrequest = $this->get_user_info($currentUser, 'is_request');
+        $isCompleted = false;
+        // && intval($currentUser) == $lastOrderAssignedUserId
+        while ($isrequest && $assignOrdersCount < 25) {
             $randomIdQuery = 'SELECT user_id  from users WHERE user_type <> "store_owner" ORDER BY RAND() LIMIT 1';
             $result = $db->query($randomIdQuery) or die($db->error);
             $currentUser = ($result->fetch_array())[0];
+            $assignOrdersCount = $this->getUserAssignedOrdersCount($currentUser);
+            $isrequest = $this->get_user_info($currentUser, 'is_request'); 
         }
-        $now =  date("d-m-Y - H:i:s");
-
-
-        $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress','" . $storeId . "', '" . $now . "', '" . $now . "')";
-
-        $result = $db->query($query) or die($db->error);
+        if ($isrequest) {
+            $now =  date("d-m-Y - H:i:s");
+            $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress','" . $storeId . "', '" . $now . "', '" . $now . "')";
+            $result = $db->query($query) or die($db->error);
+        }
     }
 
     public function getLastOrderId()
@@ -182,8 +186,9 @@ class ImportantFunctions
 
     public function getCurrentUserAssignedOrders()
     {
+
         global $db;
-        $query = "SELECT * from assign_order WHERE user_id='" . $_SESSION['user_id'] . "' AND status='inprogress' OR  status='reship' OR  status='canceled' ORDER by id DESC";
+        $query = "SELECT * from assign_order WHERE user_id='" . $_SESSION['user_id'] . "' AND (status='inprogress' OR  status='reship' OR  status='canceled') ORDER by id DESC";
         $result = $db->query($query) or die($db->error);
         $content = '';
         $user = new Users();
@@ -205,6 +210,22 @@ class ImportantFunctions
             $content .= '</tr>';
         }
         echo $content;
+    }
+
+    public function getCurrentUserAssignedOrdersCount()
+    {
+        global $db;
+        $query = "SELECT * from assign_order WHERE user_id='" . $_SESSION['user_id'] . "' AND (status='inprogress' OR  status='reship' OR  status='canceled') ORDER by id DESC";
+        $result = $db->query($query) or die($db->error);
+        return $result->num_rows;
+    }
+
+    public function getUserAssignedOrdersCount($userId)
+    {
+        global $db;
+        $query = "SELECT * from assign_order WHERE user_id='" . $userId . "' AND (status='inprogress' OR  status='reship' OR  status='canceled') ORDER by id DESC";
+        $result = $db->query($query) or die($db->error);
+        return $result->num_rows;
     }
 
 
@@ -766,4 +787,13 @@ class ImportantFunctions
             return null;
         }
     }
+
+    function get_user_info($user_id, $term)
+    {
+        global $db;
+        $query = "SELECT * from users WHERE user_id='" . $user_id . "'";
+        $result = $db->query($query) or die($db->error);
+        $row = $result->fetch_array();
+        return $row[$term];
+    } //get 
 }

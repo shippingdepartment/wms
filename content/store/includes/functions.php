@@ -124,7 +124,7 @@ function redirect_user($user_type)
 	$impotant = new ImportantFunctions();
 	if (isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'admin') {
 		HEADER('LOCATION: dashboard.php');
-	} else if (isset($_SESSION['user_type']) && $_SESSION['user_type'] == $user_type) {
+	} else if (isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'store_owner') {
 		$_SESSION['order_source_id'] = $impotant->getOrderSourceIdForCurrentOwner();
 		HEADER('LOCATION:store_owner_dashboard.php');
 	} else {

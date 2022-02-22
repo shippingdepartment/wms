@@ -273,8 +273,10 @@ class Users
 		$result = $db->query($query) or die($db->error);
 		$num_rows = $result->num_rows;
 
+
 		if ($num_rows > 0) {
 			$row = $result->fetch_array();
+
 
 			$lock_account = $this->get_user_meta($row['user_id'], 'login_lock');
 			if ($lock_account != 'No') {
@@ -433,7 +435,7 @@ class Users
 
 		while ($row = $result->fetch_array()) {
 			extract($row);
-			
+
 
 			$content .= '<option value="' . $user_id . '">' . $first_name . ' ' . $last_name;
 			$content .= '</option>"';
