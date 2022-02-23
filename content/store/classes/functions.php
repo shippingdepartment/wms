@@ -149,17 +149,17 @@ class ImportantFunctions
         $isrequest = $this->get_user_info($currentUser, 'is_request');
         $isCompleted = false;
         // && intval($currentUser) == $lastOrderAssignedUserId
-        while ($isrequest && $assignOrdersCount < 25) {
+        if ($assignOrdersCount < 25) {
             $randomIdQuery = 'SELECT user_id  from users WHERE user_type <> "store_owner" ORDER BY RAND() LIMIT 1';
             $result = $db->query($randomIdQuery) or die($db->error);
             $currentUser = ($result->fetch_array())[0];
             $assignOrdersCount = $this->getUserAssignedOrdersCount($currentUser);
-            $isrequest = $this->get_user_info($currentUser, 'is_request'); 
-        }
-        if ($isrequest) {
-            $now =  date("d-m-Y - H:i:s");
-            $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress','" . $storeId . "', '" . $now . "', '" . $now . "')";
-            $result = $db->query($query) or die($db->error);
+            $isrequest = $this->get_user_info($currentUser, 'is_request');
+            if ($isrequest) {
+                $now =  date("d-m-Y - H:i:s");
+                $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress','" . $storeId . "', '" . $now . "', '" . $now . "')";
+                $result = $db->query($query) or die($db->error);
+            }
         }
     }
 

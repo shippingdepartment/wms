@@ -7,6 +7,8 @@ authenticate_user('subscriber');
 $user_id = $_SESSION['user_id'];
 $function_id = $user->get_user_info($user_id, "user_function");
 
+$is_Request = $user->get_user_info($user_id, "is_request");
+
 // if ($_SESSION['user_type'] != "admin") {
 //     if ($function_id != 'storem' or $function_id != 'manager') {
 //         HEADER('LOCATION: warehouse.php?msg=lstcust');
@@ -109,8 +111,14 @@ $page_title = 'Assigned Users Orders List'; //You can edit this to change your p
                             <?php } ?>
                         </div>
                         <div class="col-md-6">
-                            <?php if (!$isForAdmin &&  ($important->getCurrentUserAssignedOrdersCount())<25) { ?>
-                                <button class="btn btn-primary">Request Order</button>
+                            <?php if (!$isForAdmin &&  ($important->getCurrentUserAssignedOrdersCount()) < 25) { ?>
+                                <?php
+                                if ($is_Request) {
+                                ?><button id="requestOrder" class="btn btn-primary"> Pause Orders</button>
+                                <?php
+                                } else { ?>
+                                    <button id="requestOrder" class="btn btn-primary"> Request Orders</button>
+                                <?php } ?>
                             <?php } ?>
                         </div>
                     </div>
@@ -199,6 +207,18 @@ $page_title = 'Assigned Users Orders List'; //You can edit this to change your p
                 [0, "desc"]
             ]
 
+        });
+
+        $('#requestOrder').click(function(e) {
+            e.preventDefault();
+            $.post(
+                'shipengine/request_order.php', {
+                    // data: JSON.stringify(paramJSON),
+                },
+                function(data) {
+                    alert(data.data);
+                }
+            );
         });
     </script>
 </body>
