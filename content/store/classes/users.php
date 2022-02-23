@@ -744,7 +744,7 @@ class Users
 		$password_con = md5($password);
 
 		//Running Query to add user.
-		$query = "INSERT into users VALUES(NULL, '" . $first_name . "', '" . $last_name . "', '" . $gender . "', '" . $date_of_birth . "', '" . $address . "', '" . $mobile . "', '" . $phone . "', '" . $username . "', '" . $email . "', '" . $password_con . "', '" . $status . "', '', '" . date('Y-m-d') . "', '" . $user_type . "', '" . $user_function . "')";
+		$query = "INSERT into users VALUES(NULL, '" . $first_name . "', '" . $last_name . "', '" . $gender . "', '" . $date_of_birth . "', '" . $address . "', '" . $mobile . "', '" . $phone . "', '" . $username . "', '" . $email . "', '" . $password_con . "', '" . $status . "', '', '" . date('Y-m-d') . "', '" . $user_type . "', '" . $user_function . "', 1)";
 		$result = $db->query($query) or die($db->error);
 		//Email to user
 		$site_url = get_option('site_url');
