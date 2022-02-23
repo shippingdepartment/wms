@@ -216,7 +216,8 @@ $page_title = 'Assigned Users Orders List'; //You can edit this to change your p
                     // data: JSON.stringify(paramJSON),
                 },
                 function(data) {
-                    alert(data.data);
+                    location.reload();
+
                 }
             );
         });
