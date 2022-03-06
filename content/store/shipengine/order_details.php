@@ -4,16 +4,16 @@ include('../system_load.php');
 //This loads system.
 //user Authentication.
 authenticate_user('subscriber');
-
 $user_id = $_SESSION['user_id'];
 
 $orderId = $_GET['id']; // store id;
 
 $function_id = $user->get_user_info($user_id, "user_function");
 
-// 
+
 
 $important = new ImportantFunctions();
+// $important->getShippingServices();
 $product = new Product();
 $estimatedShippingCost = 0.0;
 $shippingService = null;
@@ -114,8 +114,6 @@ if ($totalWeight <= 16) {
     $serviceCode = $shippingCarriers[1]->service_code;
     $carrierId = "se-647551";
 } else {
-    // unset($shippingCarriers->carriers[0]);
-
     foreach ($shippingCarriers->carriers as $key => $carrier) {
         if ($carrier->carrier_id == 'se-647512') {
             continue; //ignoring the FEDX SHIPPING
@@ -132,7 +130,6 @@ if ($totalWeight <= 16) {
             'dimensions' => (array('unit' => 'inch', 'length' => 5.0, 'width' => 5.0, 'height' => 5.0)),
         );
         $shippingCarriers = $important->CallAPI('POST', 'v1/rates/estimate', json_encode($shippingObject));
-
         foreach ($shippingCarriers as $keyj => $ship) {
             //usps_media_mail is not required
             if ($ship->service_code != 'usps_media_mail') {
@@ -217,6 +214,14 @@ if ($totalWeight <= 16) {
                 </div>
             </div>
             <div class="card-header bg-white">
+
+                <input type="hidden" id="customerEmail" value="<?php echo $response->customer->email ?>">
+                <input type="hidden" id="toCountryCode" value="<?php echo $response->ship_to->country_code ?>">
+                <input type="hidden" id="toPostalCode" value="<?php echo $response->ship_to->postal_code ?>">
+                <input type="hidden" id="toCity" value="<?php echo $response->ship_to->city_locality ?>">
+                <input type="hidden" id="toStateProvince" value="<?php echo $response->ship_to->state_province ?>">
+                <input type="hidden" id="totalWeight" value="<?php echo $totalWeight ?>">
+
                 <div class="pull-left">
                     <p>Ship To: &nbsp; <?php echo $response->customer->email ?></p>
                     <small><?php echo $response->ship_to->name; ?> <br> <?php echo $response->ship_to->address_line1; ?> <br>
@@ -252,10 +257,18 @@ if ($totalWeight <= 16) {
                     <small class="text-danger text-center">(Cheapest One)</small>
                 </div>
                 <div class="w-100 d-flex mt-1 justify-content-between">
-                    <span class="ml-3 text-muted">Estimated Shipping Cost: <?php echo $estimatedShippingCost ?></span>
-                    <span class="ml-3 text-muted"> Shipping Service: <?php echo $shippingService ?></span>
-                    <span class="ml-3 text-muted"> Service Code: <?php echo $serviceCode ?></span>
+                    <span id="estimatedShippingCost" class="ml-3 text-muted">Estimated Shipping Cost: <?php echo $estimatedShippingCost ?></span>
+                    <span id="shippingService" class="ml-3 text-muted"> Shipping Service: <?php echo $shippingService ?></span>
+                    <span id="serviceCode" class="ml-3 text-muted"> Service Code: <?php echo $serviceCode ?></span>
                     <span class="ml-3 text-muted"> Package Type: <?php echo $packageType ?></span>
+                </div>
+                <div class="w-100 d-flex mt-1 justify-content-between mt-5">
+                    <select name="shipping_services" id="shippingServices" class="form-control">
+                        <option selected value="">Select Shipping</option>
+
+                        <?php $important->getShippingServices();
+                        ?>
+                    </select>
                 </div>
 
 
@@ -385,6 +398,12 @@ if ($totalWeight <= 16) {
     var pickedItems = 0;
     var totalItems = <?php echo $totalItems; ?>;
 
+    var assignID = <?php echo $assignID; ?>;
+    var serviceCode = "<?php echo ($serviceCode); ?>";
+    var carrierId = "<?php echo ($carrierId); ?>";
+    var totalWeight = "<?php echo ($totalWeight); ?>";
+
+
     function verifyThePick(e) {
         $('#exampleModalLongTitle').text(e.getAttribute('data-sku'))
         $('#informQuantity').text('Quantity ' + e.getAttribute('data-product-quantity'));
@@ -417,11 +436,6 @@ if ($totalWeight <= 16) {
         selectedCart = this.value;
     });
     $('#confirmedBtn').click(function(e) {
-        var assignID = <?php echo $assignID; ?>;
-        var serviceCode = "<?php echo ($serviceCode); ?>";
-        var carrierId = "<?php echo ($carrierId); ?>";
-        var totalWeight = "<?php echo ($totalWeight); ?>";
-
 
         paramJSON = {
             'assign_order_id': parseInt(assignID),
@@ -471,6 +485,52 @@ if ($totalWeight <= 16) {
             }
         );
     });
+
+
+    $('#shippingServices').on('change', function() {
+        const selected = ($(this).find(':selected').data("id"));
+        $('#shippingService').text('Shipping Service: ' + $("#shippingServices option:selected").text());
+        carrierId = this.value;
+        paramJSON = {
+            'carrier_ids': [this.value],
+            'from_country_code': 'US',
+            'from_postal_code': '46226',
+            'to_country_code': $('#toCountryCode').val(),
+            'to_postal_code': $('#toPostalCode').val(),
+            'to_city_locality': $('#toCity').val(),
+            'weight': {
+                "value": $('#totalWeight').val(),
+                'unit': "ounce",
+            },
+            'dimensions': {
+                'unit': 'inch',
+                'length': 1.0,
+                'width': 1.0,
+                'height': 1.0
+            }
+        }
+        $.ajax({
+            url: "http://api.shipengine.com//v1/rates/estimate",
+            headers: {
+                "API-Key": "YCMccKJkFczSrSWMb21zY2lJCugPtJNlgwO+XTDX9Jk",
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            type: "POST",
+            data: JSON.stringify(paramJSON),
+            success: function(response) {
+                const data = response[0];
+                console.log(data);
+                $('#estimatedShippingCost').text('Estimated Shipping Cost: ' + data.shipping_amount.amount + ' ' + data.shipping_amount.currency.toUpperCase())
+                // $('#shippingService').text('Shipping Service: ' + data.carrier_friendly_name);
+                $('#serviceCode').text('Service Code: ' + data.service_code);
+                serviceCode = data.service_code;
+
+            }
+
+        });
+    });
 </script>
+
 
 </html>

@@ -796,4 +796,20 @@ class ImportantFunctions
         $row = $result->fetch_array();
         return $row[$term];
     } //get 
+
+    function getShippingServices()
+    {
+        $options = '';
+        $shippingServicesList = array();
+        $shippingServices = $this->CallAPI('GET', 'v1/carriers');
+        foreach ($shippingServices->carriers as $key => $services) {
+            // if ($services->carrier_id == 'se-647512') {
+            //     continue; //ignoring the FEDX SHIPPING
+            // }
+            foreach ($services->services as $key => $value) {
+                $options .= '<option data-id="' . $value->service_code . '"  value="' . $value->carrier_id . '">' . ucfirst($value->name) . '</option>';
+            }
+        }
+        echo ($options);
+    }
 }

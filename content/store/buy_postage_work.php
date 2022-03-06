@@ -37,6 +37,15 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
         "shipment" => array(
             "carrier_id" => $cartData['carrier_id'],
             "service_code" => $cartData['service_code'],
+            "customs" => array(
+                'contents' => 'merchandise', "non_delivery" => "treat_as_abandoned",
+                "customs_items" => array(
+                    [
+                        'quantity' => intval($totalQuantities),
+                        'description'=>'Shipping'
+                    ]
+                )
+            ),
             "ship_from" => array(
                 "company_name" => "Shipping Department",
                 "name" => "Cody Howell",
@@ -64,7 +73,7 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
 
 
     $response =  $important->CallAPI('POST', 'v-beta/labels/sales_order/' . $orderId, json_encode($printLabelObject));
-    if (count($response->errors) > 0) {
+    if (isset($response->errors)&& count($response->errors) > 0) {
         HEADER('LOCATION: buy_postage.php?message=error');
     }
 

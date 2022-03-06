@@ -26,8 +26,8 @@ class Product
 	function moid_set_product_through_sku($sku, $store_id = '')
 	{
 		global $db;
-		if($store_id==''){
-			$store_id=$_SESSION['order_source_id'];
+		if (isset($_SESSION['order_source_id']) && $store_id == '') {
+			$store_id = $_SESSION['order_source_id'];
 		}
 		$important = new ImportantFunctions();
 		$query = "SELECT * from products WHERE product_manual_id='" . $sku . "' LIMIT 1";
@@ -508,7 +508,7 @@ class Product
 		global $db;
 		$user = new Users;
 		$user_function = $user->get_user_info($_SESSION['user_id'], 'user_function');
-		$query = "SELECT * from products WHERE warehouse_id='" . $_SESSION['warehouse_id'] . "' AND store_id='".$_SESSION['order_source_id']."' ORDER by product_name ASC";
+		$query = "SELECT * from products WHERE warehouse_id='" . $_SESSION['warehouse_id'] . "' AND store_id='" . $_SESSION['order_source_id'] . "' ORDER by product_name ASC";
 		$result = $db->query($query) or die($db->error);
 		$content = '';
 		$count = 0;
