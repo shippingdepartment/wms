@@ -515,6 +515,8 @@ if ($totalWeight <= 16) {
                 "API-Key": "YCMccKJkFczSrSWMb21zY2lJCugPtJNlgwO+XTDX9Jk",
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
+                "Access-Control-Allow-Origin": window.location.host| "*"
+
             },
             type: "POST",
             data: JSON.stringify(paramJSON),
