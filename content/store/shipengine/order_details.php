@@ -516,6 +516,8 @@ if ($totalWeight <= 16) {
         var requestOptions = {
             method: 'POST',
             headers: myHeaders,
+            dataType: 'jsonp', //you may use jsonp for cross origin request
+            crossDomain: true,
             redirect: 'follow',
             body: JSON.stringify(paramJSON)
         };
