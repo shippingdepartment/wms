@@ -512,7 +512,8 @@ if ($totalWeight <= 16) {
         $.ajax({
             url: "https://api.shipengine.com//v1/rates/estimate",
             headers: {
-                "Host": "api.shipengine.com",
+                dataType: "json",
+                crossDomain: true,
                 "API-Key": "YCMccKJkFczSrSWMb21zY2lJCugPtJNlgwO+XTDX9Jk",
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
