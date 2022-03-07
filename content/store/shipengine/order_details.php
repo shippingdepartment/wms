@@ -509,22 +509,19 @@ if ($totalWeight <= 16) {
                 'height': 1.0
             }
         }
-        var myHeaders = new Headers();
-        myHeaders.append("Host", "api.shipengine.com");
-        myHeaders.append("API-Key", "YCMccKJkFczSrSWMb21zY2lJCugPtJNlgwO+XTDX9Jk");
-
-        var requestOptions = {
-            method: 'POST',
-            headers: myHeaders,
-            dataType: 'jsonp', //you may use jsonp for cross origin request
-            crossDomain: true,
-            redirect: 'follow',
-            body: JSON.stringify(paramJSON)
-        };
-
-        fetch("https://api.shipengine.com//v1/rates/estimate", requestOptions)
-            .then(response => response.json())
-            .then(result => {
+        $.ajax({
+            url: "https://api.shipengine.com//v1/rates/estimate",
+            headers: {
+                dataType: "jsonp",
+                async: true,
+                crossDomain: true,
+                "API-Key": "YCMccKJkFczSrSWMb21zY2lJCugPtJNlgwO+XTDX9Jk",
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            type: "POST",
+            data: JSON.stringify(paramJSON),
+            success: function(response) {
                 const data = response[0];
                 console.log(data);
                 $('#estimatedShippingCost').text('Estimated Shipping Cost: ' + data.shipping_amount.amount + ' ' + data.shipping_amount.currency.toUpperCase())
@@ -532,9 +529,9 @@ if ($totalWeight <= 16) {
                 $('#serviceCode').text('Service Code: ' + data.service_code);
                 serviceCode = data.service_code;
 
-            })
-            .catch(error => console.log('error', error));
+            }
 
+        });
     });
 </script>
 
