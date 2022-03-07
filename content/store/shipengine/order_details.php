@@ -518,8 +518,6 @@ if ($totalWeight <= 16) {
                 'Content-Type': 'application/json',
             },
             type: "POST",
-            dataType: 'jsonp',
-
             data: JSON.stringify(paramJSON),
             success: function(response) {
                 const data = response[0];
