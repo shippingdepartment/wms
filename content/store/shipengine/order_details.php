@@ -513,6 +513,8 @@ if ($totalWeight <= 16) {
             url: "https://api.shipengine.com//v1/rates/estimate",
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                "Access-Control-Allow-Methods": 'HEAD, GET, POST, PUT, PATCH, DELETE',
+                "Access-Control-Allow-Headers": 'Origin, Content-Type, X-Auth-Token',
                 "API-Key": "YCMccKJkFczSrSWMb21zY2lJCugPtJNlgwO+XTDX9Jk",
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
