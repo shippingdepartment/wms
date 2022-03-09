@@ -255,7 +255,7 @@ class ImportantFunctions
             $content .= $cart;
             $content .= '</td>';
             $content .= '<td>';
-            $content .= '<a href="buy_postage_work.php?assign_id=' . $assign_order_id . '&cart_id=' . $id . '"><i class="fa fa-tag" style="font-size:16px"></i></a> / <a href=packing_slip.php?order_id=' . $data['order_id'] . '  onclick="window.open(this.href).print(); return false"><i class="fa fa-print" style="font-size:16px"></i></a>';
+            $content .= '<a href=packing_slip.php?order_id=' . $data['order_id'] . '  onclick="window.open(this.href).print(); return false"><b class="" style="font-size:16px">Packing Slip</b></a> / <a href="buy_postage_work.php?assign_id=' . $assign_order_id . '&cart_id=' . $id . '"><b class="" style="font-size:16px">Shipping Label</b></a> ';
             $content .= '</td>';
             $content .= '</tr>';
         }
@@ -795,7 +795,7 @@ class ImportantFunctions
         $result = $db->query($query) or die($db->error);
         $row = $result->fetch_array();
         return $row[$term];
-    } //get 
+    }
 
     function getShippingServices()
     {

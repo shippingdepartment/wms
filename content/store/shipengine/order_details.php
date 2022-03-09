@@ -459,6 +459,10 @@ if ($totalWeight <= 16) {
 
     $('#cancelOrder').click(function(e) {
         e.preventDefault();
+        var isConfirmed = confirm("Are you Confirm ?");
+        if (!isConfirmed) {
+            return;
+        }
         var orderNo = "<?php echo  $response->external_order_number ?>";
         paramJSON = {
             'order_no': orderNo,
@@ -490,9 +494,11 @@ if ($totalWeight <= 16) {
     $('#shippingServices').on('change', function() {
         const selected = ($(this).find(':selected').data("id"));
         $('#shippingService').text('Shipping Service: ' + $("#shippingServices option:selected").text());
-        carrierId = this.value;
+        var data;
+        console.log($(this).find(':selected').val());
+
         paramJSON = {
-            'carrier_ids': [this.value],
+            'carrier_ids': [$(this).find(':selected').val()],
             'from_country_code': 'US',
             'from_postal_code': '46226',
             'to_country_code': $('#toCountryCode').val(),
@@ -522,13 +528,29 @@ if ($totalWeight <= 16) {
             type: "POST",
             data: JSON.stringify(paramJSON),
             success: function(response) {
-                const data = response[0];
-                console.log(data);
-                $('#estimatedShippingCost').text('Estimated Shipping Cost: ' + data.shipping_amount.amount + ' ' + data.shipping_amount.currency.toUpperCase())
-                // $('#shippingService').text('Shipping Service: ' + data.carrier_friendly_name);
-                $('#serviceCode').text('Service Code: ' + data.service_code);
-                serviceCode = data.service_code;
-
+                console.log(response);
+                // TODO: WORKING ON SHIPPING PART
+                $.each(response, function(key, value) {
+                    console.log($('#shippingServices').find(':selected').val());
+                    console.log(response[key].carrier_id);
+                    console.log('----------------');
+                    console.log($('#shippingServices').find(':selected').data("id"));
+                    console.log(response[key].service_code);
+                    if ((response[key].carrier_id) === $('#shippingServices').find(':selected').val() && $('#shippingServices').find(':selected').data("id") === response[key].service_code) {
+                        data = response[key];
+                        console.log('andr agay');
+                        return false;
+                    }
+                })
+                if (data) {
+                    console.log(data);
+                    $('#estimatedShippingCost').text('Estimated Shipping Cost: ' + data.shipping_amount.amount + ' ' + data.shipping_amount.currency.toUpperCase())
+                    $('#serviceCode').text('Service Code: ' + data.service_code);
+                    serviceCode = data.service_code;
+                } else {
+                    console.log('bahr gayaga');
+                    // alert('This shipping method is not available');
+                }
             }
 
         });

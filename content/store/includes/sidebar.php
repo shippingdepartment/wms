@@ -5,8 +5,8 @@ $function_id = $user->get_user_info($user_id, "user_function");
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
     .page-sidebar-menu {
-    margin-top: 120px !important;
-}
+        margin-top: 120px !important;
+    }
 </style>
 <div class="page-sidebar">
     <a class="logo-box" href="warehouse.php">
@@ -72,6 +72,8 @@ $function_id = $user->get_user_info($user_id, "user_function");
                         </a>
                         <ul class="sub-menu">
                             <li><a href="addstock.php"><span class="text-success"><i class="fa fa-caret-right"></i> Add Stock</span></a></li>
+                        <li><a href="updatestock.php"><span class="text-success"><i class="fa fa-caret-right"></i> Update Stock</span></a></li>
+
                         </ul>
                     <?php } ?>
                     </li>

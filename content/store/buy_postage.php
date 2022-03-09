@@ -6,7 +6,7 @@ authenticate_user('subscriber');
 
 $user_id = $_SESSION['user_id'];
 $function_id = $user->get_user_info($user_id, "user_function");
-$message=null;
+$message = null;
 $isForAdmin = true;
 if (isset($_GET['t']) && $_GET['t'] == 'user') {
     $isForAdmin = false;
