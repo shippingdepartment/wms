@@ -2,7 +2,7 @@
 include('system_load.php');
 //This loads system.
 //user Authentication.
-authenticate_user('subscriber');
+// authenticate_user('subscriber');   
 
 $user_id = $_SESSION['user_id'];
 $function_id = $user->get_user_info($user_id, "user_function");
