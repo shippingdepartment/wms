@@ -156,7 +156,7 @@ class ImportantFunctions
             $assignOrdersCount = $this->getUserAssignedOrdersCount($currentUser);
             $isrequest = $this->get_user_info($currentUser, 'is_request');
             if ($isrequest) {
-                $now =  date("d-m-Y - H:i:s");
+                $now =  date("Y-m-d H:i:s");
                 $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress','" . $storeId . "', '" . $now . "', '" . $now . "')";
                 $result = $db->query($query) or die($db->error);
             }
@@ -811,5 +811,48 @@ class ImportantFunctions
             }
         }
         echo ($options);
+    }
+
+    function getOrderSourcesOptions()
+    {
+        $options = '';
+        $orderSources = array();
+        $response = $this->CallAPI('GET', 'v-beta/order_sources');
+        foreach ($response->order_sources as $key => $value) {
+            if ($value->active) {
+                $options .= '<option data-id="' . $value->order_source_id . '"  value="' . $value->order_source_id . '">' . ucfirst($value->order_source_nickname) . '</option>';
+            }
+        }
+        echo ($options);
+    }
+
+    function storeFilters($store_id, $filter_name, $filter_sign, $filter_value, $store_name)
+    {
+        global $db;
+        $query = "INSERT into filters VALUES(NULL, '" . $store_id . "','" . $filter_name . "', '" . $filter_sign . "', '" . $filter_value . "',1,'" . $store_name . "')";
+        $result = $db->query($query) or die($db->error);
+        return true;
+    }
+
+    function getFilters()
+    {
+        global $db;
+        $query = "SELECT * FROM filters WHERE active=1";
+        $result = $db->query($query) or die($db->error);
+        if ($result->num_rows > 0) {
+            return $result;
+        }
+        return false;
+    }
+
+    function getSpecificStoreFilters($store_id)
+    {
+        global $db;
+        $query = "SELECT * FROM filters WHERE store_id='" . $store_id . "' AND active=1";
+        $result = $db->query($query) or die($db->error);
+        if ($result->num_rows > 0) {
+            return $result;
+        }
+        return false;
     }
 }

@@ -23,61 +23,283 @@ $content = '';
 // var_dump($response);
 // return;
 
-
+$filters = $important->getSpecificStoreFilters($store_id);
 
 
 
 // $content .= '</tr>';
-foreach ($response->sales_orders as $key => $value) {
-    $product = new Product();
+if ($filters != false) {
+    while ($row = $filters->fetch_array()) {
+        extract($row);
+        if ($filter_name == 'country') {
+            foreach ($response->sales_orders as $key => $value) {
+                if ($filter_sign == '==') {
+                    if ($filter_value ==  $value->ship_to->country_code) {
+                        $product = new Product();
+                        foreach ($value->sales_order_items as $key => $lineItems) {
+                            $lineItemsDetails = $lineItems->line_item_details;
+                            $resp = $product->moidAddProduct(
+                                $lineItemsDetails->sku,
+                                $lineItemsDetails->name,
+                                $lineItemsDetails->weight->unit,
+                                $lineItems->price_summary->estimated_tax->amount,
+                                $lineItems->price_summary->unit_price->amount,
+                                $lineItems->price_summary->unit_price->amount,
+                                100,
+                                $value->external_order_number,
+                                $store_id,
+                            );
+                        }
+                        if ($value->sales_order_status->fulfillment_status == 'unfulfilled') {
+                            $lastOrderSourceId = $important->getLastOrderId();
+                            $isOrderExists = $important->checkIfOrderExists($value->external_order_number, $value->sales_order_id);
+                            if ($isOrderExists) {
+                                $orderStatus =  $important->getOrderStatus($value->external_order_number, $value->sales_order_id);
+                                if ($orderStatus == 'Fulfilled')
+                                    continue;
+                            } else {
+                                $important->assignOrdersTORandom($value->external_order_number, $value->sales_order_id, $value->order_source->order_source_id);
+                            }
 
-    foreach ($value->sales_order_items as $key => $lineItems) {
-        $lineItemsDetails = $lineItems->line_item_details;
-        $resp = $product->moidAddProduct(
-            $lineItemsDetails->sku,
-            $lineItemsDetails->name,
-            $lineItemsDetails->weight->unit,
-            $lineItems->price_summary->estimated_tax->amount,
-            $lineItems->price_summary->unit_price->amount,
-            $lineItems->price_summary->unit_price->amount,
-            100,
-            $value->external_order_number,
-            $store_id,
-        );
-    }
-    if ($value->sales_order_status->fulfillment_status == 'unfulfilled') {
-        $lastOrderSourceId = $important->getLastOrderId();
-        $isOrderExists = $important->checkIfOrderExists($value->external_order_number, $value->sales_order_id);
-        if ($isOrderExists) {
-            $orderStatus =  $important->getOrderStatus($value->external_order_number, $value->sales_order_id);
-            if ($orderStatus == 'Fulfilled')
-                continue;
-        } else {
-            $important->assignOrdersTORandom($value->external_order_number, $value->sales_order_id, $value->order_source->order_source_id);
+
+                            $isAssigned = $important->checkOrderIsAssigned($value->sales_order_id) == true ? 'Assigned' : 'Not-Assigend';
+                            $content .= '<tr class="">';
+                            $content .= '<td>';
+                            $content .= $value->external_order_number;
+                            $content .= '</td><td>';
+                            $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->name;
+                            $content .= '</td>';
+                            $content .= '</td><td>';
+                            $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->sku;
+                            $content .= '</td>';
+                            $content .= '</td><td>';
+                            $content .=  date("m-d-Y", strtotime($value->order_date));
+                            $content .= '</td><td>';
+                            $content .= $isAssigned;
+                            $content .= '</td>';
+                            $content .= '<td > ' . $value->sales_order_id;
+                            $content .= '</td>';
+                            $content .= '<td> <a href="shipengine/order_details.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a>';
+
+                            $content .= '</td>';
+                            $content .= '</tr>';
+                        }
+                    }
+                } else {
+                    if ($filter_value !=  $value->ship_to->country_code) {
+                        $product = new Product();
+                        foreach ($value->sales_order_items as $key => $lineItems) {
+                            $lineItemsDetails = $lineItems->line_item_details;
+                            $resp = $product->moidAddProduct(
+                                $lineItemsDetails->sku,
+                                $lineItemsDetails->name,
+                                $lineItemsDetails->weight->unit,
+                                $lineItems->price_summary->estimated_tax->amount,
+                                $lineItems->price_summary->unit_price->amount,
+                                $lineItems->price_summary->unit_price->amount,
+                                100,
+                                $value->external_order_number,
+                                $store_id,
+                            );
+                        }
+                        if ($value->sales_order_status->fulfillment_status == 'unfulfilled') {
+                            $lastOrderSourceId = $important->getLastOrderId();
+                            $isOrderExists = $important->checkIfOrderExists($value->external_order_number, $value->sales_order_id);
+                            if ($isOrderExists) {
+                                $orderStatus =  $important->getOrderStatus($value->external_order_number, $value->sales_order_id);
+                                if ($orderStatus == 'Fulfilled')
+                                    continue;
+                            } else {
+                                $important->assignOrdersTORandom($value->external_order_number, $value->sales_order_id, $value->order_source->order_source_id);
+                            }
+
+
+                            $isAssigned = $important->checkOrderIsAssigned($value->sales_order_id) == true ? 'Assigned' : 'Not-Assigend';
+                            $content .= '<tr class="">';
+                            $content .= '<td>';
+                            $content .= $value->external_order_number;
+                            $content .= '</td><td>';
+                            $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->name;
+                            $content .= '</td>';
+                            $content .= '</td><td>';
+                            $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->sku;
+                            $content .= '</td>';
+                            $content .= '</td><td>';
+                            $content .=  date("m-d-Y", strtotime($value->order_date));
+                            $content .= '</td><td>';
+                            $content .= $isAssigned;
+                            $content .= '</td>';
+                            $content .= '<td > ' . $value->sales_order_id;
+                            $content .= '</td>';
+                            $content .= '<td> <a href="shipengine/order_details.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a>';
+
+                            $content .= '</td>';
+                            $content .= '</tr>';
+                        }
+                    }
+                }
+            }
+        } else if ($filter_name == 'shipping_service') {
+            foreach ($response->sales_orders as $key => $value) {
+                if ($filter_sign == '==') {
+                    if ($filter_value ==  $value->sales_order_items[0]->requested_shipping_options->shipping_service) {
+                        $product = new Product();
+                        foreach ($value->sales_order_items as $key => $lineItems) {
+                            $lineItemsDetails = $lineItems->line_item_details;
+                            $resp = $product->moidAddProduct(
+                                $lineItemsDetails->sku,
+                                $lineItemsDetails->name,
+                                $lineItemsDetails->weight->unit,
+                                $lineItems->price_summary->estimated_tax->amount,
+                                $lineItems->price_summary->unit_price->amount,
+                                $lineItems->price_summary->unit_price->amount,
+                                100,
+                                $value->external_order_number,
+                                $store_id,
+                            );
+                        }
+                        if ($value->sales_order_status->fulfillment_status == 'unfulfilled') {
+                            $lastOrderSourceId = $important->getLastOrderId();
+                            $isOrderExists = $important->checkIfOrderExists($value->external_order_number, $value->sales_order_id);
+                            if ($isOrderExists) {
+                                $orderStatus =  $important->getOrderStatus($value->external_order_number, $value->sales_order_id);
+                                if ($orderStatus == 'Fulfilled')
+                                    continue;
+                            } else {
+                                $important->assignOrdersTORandom($value->external_order_number, $value->sales_order_id, $value->order_source->order_source_id);
+                            }
+
+
+                            $isAssigned = $important->checkOrderIsAssigned($value->sales_order_id) == true ? 'Assigned' : 'Not-Assigend';
+                            $content .= '<tr class="">';
+                            $content .= '<td>';
+                            $content .= $value->external_order_number;
+                            $content .= '</td><td>';
+                            $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->name;
+                            $content .= '</td>';
+                            $content .= '</td><td>';
+                            $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->sku;
+                            $content .= '</td>';
+                            $content .= '</td><td>';
+                            $content .=  date("m-d-Y", strtotime($value->order_date));
+                            $content .= '</td><td>';
+                            $content .= $isAssigned;
+                            $content .= '</td>';
+                            $content .= '<td > ' . $value->sales_order_id;
+                            $content .= '</td>';
+                            $content .= '<td> <a href="shipengine/order_details.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a>';
+
+                            $content .= '</td>';
+                            $content .= '</tr>';
+                        }
+                    }
+                } else {
+                    if ($filter_value !=  $value->sales_order_items[0]->requested_shipping_options->shipping_service) {
+                        $product = new Product();
+                        foreach ($value->sales_order_items as $key => $lineItems) {
+                            $lineItemsDetails = $lineItems->line_item_details;
+                            $resp = $product->moidAddProduct(
+                                $lineItemsDetails->sku,
+                                $lineItemsDetails->name,
+                                $lineItemsDetails->weight->unit,
+                                $lineItems->price_summary->estimated_tax->amount,
+                                $lineItems->price_summary->unit_price->amount,
+                                $lineItems->price_summary->unit_price->amount,
+                                100,
+                                $value->external_order_number,
+                                $store_id,
+                            );
+                        }
+                        if ($value->sales_order_status->fulfillment_status == 'unfulfilled') {
+                            $lastOrderSourceId = $important->getLastOrderId();
+                            $isOrderExists = $important->checkIfOrderExists($value->external_order_number, $value->sales_order_id);
+                            if ($isOrderExists) {
+                                $orderStatus =  $important->getOrderStatus($value->external_order_number, $value->sales_order_id);
+                                if ($orderStatus == 'Fulfilled')
+                                    continue;
+                            } else {
+                                $important->assignOrdersTORandom($value->external_order_number, $value->sales_order_id, $value->order_source->order_source_id);
+                            }
+
+
+                            $isAssigned = $important->checkOrderIsAssigned($value->sales_order_id) == true ? 'Assigned' : 'Not-Assigend';
+                            $content .= '<tr class="">';
+                            $content .= '<td>';
+                            $content .= $value->external_order_number;
+                            $content .= '</td><td>';
+                            $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->name;
+                            $content .= '</td>';
+                            $content .= '</td><td>';
+                            $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->sku;
+                            $content .= '</td>';
+                            $content .= '</td><td>';
+                            $content .=  date("m-d-Y", strtotime($value->order_date));
+                            $content .= '</td><td>';
+                            $content .= $isAssigned;
+                            $content .= '</td>';
+                            $content .= '<td > ' . $value->sales_order_id;
+                            $content .= '</td>';
+                            $content .= '<td> <a href="shipengine/order_details.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a>';
+
+                            $content .= '</td>';
+                            $content .= '</tr>';
+                        }
+                    }
+                }
+            }
         }
+    }
+} else {
+    foreach ($response->sales_orders as $key => $value) {
+        $product = new Product();
+        foreach ($value->sales_order_items as $key => $lineItems) {
+            $lineItemsDetails = $lineItems->line_item_details;
+            $resp = $product->moidAddProduct(
+                $lineItemsDetails->sku,
+                $lineItemsDetails->name,
+                $lineItemsDetails->weight->unit,
+                $lineItems->price_summary->estimated_tax->amount,
+                $lineItems->price_summary->unit_price->amount,
+                $lineItems->price_summary->unit_price->amount,
+                100,
+                $value->external_order_number,
+                $store_id,
+            );
+        }
+        if ($value->sales_order_status->fulfillment_status == 'unfulfilled') {
+            $lastOrderSourceId = $important->getLastOrderId();
+            $isOrderExists = $important->checkIfOrderExists($value->external_order_number, $value->sales_order_id);
+            if ($isOrderExists) {
+                $orderStatus =  $important->getOrderStatus($value->external_order_number, $value->sales_order_id);
+                if ($orderStatus == 'Fulfilled')
+                    continue;
+            } else {
+                $important->assignOrdersTORandom($value->external_order_number, $value->sales_order_id, $value->order_source->order_source_id);
+            }
 
 
-        $isAssigned = $important->checkOrderIsAssigned($value->sales_order_id) == true ? 'Assigned' : 'Not-Assigend';
-        $content .= '<tr class="">';
-        $content .= '<td>';
-        $content .= $value->external_order_number;
-        $content .= '</td><td>';
-        $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->name;
-        $content .= '</td>';
-        $content .= '</td><td>';
-        $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->sku;
-        $content .= '</td>';
-        $content .= '</td><td>';
-        $content .=  date("m-d-Y", strtotime($value->order_date));
-        $content .= '</td><td>';
-        $content .= $isAssigned;
-        $content .= '</td>';
-        $content .= '<td > ' . $value->sales_order_id;
-        $content .= '</td>';
-        $content .= '<td> <a href="shipengine/order_details.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a>';
+            $isAssigned = $important->checkOrderIsAssigned($value->sales_order_id) == true ? 'Assigned' : 'Not-Assigend';
+            $content .= '<tr class="">';
+            $content .= '<td>';
+            $content .= $value->external_order_number;
+            $content .= '</td><td>';
+            $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->name;
+            $content .= '</td>';
+            $content .= '</td><td>';
+            $content .= count($value->sales_order_items) > 1 ? 'Multiple' : $value->sales_order_items[0]->line_item_details->sku;
+            $content .= '</td>';
+            $content .= '</td><td>';
+            $content .=  date("m-d-Y", strtotime($value->order_date));
+            $content .= '</td><td>';
+            $content .= $isAssigned;
+            $content .= '</td>';
+            $content .= '<td > ' . $value->sales_order_id;
+            $content .= '</td>';
+            $content .= '<td> <a href="shipengine/order_details.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a>';
 
-        $content .= '</td>';
-        $content .= '</tr>';
+            $content .= '</td>';
+            $content .= '</tr>';
+        }
     }
 }
 

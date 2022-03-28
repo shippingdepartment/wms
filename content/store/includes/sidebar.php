@@ -72,7 +72,7 @@ $function_id = $user->get_user_info($user_id, "user_function");
                         </a>
                         <ul class="sub-menu">
                             <li><a href="addstock.php"><span class="text-success"><i class="fa fa-caret-right"></i> Add Stock</span></a></li>
-                        <li><a href="updatestock.php"><span class="text-success"><i class="fa fa-caret-right"></i> Update Stock</span></a></li>
+                            <li><a href="updatestock.php"><span class="text-success"><i class="fa fa-caret-right"></i> Update Stock</span></a></li>
 
                         </ul>
                     <?php } ?>
@@ -211,10 +211,13 @@ $function_id = $user->get_user_info($user_id, "user_function");
                             <li>
                                 <a href="javascript:void(0)">
                                     <i class="menu-icon fa fa-bar-chart"></i><span>Store Owner <i class="accordion-icon fa fa-angle-right"></i> </span>
+
                                 </a>
                                 <ul class="sub-menu">
                                     <li><a href="store_owner_price_list.php"><span class="text-success"><i class="fa fa-caret-right"></i>Adjust Price</span></a></li>
                                     <li><a href="store_owner_owes.php"><span class="text-success"><i class="fa fa-caret-right"></i>Store Owner Reports</span></a></li>
+                                    <li><a href="create_filters.php"><span class="text-success"><i class="fa fa-caret-right"></i>Create Filters</span></a></li>
+
                                     <!-- <li><a href="productreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Product Reports</span></a></li>
                                 <li><a href="orderreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Order Reports</span></a></li>
                                 <li><a href="deliveryreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Delivery Reports</span></a></li> -->
