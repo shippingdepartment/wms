@@ -34,6 +34,9 @@ if ($response != false) {
             $content .= '</td><td>';
             $content .= $filter_value;
             $content .= '</td>';
+            $content .= '</td><td>';
+            $content .= '<button id="deleteFilter" value=' . $id . ' class="btn btn-danger" onclick="deleteFilter(this.value)" >Delete Filter</button>';
+            $content .= '</td>';
         }
         $content .= '</tr>';
     }
@@ -201,7 +204,7 @@ $page_title = 'Create Filters'; //You can edit this to change your page title.
                                             <th>Filter Name</th>
                                             <th>Filter Sign</th>
                                             <th>Filter Value</th>
-                                            <!-- <th>Actions</th> -->
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -322,6 +325,24 @@ $page_title = 'Create Filters'; //You can edit this to change your page title.
                 }
             );
         });
+
+        function deleteFilter($id) {
+            this.innerText = "Deleting";
+            paramJSON = {
+                'id': $id,
+            }
+            $.post(
+                'shipengine/delete_filters.php', {
+                    data: JSON.stringify(paramJSON),
+                },
+                function(data) {
+
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 2000);
+                }
+            );
+        }
     </script>
 
 </body>
