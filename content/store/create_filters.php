@@ -327,7 +327,9 @@ $page_title = 'Create Filters'; //You can edit this to change your page title.
         });
 
         function deleteFilter($id) {
-            this.innerText = "Deleting";
+            e.preventDefault();
+            $('#deleteFilter').disabled = true;
+            $('#deleteFilter').innerText = "Deleting";
             paramJSON = {
                 'id': $id,
             }
