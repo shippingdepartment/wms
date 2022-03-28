@@ -16,25 +16,27 @@ if ($_SESSION['user_type'] != "admin") {
 $important = new ImportantFunctions();
 
 $response = $important->getFilters();
-while ($row = $response->fetch_assoc()) {
-    extract($row);
-    if ($active) {
-        $content .= '<tr class="">';
-        $content .= '<td>';
-        $content .= $id;
-        $content .= '</td><td>';
-        $content .= $store_name;
-        $content .= '</td><td>';
-        $content .= $filter_name;
-        $content .= '</td>';
-        $content .= '</td>';
-        $content .= '</td><td>';
-        $content .= $filter_sign;
-        $content .= '</td><td>';
-        $content .= $filter_value;
-        $content .= '</td>';
+if ($response != false) {
+    while ($row = $response->fetch_assoc()) {
+        extract($row);
+        if ($active) {
+            $content .= '<tr class="">';
+            $content .= '<td>';
+            $content .= $id;
+            $content .= '</td><td>';
+            $content .= $store_name;
+            $content .= '</td><td>';
+            $content .= $filter_name;
+            $content .= '</td>';
+            $content .= '</td>';
+            $content .= '</td><td>';
+            $content .= $filter_sign;
+            $content .= '</td><td>';
+            $content .= $filter_value;
+            $content .= '</td>';
+        }
+        $content .= '</tr>';
     }
-    $content .= '</tr>';
 }
 
 
