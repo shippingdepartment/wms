@@ -379,7 +379,9 @@ class ImportantFunctions
         global $db;
         $query = "SELECT * from store WHERE user_id='" . $_SESSION['user_id'] . "' LIMIT 1";
         $result = $db->query($query) or die($db->error);
-        return $result->fetch_array()['store_source_id'];
+        if ($result->num_rows > 0)
+            return $result->fetch_array()['store_source_id'];
+        return null;
     }
 
     function getTotalOrdersCount()
@@ -458,6 +460,21 @@ class ImportantFunctions
         // echo "<pre>";
         // print_r($result->fetch_array());
         // echo "<pre";
+    }
+
+    public function getProducts()
+    {
+        global $db;
+        $content = '';
+        $query = "SELECT * from products";
+        $result = $db->query($query) or die($db->error);
+        $content .= '<select name="product_sku" id="product_sku" class="form-control" >';
+        while ($row = $result->fetch_array()) {
+            $content .= '<option selected="selected" value=' . $row['product_manual_id'] . '>' . $row['product_manual_id'] . '</option>';
+        }
+        $content .= '</select>';
+
+        echo $content;
     }
 
     public function getStoreByItsId($store_id)
@@ -768,10 +785,34 @@ class ImportantFunctions
         }
     }
 
+    function sendShippingFromStore($sku, $quantity)
+    {
+        global $db;
+        $impotant = new ImportantFunctions();
+        $productExists = $this->checkProductExist($sku);
+        if ($productExists) {
+            $now = date("Y-m-d H:i:s");
+            $query = "INSERT into send_shipping VALUES(NULL, '" . $impotant->getOrderSourceIdForCurrentOwner() . "','" . $sku . "', '" . $quantity . "', 0, '" . $now . "')";
+            $result = $db->query($query) or die($db->error);
+            return;
+            return 'Shipping send successfully';
+        } else {
+            return 'Product Not Found';
+        }
+    }
+
     function getInventoryRequest()
     {
         global $db;
         $query = "SELECT * FROM send_inventory WHERE is_approve=0";
+        $result = $db->query($query) or die($db->error);
+        return $result;
+    }
+
+    function getShipments()
+    {
+        global $db;
+        $query = "SELECT * FROM send_shipping WHERE is_approve=0";
         $result = $db->query($query) or die($db->error);
         return $result;
     }

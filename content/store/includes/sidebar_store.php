@@ -68,6 +68,15 @@ $function_id = $user->get_user_info($user_id, "user_function");
                     </ul>
                 </li>
 
+                <li>
+                    <a href="javascript:void(0)">
+                        <i class="menu-icon fa fa-list-ol"></i><span>Deliveries<i class="accordion-icon fa fa-angle-right"></i></span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="send_shipping.php"><span class="text-success"><i class="fa fa-caret-right"></i> Shipping</span></a></li>
+                    </ul>
+                </li>
+
 
 
             </ul>

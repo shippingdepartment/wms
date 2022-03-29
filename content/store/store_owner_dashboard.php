@@ -63,13 +63,13 @@ $totalOrdersCount = $important->getTotalOrdersCount();
     <div class="page-container">
         <!-- Side Bar -->
         <?php if (partial_access('store_owner')) require_once("includes/sidebar_store.php");
-        else require_once("includes/sidebar.php"); //including sidebar file. 
+        else require_once("includes/sidebar.php"); //including sidebar file.
         ?>
         <!-- End Side Bar -->
         <!-- Page Content -->
         <div class="page-content">
             <!-- Header -->
-            <?php require_once("includes/header.php"); //including sidebar file. 
+            <?php require_once("includes/header.php"); //including sidebar file.
             ?>
             <!-- End Header -->
 
@@ -124,7 +124,7 @@ $totalOrdersCount = $important->getTotalOrdersCount();
                                     <div class="pull-right">
                                         <i class="fa fa-warning" style="font-size:48px;color:#CC0000"></i>
                                     </div>
-                                </div>  
+                                </div>
                             </div>
                         </div>
                         <a href="shipping_alert.php">
