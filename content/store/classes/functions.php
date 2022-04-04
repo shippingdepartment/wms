@@ -361,6 +361,43 @@ class ImportantFunctions
         echo $content;
     }
 
+    public function getCurrentCustomerFinishedOrder()
+    {
+        global $db;
+        $query = "SELECT * from shipping_labels WHERE store_id='" .  $_SESSION['order_source_id'] . "'  ORDER by id ";
+        $result = $db->query($query) or die($db->error);
+        $content = '';
+        $user = new Users();
+        $packingUrl = '#';
+        while ($row = $result->fetch_array()) {
+            extract($row);
+            $orderNoQuery = "SELECT * FROM assign_order WHERE user_id='" . $_SESSION['user_id'] . "' AND order_no='" . $order_no . "' LIMIT 1";
+            $orderNoQueryResult = $db->query($orderNoQuery) or die($db->error);
+            if ($orderNoQueryResult->num_rows > 0) {
+                $data = ($orderNoQueryResult->fetch_array());
+                $packingUrl = 'packing_slip.php?order_id=' . $data['order_id'];
+            }
+
+            $content .= '<tr class="">';
+            $content .= '<td>';
+            $content .= $order_no;
+            $content .= '</td><td>';
+            $content .= $label_id;
+
+            $content .= '</td><td>';
+            $content .= $shipment_id;
+            $content .= '</td>';
+            $content .= '<td>';
+            $content .= $tracking_number;
+            $content .= '</td>';
+            $content .= '<td>';
+            $content .= '<a href=' . $pdf . ' download target="_blank">Shipping Label</a> / <a href=' . $packingUrl . '  onclick="window.open(this.href).print(); return false">Packing Slip</a> / <span id="returnLabel" data-value='.$label_id.'>Return Label</span>';
+            $content .= '</td>';
+            $content .= '</tr>';
+        }
+        echo $content;
+    }
+
     function add_inventory($inn, $out_inv, $product_id)
     {
         global $db;

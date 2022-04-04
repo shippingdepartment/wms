@@ -77,6 +77,15 @@ $function_id = $user->get_user_info($user_id, "user_function");
                     </ul>
                 </li>
 
+                <li>
+                    <a href="javascript:void(0)">
+                        <i class="menu-icon fa fa-list-ol"></i><span>Return Labels<i class="accordion-icon fa fa-angle-right"></i></span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="return_label.php"><span class="text-success"><i class="fa fa-caret-right"></i> Return Label</span></a></li>
+                    </ul>
+                </li>
+
 
 
             </ul>
