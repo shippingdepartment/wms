@@ -49,7 +49,7 @@ $function_id = $user->get_user_info($user_id, "user_function");
 
                 <li>
                     <a href="voidLabels.php">
-                        <i class="menu-icon fa fa-tag"></i><span>Return Label <i class="accordion-icon fa fa-angle-right"></i> </span>
+                        <i class="menu-icon fa fa-tag"></i><span>Void Label <i class="accordion-icon fa fa-angle-right"></i> </span>
                     </a>
                     <!-- <ul class="sub-menu">
                         <li><a href="store_payment_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> Transaction History</span></a></li>
