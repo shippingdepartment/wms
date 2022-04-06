@@ -385,7 +385,7 @@ $page_title = $warehouses->name; //You can edit this to change your page title.
 							</div>
 						<?php } ?>
 						<div class="col-lg-3 col-md-3">
-							<a style="display:block" href="returns.php?s_s=<?php echo session_id(); ?>">
+							<a style="display:block" href="return_label_list.php?s_s=<?php echo session_id(); ?>">
 								<div class="panel warh-bloc" style="background-color:#c51162;opacity:0.8">
 									<div class="panel-body">
 										<div class="pull-left">
