@@ -391,7 +391,7 @@ class ImportantFunctions
             $content .= $tracking_number;
             $content .= '</td>';
             $content .= '<td>';
-            $content .= '<a href=' . $pdf . ' download target="_blank">Shipping Label</a> / <a href=' . $packingUrl . '  onclick="window.open(this.href).print(); return false">Packing Slip</a> / <span id="returnLabel" data-value='.$label_id.'>Return Label</span>';
+            $content .= '<a href=' . $pdf . ' download target="_blank" class="btn btn-secondary">Shipping Label</a> / <a href=' . $packingUrl . '  onclick="window.open(this.href).print(); return false" class="btn btn-secondary">Packing Slip</a> / <button class="btn btn-secondary" id="returnLabel" value=' . $label_id . ' onclick="returnLabel(this.value)" >Return Label</button>';
             $content .= '</td>';
             $content .= '</tr>';
         }
@@ -932,5 +932,45 @@ class ImportantFunctions
             return $result;
         }
         return false;
+    }
+
+    function storeReturnLabelList($label_id, $label_link, $status, $tracking_number)
+    {
+        global $db;
+        $now = date("Y-m-d H:i:s");
+        $query = "SELECT  * from return_labels  WHERE label_id='" . $label_id . "'";
+        $result = $db->query($query) or die($db->error);
+        if ($result->num_rows > 0)
+            return;
+        $query = "INSERT into return_labels VALUES(NULL, '" . $label_id . "','" . $label_link . "', '" . $status . "', $tracking_number, '" . $now . "')";
+        $result = $db->query($query) or die($db->error);
+        return true;
+    }
+
+    function getReturnLabelList()
+    {
+        global $db;
+        $query = "SELECT  * from return_labels ";
+        $result = $db->query($query) or die($db->error);
+        $content = '';
+        while ($row = $result->fetch_array()) {
+            extract($row);
+
+
+            $content .= '<tr class="">';
+            $content .= '<td>';
+            $content .= $label_id;
+            $content .= '</td><td>';
+            $content .= $status;
+            $content .= '</td>';
+            $content .= '<td>';
+            $content .= $tracking_number;
+            $content .= '</td>';
+            $content .= '<td>';
+            $content .= '<a href=' . $label_link . ' download target="_blank">Label</a>';
+            $content .= '</td>';
+            $content .= '</tr>';
+        }
+        echo $content;
     }
 }

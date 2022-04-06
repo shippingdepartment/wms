@@ -2,7 +2,7 @@
 include('system_load.php');
 //This loads system.
 //user Authentication.
-// authenticate_user('store_owner');
+authenticate_user('subscriber');
 
 $user_id = $_SESSION['user_id'];
 $function_id = $user->get_user_info($user_id, "user_function");
@@ -18,7 +18,7 @@ $user = new Users();
 
 
 
-$page_title = 'Finished Orders'; //You can edit this to change your page title.
+$page_title = 'Returned Label List'; //You can edit this to change your page title.
 
 
 ?>
@@ -71,8 +71,7 @@ $page_title = 'Finished Orders'; //You can edit this to change your page title.
     <!-- Page Container -->
     <div class="page-container">
         <!-- Side Bar -->
-        <?php if (partial_access('store_owner')) require_once("includes/sidebar_store.php");
-        else require_once("includes/sidebar.php"); //including sidebar file.
+        <?php require_once("includes/sidebar.php"); //including sidebar file. 
         ?>
         <!-- End Side Bar -->
         <!-- Page Content -->
@@ -87,17 +86,14 @@ $page_title = 'Finished Orders'; //You can edit this to change your page title.
                 <div class="page-title">
                     <h3 class="breadcrumb-header"><?php echo $page_title; ?></h3>
                 </div>
-
-                <!-- display message if exist. -->
-                <div id="alertSuccess" class="alert alert-success d-none">
-                    Return label created successfully
-                </div>
-                <div id="alertDanger" class="alert alert-danger d-none">
-                    Failed, Please try again later
-                </div>
-                <div id="alertLoading" class="alert alert-success d-none">
-                    Please wait...
-                </div>
+                <?php
+                //display message if exist.
+                if (isset($message) && $message != '') {
+                    echo '<div class="alert alert-success">';
+                    echo $message;
+                    echo '</div>';
+                }
+                ?>
 
 
                 <div class="row">
@@ -117,17 +113,19 @@ $page_title = 'Finished Orders'; //You can edit this to change your page title.
                                 <table id="example3" class="display table" style="width: 100%; cellspacing: 0;">
                                     <thead>
                                         <tr>
-                                            <th>Order No</th>
                                             <th>label Id</th>
                                             <th>Shipping Id</th>
                                             <th>Tracking #</th>
-                                            <th>Action</th>
+                                            <th>Shipping Label Link</th>
+                                            <!-- <th>Action</th> -->
 
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
-                                        echo $important->getCurrentCustomerFinishedOrder();
+                                        echo $important->getReturnLabelList();
+                                        // $client->list_clients();
+
                                         ?>
                                     </tbody>
 
@@ -177,67 +175,13 @@ $page_title = 'Finished Orders'; //You can edit this to change your page title.
     <script>
         $('#example3').dataTable({
             'iDisplayLength': 100,
+            'select': {
+                style: 'multi'
+            },
             "order": [
                 [0, "desc"]
             ]
 
         });
-
-        function returnLabel(labelId) {
-            $('#alertLoading').removeClass('d-none');
-            let key = 'YCMccKJkFczSrSWMb21zY2lJCugPtJNlgwO+XTDX9Jk';
-            var myHeaders = new Headers();
-            myHeaders.append("Host", "api.shipengine.com");
-            myHeaders.append("API-Key", key);
-            myHeaders.append("Content-Type", "application/json");
-            var requestOptions = {
-                method: 'POST',
-                headers: myHeaders,
-                redirect: 'follow',
-                body: JSON.stringify({
-                    label_format: 'pdf',
-                    label_layout: '4x6',
-                    label_download_type: 'url'
-                })
-            };
-
-            fetch("https://api.shipengine.com/v1/labels/" + labelId + "/return/", requestOptions)
-                .then(response => response.json())
-                .then(result => {
-                    if (result.status === 'completed') {
-                        $('#alertLoading').addClass('d-none');
-                        $('#alertSuccess').removeClass('d-none');
-                        paramJSON = {
-                            'label_id': labelId,
-                            'label_link': result.label_download['pdf'],
-                            'status': result.status,
-                            'tracking_number': result.tracking_number
-                        }
-                        $.post(
-                            'shipengine/return_label.php', {
-                                data: JSON.stringify(paramJSON),
-                            },
-                            function(data) {
-                                setTimeout(function() {
-                                    window.location.reload();
-                                }, 2000);
-                            }
-                        );
-
-                    } else {
-                        $('#alertDanger').removeClass('d-none');
-                    }
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 2000);
-                })
-                .catch(error => {
-                    $('#alertDanger').removeClass('d-none');
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 2000);
-                });
-
-        }
     </script>
 </body>

@@ -126,6 +126,15 @@ $function_id = $user->get_user_info($user_id, "user_function");
 
                 <li>
                     <a href="javascript:void(0)">
+                        <i class="menu-icon fa fa-truck"></i><span>Return <i class="accordion-icon fa fa-angle-right"></i> </span>
+                    </a>
+                    <ul class="sub-menu">
+                        <li><a href="return_label_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> Return labels</span></a></li>
+                    </ul>
+                </li>
+
+                <li>
+                    <a href="javascript:void(0)">
                         <i class="menu-icon fa fa-arrow-circle-down"></i><span>Stock Returns <i class="accordion-icon fa fa-angle-right"></i> </span>
                     </a>
                     <ul class="sub-menu">
