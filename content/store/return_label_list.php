@@ -114,7 +114,7 @@ $page_title = 'Returned Label List'; //You can edit this to change your page tit
                                     <thead>
                                         <tr>
                                             <th>label Id</th>
-                                            <th>Shipping Id</th>
+                                            <th>Status</th>
                                             <th>Tracking #</th>
                                             <th>Shipping Label Link</th>
                                             <!-- <th>Action</th> -->
