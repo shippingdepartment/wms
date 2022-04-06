@@ -967,7 +967,7 @@ class ImportantFunctions
             $content .= $tracking_number;
             $content .= '</td>';
             $content .= '<td>';
-            $content .= '<a href=' . $label_link . ' download target="_blank">Label</a>';
+            $content .= '<a href=' . $label_link . ' download target="_blank">View</a>';
             $content .= '</td>';
             $content .= '</tr>';
         }
