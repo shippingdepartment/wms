@@ -487,7 +487,7 @@ class ImportantFunctions
         $content = '';
         $query = "SELECT * from products WHERE store_id='" . $_SESSION['order_source_id'] . "' ORDER by product_name ASC";
         $result = $db->query($query) or die($db->error);
-        $content .= '<select name="product_sku" class="form-control" >';
+        $content .= '<select name="product_sku[]" class="form-control" multiple>';
         while ($row = $result->fetch_array()) {
             $content .= '<option selected="selected" value=' . $row['product_manual_id'] . '>' . $row['product_manual_id'] . '</option>';
         }
@@ -505,9 +505,11 @@ class ImportantFunctions
         $content = '';
         $query = "SELECT * from products";
         $result = $db->query($query) or die($db->error);
-        $content .= '<select name="product_sku" id="product_sku" class="form-control" >';
+        $content .= '<select name="product_sku[]" id="product_sku" class="form-control" multiple="multiple">';
         while ($row = $result->fetch_array()) {
-            $content .= '<option selected="selected" value=' . $row['product_manual_id'] . '>' . $row['product_manual_id'] . '</option>';
+            if (!empty($row['product_manual_id']))
+
+                $content .= '<option data-value=' . "{$row['product_name']}"  . '  value=' . $row['product_manual_id'] . '>' . $row['product_manual_id'] . '</option>';
         }
         $content .= '</select>';
 
@@ -822,20 +824,20 @@ class ImportantFunctions
         }
     }
 
-    function sendShippingFromStore($sku, $quantity)
+    function sendShippingFromStore($skus, $quantities, $carton_id, $trackingNo)
     {
+        $quantities = (json_decode($quantities));
         global $db;
         $impotant = new ImportantFunctions();
-        $productExists = $this->checkProductExist($sku);
-        if ($productExists) {
-            $now = date("Y-m-d H:i:s");
-            $query = "INSERT into send_shipping VALUES(NULL, '" . $impotant->getOrderSourceIdForCurrentOwner() . "','" . $sku . "', '" . $quantity . "', 0, '" . $now . "')";
-            $result = $db->query($query) or die($db->error);
-            return;
-            return 'Shipping send successfully';
-        } else {
-            return 'Product Not Found';
+        foreach ($skus as $key => $sku) {
+            $productExists = $this->checkProductExist($sku);
+            if ($productExists) {
+                $now = date("Y-m-d H:i:s");
+                $query = "INSERT into send_shipping VALUES(NULL, '" . $impotant->getOrderSourceIdForCurrentOwner() . "','" . $sku . "', '" . intval($quantities[$key]) . "', 0, '" . $now . "','" . $carton_id . "', '" . $trackingNo . "')";
+                $result = $db->query($query) or die($db->error);
+            }
         }
+        return 'Shipping send successfully';
     }
 
     function getInventoryRequest()
@@ -849,9 +851,28 @@ class ImportantFunctions
     function getShipments()
     {
         global $db;
-        $query = "SELECT * FROM send_shipping WHERE is_approve=0";
+        $query = "SELECT * FROM send_shipping WHERE is_approve = 0  Group By carton_id";
         $result = $db->query($query) or die($db->error);
         return $result;
+    }
+
+    function getShipmentsFromCartonId($carton_id)
+    {
+        global $db;
+        $query = "SELECT * FROM send_shipping WHERE carton_id='" . $carton_id . "'  ";
+        $result = $db->query($query) or die($db->error);
+        return $result;
+    }
+
+    function isShipmentsMultipleProducts($carton_id)
+    {
+        global $db;
+        $query = "SELECT * FROM send_shipping WHERE carton_id='" . $carton_id . "'  ";
+        $result = $db->query($query) or die($db->error);
+        if ($result->num_rows > 1)
+            return true;
+        else
+            return false;
     }
 
     function getProductId($sku)

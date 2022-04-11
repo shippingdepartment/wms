@@ -2,50 +2,41 @@
 include('system_load.php');
 //This loads system.
 //user Authentication.
-authenticate_user('subscriber');
 
-$user_id = $_SESSION['user_id'];
-$function_id = $user->get_user_info($user_id, "user_function");
+$carton_id = $_GET['carton_id'];
 
-// if ($_SESSION['user_type'] != "admin" || $_SESSION['user_type'] != "subscriber") {
-//     if ($function_id != 'storem' or $function_id != 'manager') {
-//         HEADER('LOCATION: warehouse.php?msg=lstcust');
-//     }
-// }
 
 $important = new ImportantFunctions();
+$shipment = $important->getShipmentsFromCartonId($carton_id);
 // return;
 $user = new Users();
-$request = $important->getShipments();
 $key = 0;
 $content = '';
-while ($row = $request->fetch_array()) {
+while ($row = $shipment->fetch_array()) {
     extract($row);
-    $isMultiple = $important->isShipmentsMultipleProducts($carton_id);
     $key++;
     $content .= '<tr class="">';
     $content .= '<td>';
     $content .= $key;
     $content .= '</td><td>';
-    $content .= $isMultiple ? 'Multiple' :  $product_id;
+    $content .= $product_id;
     $content .= '</td>';
     $content .= '</td><td>';
-    $content .=  $isMultiple ? 'Multiple' : $quantity;
+    $content .= $quantity;
     $content .= '</td>';
     $content .= '</td><td>';
-    $content .= $carton_id;
+    $content .=  $tracking_code;
     $content .= '</td>';
     $content .= '</td><td>';
-    $content .= $tracking_code;
+    $content .=  $carton_id;
     $content .= '</td>';
-    $content .= '<td><button id="approveBtnInventory"   value=' . $carton_id . ' class="btn btn-success" onclick="approveInventory(this.value)" >Approve</button> / <a href="viewReceivingShipments.php?carton_id=' . $carton_id . '" target="_blank"><i class="fa fa-eye" style="font-size:16px"></i></a>';
-    $content .= '</td>';
+
     $content .= '</tr>';
 }
 
 
 
-$page_title = 'Receive Shipments List'; //You can edit this to change your page title.
+$page_title = 'View Shipments'; //You can edit this to change your page title.
 
 
 ?>
@@ -144,9 +135,8 @@ $page_title = 'Receive Shipments List'; //You can edit this to change your page 
                                             <th> #</th>
                                             <th>SKU</th>
                                             <th>Quantity</th>
-                                            <th>Carton#</th>
                                             <th>Tracking#</th>
-                                            <th>Actions</th>
+                                            <th>Carton#</th>
 
                                     </thead>
                                     <tbody>
@@ -209,7 +199,7 @@ $page_title = 'Receive Shipments List'; //You can edit this to change your page 
                 'id': id,
             }
             $.post(
-                'shipengine/approve_shipment.php', {
+                'shipengine/approve_inventory.php', {
                     data: JSON.stringify(paramJSON)
                 },
                 function(data) {

@@ -14,8 +14,7 @@ $page_title = 'Send Shipping';
 
 if (isset($_POST['save'])) {
     extract($_POST);
-   
-    $message =  $important->sendShippingFromStore($product_sku, intval($quantity));
+    $message =  $important->sendShippingFromStore($product_sku, $product_sku_quantity, $carton_id, $trackingNo);
     //     // $message = $warehouse->add_inventory($quantity, '0', $product, $_SESSION['warehouse_id'], $lot);
     //     // HEADER('LOCATION: addstock.php?message=Stock Added !!');
 }
@@ -40,6 +39,7 @@ if (isset($_POST['save'])) {
 
 
     <!-- Styles -->
+
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
     <link href="../../assets/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="../../assets/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet">
@@ -53,10 +53,13 @@ if (isset($_POST['save'])) {
     <link href="../../assets/plugins/x-editable/bootstrap3-editable/css/bootstrap-editable.css" rel="stylesheet">
     <link href="../../assets/plugins/x-editable/inputs-ext/typeaheadjs/lib/typeahead.js-bootstrap.css" rel="stylesheet">
     <link href="../../assets/plugins/x-editable/inputs-ext/address/address.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     <!-- Theme Styles -->
     <link href="../../assets/css/space.min.css" rel="stylesheet">
     <link href="../../assets/css/custom.css" rel="stylesheet">
+
+
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css" />
@@ -98,7 +101,7 @@ if (isset($_POST['save'])) {
                 <div class="panel panel-white alert alert-default" style="font-size:14px;color:#0d47a1">
                     <div class="panel-heading clearfix">
                         <div class="panel-body">
-                            <form action="<?php $_SERVER['PHP_SELF'] ?>" class="form-horizontal" method='POST' name='testform'>
+                            <form action="<?php $_SERVER['PHP_SELF'] ?>" class="form-horizontal" method='POST' name='testform' id="#sendShippingForm">
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label">Date</label>
                                     <div class="col-sm-6">
@@ -107,19 +110,38 @@ if (isset($_POST['save'])) {
                                 </div>
 
 
-                                <input type="hidden" placeholder="Memo" name="memo" class="form-control" value="" />
-
+                                <!-- TODO: NEED TO ADD MULTIPLE SELECT OPTION -->
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label">SKU</label>
                                     <div class="col-sm-6">
                                         <?php echo $important->getProducts() ?>
                                     </div>
                                 </div>
+                                <!-- <div class="form-group">
+                                    <label class="col-sm-2 control-label">Product Name</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" name="product_name" id="product_name" class="form-control" readonly />
+                                    </div>
+                                </div> -->
 
-                                <div class="form-group">
+                                <!-- <div class="form-group">
                                     <label class="col-sm-2 control-label">Quantity</label>
                                     <div class="col-sm-6">
                                         <input type="text" name="quantity" id="quantity" class="form-control" placeholder="Enter Quantity" />
+                                    </div>
+                                </div> -->
+
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Carton Id</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" name="carton_id" id="carton_id" class="form-control" placeholder="Carton Id" />
+                                    </div>
+                                </div>
+                                <!-- Tracking Code is Optional -->
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">Tracking#</label>
+                                    <div class="col-sm-6">
+                                        <input type="text" name="trackingNo" id="trackingNo" class="form-control" placeholder="Tracking Id" />
                                     </div>
                                 </div>
 
@@ -169,5 +191,27 @@ if (isset($_POST['save'])) {
 <script src="../../assets/plugins/x-editable/inputs-ext/typeaheadjs/typeaheadjs.js"></script>
 <script src="../../assets/plugins/x-editable/inputs-ext/address/address.js"></script>
 <script src="../../assets/js/pages/form-x-editable.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    var selectedSku = [];
+    $(document).ready(function() {
+        $('#product_sku').select2();
+    });
+
+    $('#product_sku').change(function(e) {
+        var text = prompt("Please enter quantity");
+        selectedSku.push(text);
+
+    });
+
+    $('form').submit(function(e) {
+        $("<input />").attr("type", "hidden")
+            .attr("name", "product_sku_quantity")
+            .attr("value", (JSON.stringify(selectedSku)))
+            .appendTo("form");
+        return true;
+    });
+</script>
 
 </html>
