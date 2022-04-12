@@ -826,6 +826,7 @@ class ImportantFunctions
 
     function sendShippingFromStore($skus, $quantities, $carton_id, $trackingNo)
     {
+        // TODO: NEED TO ADD VALIDATION IF CARTON_ID OR TRACKING NOT EXISTS
         $quantities = (json_decode($quantities));
         global $db;
         $impotant = new ImportantFunctions();
@@ -993,5 +994,12 @@ class ImportantFunctions
             $content .= '</tr>';
         }
         echo $content;
+    }
+
+    function resetOrdersAll()
+    {
+        global $db;
+        $query = "DELETE FROM assign_order WHERE status='inprogress' ";
+        $result = $db->query($query) or die($db->error);
     }
 }

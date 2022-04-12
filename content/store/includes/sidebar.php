@@ -32,6 +32,14 @@ $function_id = $user->get_user_info($user_id, "user_function");
 
                 <?php if (partial_access('admin')) { ?>
                     <li>
+                        <a href="reset_orders.php" onclick="return confirm('Are you sure?')">
+                            <i class="menu-icon icon-settings"></i><span>Reset Orders</span>
+                        </a>
+                    </li>
+                <?php } ?>
+
+                <?php if (partial_access('admin')) { ?>
+                    <li>
                         <a href="javascript:void(0)">
                             <i class="menu-icon icon-users"></i><span>Users</span><i class="accordion-icon fa fa-angle-right"></i>
                         </a>

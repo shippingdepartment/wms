@@ -52,6 +52,9 @@ if (isset($_GET['msg']) && $_GET['msg'] == 'warforb') {
 } else if (isset($_GET['msg']) && $_GET['msg'] == 'lstrpt') {
 	$message = " You are not allowed to view the reports pages in this warehouse.";
 }
+else if (isset($_GET['msg']) && $_GET['msg'] == 'order_reset') {
+	$message = "Order reset successfully";
+}
 
 if (isset($_POST['delete_warehouse']) && $_POST['delete_warehouse'] != '') {
 	$message = $warehouses->delete_warehouse($_POST['delete_warehouse']);

@@ -6,7 +6,7 @@ authenticate_user('subscriber');
 
 $user_id = $_SESSION['user_id'];
 $function_id = $user->get_user_info($user_id, "user_function");
-
+$message;
 if ($_SESSION['user_type'] != "admin") {
     if ($function_id != 'storem' or $function_id != 'manager') {
         HEADER('LOCATION: warehouse.php?msg=lstcust');
@@ -14,6 +14,9 @@ if ($_SESSION['user_type'] != "admin") {
 }
 
 $important = new ImportantFunctions();
+if (isset($_GET['msg']) && $_GET['msg'] == 'order_reset') {
+    $message = " Orders reset it successfully & click on eye button to import fresh orders for each customer";
+}
 
 $response = $important->CallAPI('GET', 'v-beta/order_sources');
 $content = '';
