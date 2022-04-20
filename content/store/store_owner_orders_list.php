@@ -35,9 +35,10 @@ foreach ($response->sales_orders as $key => $value) {
         $content .= '</td>';
         $content .= '<td > ' . $value->sales_order_id;
         $content .= '</td>';
-        $content .= '<td > ' . $orderStatus;
+        $content .= '<td> ';
+        $content .= $orderStatus != '' ? $orderStatus : 'in progress';
         $content .= '</td>';
-        $content .= '<td> <a href="store_owner_order_details.php?id=' . $value->sales_order_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a>';
+        $content .= '<td> <a href="store_owner_order_details.php?id=' . $value->sales_order_id . '" target="_self">View</a> / <a href="customer_return_label_work.php?order_no=' . $value->sales_order_id . '" target="_self">Return</a>';
 
         $content .= '</td>';
         $content .= '</tr>';

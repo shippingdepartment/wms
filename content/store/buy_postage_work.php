@@ -87,7 +87,6 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
 
     echo "<script type='text/javascript'> let a= document.createElement('a');
         a.href= '{$URL}';
-      
         a.click();</script>";
 
 

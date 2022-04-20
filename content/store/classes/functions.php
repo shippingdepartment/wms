@@ -1002,4 +1002,41 @@ class ImportantFunctions
         $query = "DELETE FROM assign_order WHERE status='inprogress' ";
         $result = $db->query($query) or die($db->error);
     }
+
+    function storeCustomerReturnLabel($order_no, $label_id, $status, $link)
+    {
+        global $db;
+        $now =  date("Y-m-d H:i:s");
+        $query = "INSERT into customer_return_label VALUES(NULL, '" . $label_id . "', '" . $status . "', '" . $link . "' , '" . $now . "', '" . $order_no . "', '" . $_SESSION['order_source_id'] . "')";
+        $result = $db->query($query) or die($db->error);
+        $query = "UPDATE  assign_order SET status='returned' , updated_at=now() WHERE order_no='" . $order_no . "'";
+        $result = $db->query($query) or die($db->error);
+        return true;
+    }
+
+    public function getReturnLabelsForShipengine()
+    {
+        global $db;
+        $query = "SELECT * from customer_return_label WHERE store_id='" .  $_SESSION['order_source_id'] . "'  ORDER by id ";
+        $result = $db->query($query) or die($db->error);
+        $content = '';
+        $packingUrl = '#';
+        while ($row = $result->fetch_array()) {
+            extract($row);
+            $content .= '<tr class="">';
+            $content .= '<td>';
+            $content .= $order_no;
+            $content .= '</td><td>';
+            $content .= $label_id;
+
+            $content .= '</td><td>';
+            $content .= $status;
+            $content .= '</td>';
+            $content .= '<td>';
+            $content .= '<a href=' . $link . ' download target="_blank" class="btn btn-secondary">Return Label</a> ';
+            $content .= '</td>';
+            $content .= '</tr>';
+        }
+        echo $content;
+    }
 }

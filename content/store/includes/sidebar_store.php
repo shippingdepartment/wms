@@ -82,7 +82,8 @@ $function_id = $user->get_user_info($user_id, "user_function");
                         <i class="menu-icon fa fa-list-ol"></i><span>Return Labels<i class="accordion-icon fa fa-angle-right"></i></span>
                     </a>
                     <ul class="sub-menu">
-                        <li><a href="return_label.php"><span class="text-success"><i class="fa fa-caret-right"></i> Return Label</span></a></li>
+                        <li><a href="return_label.php"><span class="text-success"><i class="fa fa-caret-right"></i> From Shipengine</span></a></li>
+                        <li><a href="return_to_shipengine.php"><span class="text-success"><i class="fa fa-caret-right"></i> To Shipengine</span></a></li>
                     </ul>
                 </li>
 
