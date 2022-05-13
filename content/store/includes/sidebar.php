@@ -81,7 +81,6 @@ $function_id = $user->get_user_info($user_id, "user_function");
                         <i class="menu-icon fa fa-credit-card"></i><span>Orders <i class="accordion-icon fa fa-angle-right"></i> </span>
                     </a>
                     <ul class="sub-menu">
-                        <li><a href="stores_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> View Stores</span></a></li>
                         <?php if (partial_access('admin')) { ?>
                             <li><a href="assigned_orders_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> All Assigned Orders</span></a></li>
                         <?php  } ?>
@@ -242,6 +241,7 @@ $function_id = $user->get_user_info($user_id, "user_function");
 
                             </a>
                             <ul class="sub-menu">
+                            <li><a href="stores_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> View Stores</span></a></li>
                                 <li><a href="store_owner_price_list.php"><span class="text-success"><i class="fa fa-caret-right"></i>Adjust Price</span></a></li>
                                 <li><a href="store_owner_owes.php"><span class="text-success"><i class="fa fa-caret-right"></i>Store Owner Reports</span></a></li>
                                 <li><a href="create_filters.php"><span class="text-success"><i class="fa fa-caret-right"></i>Create Filters</span></a></li>
