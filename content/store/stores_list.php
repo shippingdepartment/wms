@@ -1,9 +1,7 @@
 <?php
 include('system_load.php');
-//This loads system.
-//user Authentication.
-authenticate_user('subscriber');
 
+authenticate_user('subscriber');
 $user_id = $_SESSION['user_id'];
 $function_id = $user->get_user_info($user_id, "user_function");
 $message;
@@ -18,27 +16,27 @@ if (isset($_GET['msg']) && $_GET['msg'] == 'order_reset') {
     $message = " Orders reset it successfully & click on eye button to import fresh orders for each customer";
 }
 
-$response = $important->CallAPI('GET', 'v-beta/order_sources');
-$content = '';
-$site_url = get_option('site_url');
+$response = $important->CallAPI('GET', 'stores');
 
-foreach ($response->order_sources as $key => $value) {
+$content = '';
+
+foreach ($response as $key => $value) {
     if ($value->active) {
         $content .= '<tr class="">';
         $content .= '<td>';
         $content .= $key + 1;
         $content .= '</td><td>';
-        $content .= $value->order_source_nickname;
+        $content .= $value->storeName;
         $content .= '</td><td>';
-        $content .= $value->order_source_friendly_name;
+        $content .= $value->marketplaceName;
         $content .= '</td>';
         $content .= '</td><td>';
         $content .= 'active';
         $content .= '</td>';
         $content .= '</td><td>';
-        $content .= $value->order_source_id;
+        $content .= $value->storeId;
         $content .= '</td><td>';
-        $content .= ' <a href="store_orders_list.php?id=' . $value->order_source_id . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a><br>';
+        $content .= ' <a href="store_orders_list.php?id=' . $value->storeId . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a><br>';
         // $content .= '<a href="orders_list.php?id='.$value->order_source_id.'"><span class="fa fa-eye">Hekko</span></a>';
         $content .= '</td>';
     }
@@ -170,10 +168,10 @@ $page_title = 'Stores List'; //You can edit this to change your page title.
                                     <thead>
                                         <tr>
                                             <th>ID</th>
-                                            <th>Order Source Nickname</th>
-                                            <th>Order Source Friendly Name</th>
+                                            <th>Store Name</th>
+                                            <th>MarketPlace</th>
                                             <th>Active</th>
-                                            <th>Order Source id</th>
+                                            <th>Store id</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>

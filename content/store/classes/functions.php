@@ -2,7 +2,7 @@
 
 class ImportantFunctions
 {
-    public $base_url = 'http://api.shipengine.com/';
+    public $base_url = 'https://ssapi.shipstation.com/';
 
     public function getStoreId()
     {
@@ -12,14 +12,9 @@ class ImportantFunctions
     {
         if ($changeURL)
             $this->base_url = '';
-        // echo '<pre>';
 
-        // print_r($data);
-        // echo '</pre>';
-
-        // return;
-
-        $apiKey = 'YCMccKJkFczSrSWMb21zY2lJCugPtJNlgwO+XTDX9Jk';
+        $username = 'c316b6a7b4934fe5a40de02259cb476b';
+        $password = 'f675644a314e4e44a8023bbc4be4e8cf';
         $curl = curl_init();
 
         switch ($method) {
@@ -32,18 +27,14 @@ class ImportantFunctions
                 curl_setopt($curl, CURLOPT_PUT, 1);
                 break;
             default:
-                // if ($data)
-                // $url = sprintf("%s?%s", $url, http_build_query($data));
         }
 
         // Optional Authentication:
         // curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
         curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-            'API-Key: ' . $apiKey,
             'Content-Type: application/json',
         ));
-        // curl_setopt($curl, CURLOPT_USERPWD, "username:password");
-
+        curl_setopt($curl, CURLOPT_USERPWD, $username . ":" . $password);
         curl_setopt($curl, CURLOPT_URL, $this->base_url . $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
@@ -900,15 +891,14 @@ class ImportantFunctions
     function getShippingServices()
     {
         $options = '';
-        $shippingServicesList = array();
-        $shippingServices = $this->CallAPI('GET', 'v1/carriers');
-        foreach ($shippingServices->carriers as $key => $services) {
+        $shippingServices = $this->CallAPI('GET', 'carriers');
+
+        foreach ($shippingServices as $key => $services) {
             // if ($services->carrier_id == 'se-647512') {
             //     continue; //ignoring the FEDX SHIPPING
             // }
-            foreach ($services->services as $key => $value) {
-                $options .= '<option data-id="' . $value->service_code . '"  value="' . $value->carrier_id . '">' . ucfirst($value->name) . '</option>';
-            }
+
+            $options .= '<option data-id="' . $services->code . '"  value="' . $services->code . '">' . ucfirst($services->name) . '</option>';
         }
         echo ($options);
     }

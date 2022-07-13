@@ -18,10 +18,12 @@ $product = new Product();
 $estimatedShippingCost = 0.0;
 $shippingService = null;
 $orderStatus = null;
-$response = $important->CallAPI('GET', "v-beta/sales_orders/" . $orderId);
-$shippingCarriers = $important->CallAPI('GET', 'v1/carriers');
-// var_dump($shippingCarriers);
-// return;
+$response = $important->CallAPI('GET', "orders/" . $orderId);
+$shippingCarriers = $important->CallAPI('GET', 'carriers');
+// echo "<pre>";
+// print_r(($shippingCarriers));
+// echo "</pre>";
+// exit;
 
 $content = '';
 $totalWeight = 0;
@@ -33,10 +35,10 @@ $assignID = 0;
 if (isset($_GET['assign_id'])) {
     $assignID = $_GET['assign_id'];
 }
-foreach ($response->sales_order_items as $key => $value) {
-    $productname = $value->line_item_details->name;
+foreach ($response->items as $key => $value) {
+    $productname = $value->name;
 
-    $product->moid_set_product_through_sku($value->line_item_details->sku);
+    $product->moid_set_product_through_sku($value->sku);
     $details .= '<div class="row">';
     $details .= '<div class="col">';
     $details .= '<div class="card card-2">';
@@ -46,17 +48,17 @@ foreach ($response->sales_order_items as $key => $value) {
     $details .= '<div class="media-body my-auto text-right">';
     $details .= '<div class="row my-auto flex-column flex-md-row">';
     $details .= '<div class="col my-auto">';
-    $details .= '<div class="col my-auto"> <small>SKU: ' . $value->line_item_details->sku . ' </small></div>';
+    $details .= '<div class="col my-auto"> <small>SKU: ' . $value->sku . ' </small></div>';
     $details .= '</div>';
     $details .= '<div class="col-auto my-auto"> <small>Quantity: ' . $value->quantity . ' </small></div>';
-    $details .= '<div class="col my-auto">' . $value->line_item_details->name . '</div>';
+    $details .= '<div class="col my-auto">' . $value->name .  '  (' . $value->lineItemKey . ')</div>';
     $details .= '<div class="col my-auto"> <small>Weight: ' . $product->pounds . 'lb ' . ($product->ounces * $value->quantity) . 'oz <br>Size: ' . $product->long_pr . 'l ' . $product->larg . 'w ' . ($product->haut * $value->quantity) . 'h' . ' </small></div>';
-    $details .= ' <div class="col my-auto"> <small class="mb-0">' . $value->requested_shipping_options->shipping_service  . '</small> </div>';
-    $details .= ' <div class="col my-auto"> <h6 class="mb-0">' . $value->price_summary->unit_price->amount . ' ' . strtoupper($value->price_summary->unit_price->currency) . '</h6> </div>';
+    $details .= ' <div class="col my-auto"> <small class="mb-0">' . $response->requestedShippingService  . '</small> </div>';
+    $details .= ' <div class="col my-auto"> <h6 class="mb-0">' . floatVal($value->unitPrice) . ' '  . '</h6> </div>';
     $details .= '</div>';
     $details .= '</div>';
     $details .= '</div>';
-    $details .= '<div class="text-right"> <button id=' . $value->line_item_details->sku . ' type="button" class="btn btn-success" data-product-quantity=' . $value->quantity . '  data-product-name=' . $productname . ' data-sku=' . $value->line_item_details->sku . ' onclick="verifyThePick(this)" > Verify Pick </button> </div>';
+    $details .= '<div class="text-right"> <button id=' . $value->sku . ' type="button" class="btn btn-success" data-product-quantity=' . $value->quantity . '  data-product-name=' . $productname . ' data-sku=' . $value->sku . ' onclick="verifyThePick(this)" > Verify Pick </button> </div>';
 
     $details .= '<hr class="my-3 ">';
     $details .= '</div>';
@@ -72,7 +74,7 @@ foreach ($response->sales_order_items as $key => $value) {
 }
 
 $currentCarts = $important->getFreeCarts();
-$orderStatus = $important->getOrderStatus($response->external_order_number, $response->sales_order_id);
+$orderStatus = $important->getOrderStatus($response->orderId, $response->advancedOptions->storeId);
 $carrierCode = '';
 $carrierId = '';
 // return;
@@ -80,13 +82,12 @@ $carrierId = '';
 // If the order is less than 16 oz then we can default to usps first class
 // setting the postObject for shipping rates
 $shippingObject = array(
-    'carrier_ids' => ["se-647551"],
-    'from_country_code' => 'US',
-    'from_postal_code' => '46226',
-    'to_country_code' => $response->ship_to->country_code,
-    'to_postal_code' => $response->ship_to->postal_code,
-    'to_city_locality' => $response->ship_to->city_locality,
-    'to_state_province' => $response->ship_to->state_province,
+    'carrierCode' => "stamps_com",
+    'fromPostalCode' => '46226',
+    'toCountry' => $response->shipTo->country,
+    'toPostalCode' => $response->shipTo->postalCode,
+    'toCity' => $response->shipTo->city,
+    'toState' => $response->shipTo->state,
     'weight' => (array('value' => intval($totalWeight), 'unit' => 'ounce')),
     'dimensions' => (array('unit' => 'inch', 'length' => 1.0, 'width' => 1.0, 'height' => 1.0)),
 );
@@ -97,48 +98,55 @@ $sf = [];
 if ($totalWeight <= 16) {
 
     $shippingObject = array(
-        'carrier_ids' => ["se-647551"],
-        'from_country_code' => 'US',
-        'from_postal_code' => '46226',
-        'to_country_code' => $response->ship_to->country_code,
-        'to_postal_code' => $response->ship_to->postal_code,
-        'to_city_locality' => $response->ship_to->city_locality,
-        'to_state_province' => $response->ship_to->state_province,
+        'carrierCode' => "stamps_com",
+        'fromPostalCode' => '46226',
+        'toCountry' => $response->shipTo->country,
+        'toPostalCode' => $response->shipTo->postalCode,
+        'toCity' => $response->shipTo->city,
+        'toState' => $response->shipTo->state,
         'weight' => (array('value' => intval($totalWeight), 'unit' => 'ounce')),
         'dimensions' => (array('unit' => 'inch', 'length' => 5.0, 'width' => 5.0, 'height' => 5.0)),
     );
-    $shippingCarriers = $important->CallAPI('POST', 'v1/rates/estimate', json_encode($shippingObject));
-    $estimatedShippingCost = $shippingCarriers[1]->shipping_amount->amount . ' ' . strtoupper($shippingCarriers[1]->shipping_amount->currency);
-    $shippingService = $shippingCarriers[1]->carrier_friendly_name;
-    $packageType = $shippingCarriers[1]->package_type;
-    $serviceCode = $shippingCarriers[1]->service_code;
-    $carrierId = "se-647551";
+    $shippingCarriers = $important->CallAPI('POST', 'shipments/getrates', json_encode($shippingObject));
+    // echo "<pre>";
+    //  print_r(($shippingCarriers));
+    // echo "</pre>";
+    // exit;
+
+    $estimatedShippingCost = $shippingCarriers[0]->shipmentCost;
+    $shippingService = $shippingCarriers[0]->serviceName;
+    // $packageType = $shippingCarriers[0]->package_type;
+    $serviceCode = $shippingCarriers[0]->serviceCode;
+    $carrierId = "stamps_com";
 } else {
-    foreach ($shippingCarriers->carriers as $key => $carrier) {
-        if ($carrier->carrier_id == 'se-647512') {
-            continue; //ignoring the FEDX SHIPPING
-        }
+    foreach ($shippingCarriers as $key => $carrier) {
+        // if ($carrier->carrier_id == 'se-647512') {
+        //     continue; //ignoring the FEDX SHIPPING
+        // }
         $shippingObject = array(
-            'carrier_ids' => [$carrier->carrier_id],
-            'from_country_code' => 'US',
-            'from_postal_code' => '78756',
-            'to_country_code' => $response->ship_to->country_code,
-            'to_postal_code' => $response->ship_to->postal_code,
-            'to_city_locality' => $response->ship_to->city_locality,
-            'to_state_province' => $response->ship_to->state_province,
+            'carrierCode' => "stamps_com",
+            'fromPostalCode' => '46226',
+            'toCountry' => $response->shipTo->country,
+            'toPostalCode' => $response->shipTo->postalCode,
+            'toCity' => $response->shipTo->city,
+            'toState' => $response->shipTo->state,
             'weight' => (array('value' => intval($totalWeight), 'unit' => 'ounce')),
             'dimensions' => (array('unit' => 'inch', 'length' => 5.0, 'width' => 5.0, 'height' => 5.0)),
         );
-        $shippingCarriers = $important->CallAPI('POST', 'v1/rates/estimate', json_encode($shippingObject));
-        foreach ($shippingCarriers as $keyj => $ship) {
+        $shippingRates = $important->CallAPI('POST', 'shipments/getrates', json_encode($shippingObject));
+        //         echo "<pre>";
+        //  print_r(($shippingRates));
+        // echo "</pre>";
+        // exit;
+        foreach ($shippingRates as $keyj => $ship) {
             //usps_media_mail is not required
-            if ($ship->service_code != 'usps_media_mail') {
-                $estimatedShippingCost = $ship->shipping_amount->amount . ' ' . strtoupper($ship->shipping_amount->currency);
-                $shippingService = $ship->carrier_friendly_name;
+            if ($ship->serviceCode != 'usps_media_mail') {
+                $estimatedShippingCost = $ship->shipmentCost;
+                $shippingService = $ship->serviceName;
                 $packageType = 'Package';
-                $serviceCode = $ship->service_code;
-                $carrierId = $carrier->carrier_id;
-                $sf[] = array('amount' => $ship->shipping_amount->amount, 'shippingService' => $ship->carrier_friendly_name, 'serviceCode' => $ship->service_code, 'carrierId' => $carrier->carrier_id);
+                $serviceCode = $ship->serviceCode;
+                $carrierId = $carrier->code;
+                $sf[] = array('amount' => $ship->shipmentCost, 'shippingService' => $ship->serviceName, 'serviceCode' => $ship->serviceCode, 'carrierId' => $carrier->code);
             }
         }
     }
@@ -189,7 +197,7 @@ if ($totalWeight <= 16) {
                 </div>
                 <div class="media flex-sm-row flex-column-reverse justify-content-between ">
                     <div class="col my-auto">
-                        <h4 class="mb-0"><span class="change-color"><?php echo $response->order_source->order_source_nickname ?></span> </h4>
+                        <h4 class="mb-0"><span class="change-color"><?php echo $response->advancedOptions->storeId ?></span> </h4>
                     </div>
                     <div class="col my-auto d-none" id="isEveryThingDone">
 
@@ -209,27 +217,27 @@ if ($totalWeight <= 16) {
 
                     </div>
                     <div class="col-auto text-center my-auto pl-0 pt-sm-4">
-                        <p class="">Order# &nbsp;<?php echo $response->external_order_number ?></p>
+                        <p class="">Order# &nbsp;<?php echo $response->orderNumber ?></p>
                     </div>
                 </div>
             </div>
             <div class="card-header bg-white">
 
-                <input type="hidden" id="customerEmail" value="<?php echo $response->customer->email ?>">
-                <input type="hidden" id="toCountryCode" value="<?php echo $response->ship_to->country_code ?>">
-                <input type="hidden" id="toPostalCode" value="<?php echo $response->ship_to->postal_code ?>">
-                <input type="hidden" id="toCity" value="<?php echo $response->ship_to->city_locality ?>">
-                <input type="hidden" id="toStateProvince" value="<?php echo $response->ship_to->state_province ?>">
+                <input type="hidden" id="customerEmail" value="<?php echo $response->customerEmail ?>">
+                <input type="hidden" id="toCountryCode" value="<?php echo $response->shipTo->country ?>">
+                <input type="hidden" id="toPostalCode" value="<?php echo $response->shipTo->postalCode ?>">
+                <input type="hidden" id="toCity" value="<?php echo $response->shipTo->city ?>">
+                <input type="hidden" id="toStateProvince" value="<?php echo $response->shipTo->state ?>">
                 <input type="hidden" id="totalWeight" value="<?php echo $totalWeight ?>">
 
                 <div class="pull-left">
-                    <p>Ship To: &nbsp; <?php echo $response->customer->email ?></p>
-                    <small><?php echo $response->ship_to->name; ?> <br> <?php echo $response->ship_to->address_line1; ?> <br>
-                        <?php echo $response->ship_to->city_locality . ' ' . $response->ship_to->state_province . ' ' . $response->ship_to->postal_code . ' ' . $response->ship_to->country_code; ?>
+                    <p>Ship To: &nbsp; <?php echo $response->customerEmail ?></p>
+                    <small><?php echo $response->shipTo->name; ?> <br> <?php echo $response->shipTo->street1; ?> <br>
+                        <?php echo $response->shipTo->city . ' ' . $response->shipTo->state . ' ' . $response->shipTo->postalCode . ' ' . $response->shipTo->country; ?>
                     </small>
                 </div>
                 <div class="pull-right">
-                    <p class=" Glasses">Payment Status &nbsp; <span class="text-success"> <?php echo strtoupper($response->sales_order_status->payment_status) ?> </span><br>
+                    <p class=" Glasses">Order Status &nbsp; <span class="text-success"> <?php echo strtoupper($response->orderStatus) ?> </span><br>
                         </span></p>
 
                 </div>
@@ -239,7 +247,7 @@ if ($totalWeight <= 16) {
                     <div class="col-auto">
                         <h6 class="color-1 mb-0 change-color">Order Items</h6>
                     </div>
-                    <div class="col-auto "> <small>Order Date: &nbsp;<?php echo date("m-d-Y", strtotime($response->order_date)); ?></small> </div>
+                    <div class="col-auto "> <small>Order Date: &nbsp;<?php echo date("m-d-Y", strtotime($response->orderDate)); ?></small> </div>
                 </div>
                 <?php
                 echo $details;
@@ -257,10 +265,10 @@ if ($totalWeight <= 16) {
                     <small class="text-danger text-center">(Cheapest One)</small>
                 </div>
                 <div class="w-100 d-flex mt-1 justify-content-between">
-                    <span id="estimatedShippingCost" class="ml-3 text-muted">Estimated Shipping Cost: <?php echo $estimatedShippingCost ?></span>
-                    <span id="shippingService" class="ml-3 text-muted"> Shipping Service: <?php echo $shippingService ?></span>
-                    <span id="serviceCode" class="ml-3 text-muted"> Service Code: <?php echo $serviceCode ?></span>
-                    <span class="ml-3 text-muted"> Package Type: <?php echo $packageType ?></span>
+                    <span id="estimatedShippingCost" class="ml-3 text-muted">Estimated Shipping Cost: <?php echo $estimatedShippingCost; ?></span> <!-- $estimatedShippingCost -->
+                    <span id="shippingService" class="ml-3 text-muted"> Shipping Service: <?php echo $shippingService; ?></span> <!-- $shippingService -->
+                    <span id="serviceCode" class="ml-3 text-muted"> Service Code: <?php echo $serviceCode; ?></span> <!-- $serviceCode -->
+                    <!-- <span class="ml-3 text-muted"> Package Type: Package</span>$packageType -->
                 </div>
                 <div class="w-100 d-flex mt-1 justify-content-between mt-5">
                     <select name="shipping_services" id="shippingServices" class="form-control">
@@ -291,7 +299,7 @@ if ($totalWeight <= 16) {
                                 <p class="mb-1"><b> Tax</b></p>
                             </div>
                             <div class="flex-sm-col col-auto">
-                                <p class="mb-1"><?php echo $response->payment_details->estimated_tax->amount . ' ' . strtoupper($response->payment_details->estimated_tax->currency) ?></p>
+                                <p class="mb-1"><?php echo $response->taxAmount  ?></p>
                             </div>
                         </div>
                         <div class="row justify-content-between">
@@ -299,7 +307,7 @@ if ($totalWeight <= 16) {
                                 <p class="mb-1"><b> Shipping</b></p>
                             </div>
                             <div class="flex-sm-col col-auto">
-                                <p class="mb-1"><?php echo $response->payment_details->estimated_shipping->amount . ' ' . strtoupper($response->payment_details->estimated_shipping->currency) ?></p>
+                                <p class="mb-1"><?php echo $response->shippingAmount  ?></p>
                             </div>
                         </div>
 
@@ -308,21 +316,21 @@ if ($totalWeight <= 16) {
                                 <p class="mb-1"><b> Total</b></p>
                             </div>
                             <div class="flex-sm-col col-auto">
-                                <p class="mb-1"><?php echo $response->payment_details->grand_total->amount . ' ' . strtoupper($response->payment_details->grand_total->currency) ?></p>
+                                <p class="mb-1"><?php echo $response->orderTotal  ?></p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="row invoice ">
                     <div class="col">
-                        <p class="mb-1"> <b> Customer Name</b> : <?php echo $response->customer->name ?></p>
-                        <p class="mb-1"><b> Customer Email</b> : <?php echo $response->customer->email ?></p>
-                        <p class="mb-1"> <b> Customer Phone</b> :<?php echo $response->ship_to->phone ?? 'Not Available' ?></p>
+                        <p class="mb-1"> <b> Customer Name</b> : <?php echo $response->billTo->name ?></p>
+                        <p class="mb-1"><b> Customer Email</b> : <?php echo $response->customerEmail ?></p>
+                        <p class="mb-1"> <b> Customer Phone</b> :<?php echo $response->billTo->phone ?? 'Not Available' ?></p>
                     </div>
                 </div>
                 <div class="media flex-sm-row flex-column-reverse justify-content-between ">
                     <div class="col my-auto">
-                        <h4 class="mb-0"><span class="change-color"><?php echo $response->order_source->order_source_nickname ?></span> </h4>
+                        <h4 class="mb-0"><span class="change-color"><?php echo $response->advancedOptions->storeId ?></span> </h4>
                         <div class="text-center">
                             <?php if ($orderStatus != 'Fulfilled' && $orderStatus != 'shipped') { ?>
                                 <button type="button" onClick="window.location.reload();" class="btn btn-success">Refresh Order</button>
@@ -463,7 +471,7 @@ if ($totalWeight <= 16) {
         if (!isConfirmed) {
             return;
         }
-        var orderNo = "<?php echo  $response->external_order_number ?>";
+        var orderNo = "<?php echo  $response->orderId ?>";
         paramJSON = {
             'order_no': orderNo,
             'status': 'canceled',
@@ -496,14 +504,12 @@ if ($totalWeight <= 16) {
         $('#shippingService').text('Shipping Service: ' + $("#shippingServices option:selected").text());
         var data;
         console.log($(this).find(':selected').val());
-
-        paramJSON = {
-            'carrier_ids': [$(this).find(':selected').val()],
-            'from_country_code': 'US',
-            'from_postal_code': '46226',
-            'to_country_code': $('#toCountryCode').val(),
-            'to_postal_code': $('#toPostalCode').val(),
-            'to_city_locality': $('#toCity').val(),
+        paramJSON = JSON.stringify({
+            'carrierCode': $(this).find(':selected').val(),
+            'fromPostalCode': '46226',
+            'toCountry': $('#toCountryCode').val(),
+            'toPostalCode': $('#toPostalCode').val(),
+            'toCity': $('#toCity').val(),
             'weight': {
                 "value": $('#totalWeight').val(),
                 'unit': "ounce",
@@ -514,46 +520,41 @@ if ($totalWeight <= 16) {
                 'width': 1.0,
                 'height': 1.0
             }
-        }
-        $.ajax({
-            url: "https://api.shipengine.com//v1/rates/estimate",
-            headers: {
-                dataType: "jsonp",
-                async: true,
-                crossDomain: true,
-                "API-Key": "YCMccKJkFczSrSWMb21zY2lJCugPtJNlgwO+XTDX9Jk",
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            type: "POST",
-            data: JSON.stringify(paramJSON),
-            success: function(response) {
-                console.log(response);
+        });
+        var myHeaders = new Headers();
+        myHeaders.append("Host", "ssapi.shipstation.com");
+        myHeaders.append("Authorization", "Basic " + btoa("c316b6a7b4934fe5a40de02259cb476b" + ":" + "f675644a314e4e44a8023bbc4be4e8cf"));
+        myHeaders.append("Content-Type", "application/json");
+
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: paramJSON,
+            redirect: 'follow'
+        };
+
+        fetch("https://ssapi.shipstation.com/shipments/getrates", requestOptions)
+            .then(response => response.json())
+            .then(result => {
+                console.log(result);
                 // TODO: WORKING ON SHIPPING PART
-                $.each(response, function(key, value) {
-                    console.log($('#shippingServices').find(':selected').val());
-                    console.log(response[key].carrier_id);
-                    console.log('----------------');
-                    console.log($('#shippingServices').find(':selected').data("id"));
-                    console.log(response[key].service_code);
-                    if ((response[key].carrier_id) === $('#shippingServices').find(':selected').val() && $('#shippingServices').find(':selected').data("id") === response[key].service_code) {
-                        data = response[key];
-                        console.log('andr agay');
-                        return false;
-                    }
-                })
-                if (data) {
-                    console.log(data);
-                    $('#estimatedShippingCost').text('Estimated Shipping Cost: ' + data.shipping_amount.amount + ' ' + data.shipping_amount.currency.toUpperCase())
-                    $('#serviceCode').text('Service Code: ' + data.service_code);
-                    serviceCode = data.service_code;
+                // $.each(result, function(key, value) {
+                //     console.log(value)
+                //     data = value[0];
+                //     console.log('andr agay');
+                //     return false;
+                // })
+                if (result[0]) {
+                    $('#estimatedShippingCost').text('Estimated Shipping Cost: ' + result[0].shipmentCost)
+                    $('#serviceCode').text('Service Code: ' + result[0].serviceCode);
+                    serviceCode = result[0].serviceCode;
                 } else {
                     console.log('bahr gayaga');
-                    // alert('This shipping method is not available');
+                    alert('This shipping method is not available');
                 }
-            }
-
-        });
+            })
+            .catch(error => console.log('error', error));
     });
 </script>
 
