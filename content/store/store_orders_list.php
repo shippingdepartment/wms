@@ -266,16 +266,13 @@ if (false) {
                     $store_id,
                 );
             }
-            // if ($value->sales_order_status->fulfillment_status == 'unfulfilled') {
-            //     $lastOrderSourceId = $important->getLastOrderId();
-            //     $isOrderExists = $important->checkIfOrderExists($value->external_order_number, $value->sales_order_id);
-            //     if ($isOrderExists) {
-            //         $orderStatus =  $important->getOrderStatus($value->external_order_number, $value->sales_order_id);
-            //         if ($orderStatus == 'Fulfilled')
-            //             continue;
-            //     } else {
-            //         $important->assignOrdersTORandom($value->external_order_number, $value->sales_order_id, $value->order_source->order_source_id);
-            //     }
+            $lastOrderSourceId = $important->getLastOrderId();
+            $isOrderExists = $important->checkIfOrderExists($value->orderNumber, $value->orderId);
+            if ($isOrderExists) {
+                $orderStatus =  $important->getOrderStatus($value->orderNumber, $value->orderId);
+            } else {
+                $important->assignOrdersTORandom($value->orderNumber, $value->orderId, $value->advancedOptions->storeId);
+            }
 
 
             $isAssigned = $important->checkOrderIsAssigned($value->orderId) == true ? 'Assigned' : 'Not-Assigend';
@@ -283,7 +280,7 @@ if (false) {
             $content .= '<td>';
             $content .= $value->orderNumber;
             $content .= '</td><td>';
-            $content .= count($value->items) > 1 ? 'Multiple' : mb_strimwidth($value->items[0]->name,0,80,'....');
+            $content .= count($value->items) > 1 ? 'Multiple' : mb_strimwidth($value->items[0]->name, 0, 80, '....');
             $content .= '</td>';
             $content .= '</td><td>';
             $content .= count($value->items) > 1 ? 'Multiple' : $value->items[0]->sku;

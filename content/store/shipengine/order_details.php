@@ -34,7 +34,10 @@ $details = '';
 $assignID = 0;
 if (isset($_GET['assign_id'])) {
     $assignID = $_GET['assign_id'];
+} else {
+    $assignID = $important->getAssignOrderId($orderId);
 }
+
 foreach ($response->items as $key => $value) {
     $productname = $value->name;
 
@@ -239,6 +242,8 @@ if ($totalWeight <= 16) {
                 <div class="pull-right">
                     <p class=" Glasses">Order Status &nbsp; <span class="text-success"> <?php echo strtoupper($response->orderStatus) ?> </span><br>
                         </span></p>
+                    <p class=" Glasses">Order Assigned To &nbsp; <span class="text-success"> <?php echo $important->getAssignedOrderUserName($response->orderNumber, $response->orderId, $response->advancedOptions->storeId) ?> </span><br>
+                        </span></p>
 
                 </div>
             </div>
@@ -410,6 +415,7 @@ if ($totalWeight <= 16) {
     var serviceCode = "<?php echo ($serviceCode); ?>";
     var carrierId = "<?php echo ($carrierId); ?>";
     var totalWeight = "<?php echo ($totalWeight); ?>";
+    var orderId = "<?php echo ($orderId); ?>";
 
 
     function verifyThePick(e) {
@@ -444,7 +450,6 @@ if ($totalWeight <= 16) {
         selectedCart = this.value;
     });
     $('#confirmedBtn').click(function(e) {
-
         paramJSON = {
             'assign_order_id': parseInt(assignID),
             'cart': $('#cart_option').find(":selected").text(),
@@ -545,10 +550,23 @@ if ($totalWeight <= 16) {
                 //     console.log('andr agay');
                 //     return false;
                 // })
-                if (result[0]) {
-                    $('#estimatedShippingCost').text('Estimated Shipping Cost: ' + result[0].shipmentCost)
-                    $('#serviceCode').text('Service Code: ' + result[0].serviceCode);
-                    serviceCode = result[0].serviceCode;
+                var lowest = Number.POSITIVE_INFINITY;
+                // var highest = Number.NEGATIVE_INFINITY;
+                var tmp;
+                var shippingObject
+                for (var i = result.length - 1; i >= 0; i--) {
+                    tmp = result[i].shipmentCost;
+                    if (tmp < lowest) {
+                        lowest = tmp;
+                        shippingObject = result[i];
+                    }
+                    // if (tmp > highest) highest = tmp;
+                }
+                if (shippingObject) {
+                    $('#estimatedShippingCost').text('Estimated Shipping Cost: ' + shippingObject.shipmentCost)
+                    $('#serviceCode').text('Service Code: ' + shippingObject.serviceCode);
+                    serviceCode = shippingObject.serviceCode;
+                    carrierId = $("#shippingServices option:selected").data("id");
                 } else {
                     console.log('bahr gayaga');
                     alert('This shipping method is not available');

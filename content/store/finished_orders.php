@@ -114,7 +114,6 @@ $page_title = 'Finished Orders'; //You can edit this to change your page title.
                                     <thead>
                                         <tr>
                                             <th>Order No</th>
-                                            <th>label Id</th>
                                             <th>Shipping Id</th>
                                             <th>Tracking #</th>
                                             <th>Shipping Label</th>
