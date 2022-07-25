@@ -2,7 +2,7 @@
 
 class ImportantFunctions
 {
-    public $base_url = 'http://api.shipengine.com/';
+    public $base_url = 'https://ssapi.shipstation.com/';
 
     public function getStoreId()
     {
@@ -12,14 +12,9 @@ class ImportantFunctions
     {
         if ($changeURL)
             $this->base_url = '';
-        // echo '<pre>';
 
-        // print_r($data);
-        // echo '</pre>';
-
-        // return;
-
-        $apiKey = 'YCMccKJkFczSrSWMb21zY2lJCugPtJNlgwO+XTDX9Jk';
+        $username = 'c316b6a7b4934fe5a40de02259cb476b';
+        $password = 'f675644a314e4e44a8023bbc4be4e8cf';
         $curl = curl_init();
 
         switch ($method) {
@@ -32,18 +27,14 @@ class ImportantFunctions
                 curl_setopt($curl, CURLOPT_PUT, 1);
                 break;
             default:
-                // if ($data)
-                // $url = sprintf("%s?%s", $url, http_build_query($data));
         }
 
         // Optional Authentication:
         // curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
         curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-            'API-Key: ' . $apiKey,
             'Content-Type: application/json',
         ));
-        // curl_setopt($curl, CURLOPT_USERPWD, "username:password");
-
+        curl_setopt($curl, CURLOPT_USERPWD, $username . ":" . $password);
         curl_setopt($curl, CURLOPT_URL, $this->base_url . $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
@@ -149,18 +140,22 @@ class ImportantFunctions
         $isrequest = $this->get_user_info($currentUser, 'is_request');
         $isCompleted = false;
         // && intval($currentUser) == $lastOrderAssignedUserId
-        if ($assignOrdersCount < 25) {
-            $randomIdQuery = 'SELECT user_id  from users WHERE user_type <> "store_owner" ORDER BY RAND() LIMIT 1';
-            $result = $db->query($randomIdQuery) or die($db->error);
-            $currentUser = ($result->fetch_array())[0];
-            $assignOrdersCount = $this->getUserAssignedOrdersCount($currentUser);
-            $isrequest = $this->get_user_info($currentUser, 'is_request');
-            if ($isrequest) {
-                $now =  date("Y-m-d H:i:s");
-                $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress','" . $storeId . "', '" . $now . "', '" . $now . "')";
-                $result = $db->query($query) or die($db->error);
-            }
+        // if ($assignOrdersCount < 25) {
+        $randomIdQuery = 'SELECT user_id  from users WHERE user_type <> "store_owner" ORDER BY RAND() LIMIT 1';
+        $result = $db->query($randomIdQuery) or die($db->error);
+        $currentUser = ($result->fetch_array())[0];
+        $assignOrdersCount = $this->getUserAssignedOrdersCount($currentUser);
+        $isrequest = $this->get_user_info($currentUser, 'is_request');
+        if ($isrequest) {
+            $now =  date("Y-m-d H:i:s");
+            $query = "INSERT into assign_order VALUES(NULL, '" . $currentUser . "', '" . $orderId . "', '" . $orderNo . "', 'inprogress','" . $storeId . "', '" . $now . "', '" . $now . "')";
+            $result = $db->query($query) or die($db->error);
         }
+        // }
+
+        // else{
+        //   var_dump('sfd');
+        // }
     }
 
     public function getLastOrderId()
@@ -228,6 +223,22 @@ class ImportantFunctions
         return $result->num_rows;
     }
 
+    public function getAssignedOrderUserName($orderNo, $orderId, $storeId)
+    {
+        global $db;
+        $query = "SELECT * from assign_order WHERE order_no='" . $orderNo . "' ORDER by id DESC";
+        $result = $db->query($query) or die($db->error);
+        if ($result->num_rows > 0) {
+            $user_id =  $result->fetch_array()[1];
+            $user = new Users();
+            $userName = $user->get_user_info($user_id, 'first_name');
+            $userName .= ' ' . $user->get_user_info($user_id, 'last_name');
+            return $userName;
+        } else {
+            $this->assignOrdersTORandom($orderNo, $orderId, $storeId);
+        }
+    }
+
 
     public function getCurrentUserAssignedOrdersWithCart()
     {
@@ -255,7 +266,7 @@ class ImportantFunctions
             $content .= $cart;
             $content .= '</td>';
             $content .= '<td>';
-            $content .= '<a href=packing_slip.php?order_id=' . $data['order_id'] . '  onclick="window.open(this.href).print(); return false"><b class="" style="font-size:16px">Packing Slip</b></a> / <a href="buy_postage_work.php?assign_id=' . $assign_order_id . '&cart_id=' . $id . '"><b class="" style="font-size:16px">Shipping Label</b></a> ';
+            $content .= '<a href="buy_postage_work.php?assign_id=' . $assign_order_id . '&cart_id=' . $id . '"><b class="" style="font-size:16px">Shipping Label</b></a> ';
             $content .= '</td>';
             $content .= '</tr>';
         }
@@ -345,16 +356,13 @@ class ImportantFunctions
             $content .= '<td>';
             $content .= $order_no;
             $content .= '</td><td>';
-            $content .= $label_id;
-
-            $content .= '</td><td>';
             $content .= $shipment_id;
             $content .= '</td>';
             $content .= '<td>';
             $content .= $tracking_number;
             $content .= '</td>';
             $content .= '<td>';
-            $content .= '<a href=' . $pdf . ' download target="_blank"><i class="fa fa-tag" style="font-size:16px"></i></a> / <a href=' . $packingUrl . '  onclick="window.open(this.href).print(); return false"><i class="fa fa-print" style="font-size:16px"></i></a>';
+            $content .= '<a href=' . $shipment_id . '.pdf download target="_blank"><i class="fa fa-tag" style="font-size:16px"></i></a> ';
             $content .= '</td>';
             $content .= '</tr>';
         }
@@ -900,15 +908,14 @@ class ImportantFunctions
     function getShippingServices()
     {
         $options = '';
-        $shippingServicesList = array();
-        $shippingServices = $this->CallAPI('GET', 'v1/carriers');
-        foreach ($shippingServices->carriers as $key => $services) {
+        $shippingServices = $this->CallAPI('GET', 'carriers');
+
+        foreach ($shippingServices as $key => $services) {
             // if ($services->carrier_id == 'se-647512') {
             //     continue; //ignoring the FEDX SHIPPING
             // }
-            foreach ($services->services as $key => $value) {
-                $options .= '<option data-id="' . $value->service_code . '"  value="' . $value->carrier_id . '">' . ucfirst($value->name) . '</option>';
-            }
+
+            $options .= '<option data-id="' . $services->code . '"  value="' . $services->code . '">' . ucfirst($services->name) . '</option>';
         }
         echo ($options);
     }
@@ -1038,5 +1045,16 @@ class ImportantFunctions
             $content .= '</tr>';
         }
         echo $content;
+    }
+    public function getAssignOrderId($orderId)
+    {
+        global $db;
+        $query = "SELECT * from assign_order WHERE order_id='" . $orderId . "'  ";
+        $res = $db->query($query) or die($db->error);
+        $data = ($res->fetch_array());
+        if ($data) {
+            return $data['id'];
+        }
+        return null;
     }
 }

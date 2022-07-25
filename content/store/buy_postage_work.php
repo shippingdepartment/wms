@@ -17,13 +17,14 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
     if ($cartData == null)
         return 'Something really bad happend';
 
-    $response = $important->CallAPI('GET', "v-beta/sales_orders/" . $orderId);
-    $storeName = $response->order_source->order_source_nickname;
-    $storeID = $response->order_source->order_source_id;
+    $response = $important->CallAPI('GET', "orders/" . $orderId);
+
+    // $storeName = $response->order_source->order_source_nickname;
+    $storeID = $response->advancedOptions->storeId;
     $skus = array();
-    foreach ($response->sales_order_items as $key => $value) {
-        $skus[] =  $value->line_item_details->sku;
-        $id =   $product->get_product_info_through_sku($value->line_item_details->sku, 'product_id');
+    foreach ($response->items as $key => $value) {
+        $skus[] =  $value->sku;
+        $id =   $product->get_product_info_through_sku($value->sku, 'product_id');
         $important->add_inventory(0, $value->quantity, $id);
         $totalQuantities += $value->quantity;
     }
@@ -32,65 +33,89 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
 
 
 
-    $printLabelObject = array(
-        "label_format" => "pdf",
-        "shipment" => array(
-            "carrier_id" => $cartData['carrier_id'],
-            "service_code" => $cartData['service_code'],
-            "customs" => array(
-                'contents' => 'merchandise', "non_delivery" => "treat_as_abandoned",
-                "customs_items" => array(
-                    [
-                        'quantity' => intval($totalQuantities),
-                        'description'=>'Shipping'
-                    ]
-                )
-            ),
-            "ship_from" => array(
-                "company_name" => "Shipping Department",
-                "name" => "Cody Howell",
-                "phone" => "4802720000",
-                "address_line1" => "4841 industrial parkway",
-                "city_locality" => "Indianapolis",
-                "state_province" => "IN",
-                'country_code' => 'US',
-                'postal_code' => '46226',
-                "address_residential_indicator" => "no"
-            ),
-            "packages" => array(
-                [
-                    "package_code" => "package",
-                    "weight" => array(
-                        "value" => intval($cartData['total_weight']),
-                        "unit" => "ounce"
-                    ),
-                ]
-            ),
-        ),
+    // $printLabelObject = array(
+    //     "orderId" => "pdf",
+    //     "shipment" => array(
+    //         "carrier_id" => $cartData['carrier_id'],
+    //         "carrierCode" => $cartData['service_code'],
+    //         "customs" => array(
+    //             'contents' => 'merchandise', "non_delivery" => "treat_as_abandoned",
+    //             "customs_items" => array(
+    //                 [
+    //                     'quantity' => intval($totalQuantities),
+    //                     'description' => 'Shipping'
+    //                 ]
+    //             )
+    //         ),
+    //         "ship_from" => array(
+    //             "company_name" => "Shipping Department",
+    //             "name" => "Cody Howell",
+    //             "phone" => "4802720000",
+    //             "address_line1" => "4841 industrial parkway",
+    //             "city_locality" => "Indianapolis",
+    //             "state_province" => "IN",
+    //             'country_code' => 'US',
+    //             'postal_code' => '46226',
+    //             "address_residential_indicator" => "no"
+    //         ),
+    //         "packages" => array(
+    //             [
+    //                 "package_code" => "package",
+    //                 "weight" => array(
+    //                     "value" => intval($cartData['total_weight']),
+    //                     "unit" => "ounce"
+    //                 ),
+    //             ]
+    //         ),
+    //     ),
 
+    // );
+
+    $date = date('Y-m-d H:i:s');
+
+    $printLabelObjecst = array(
+        "orderId" => $orderId,
+        "carrierCode" => $cartData['carrier_id'],
+        "serviceCode" => $cartData['service_code'],
+        "packageCode" => "package",
+        "confirmation" => "none",
+        "shipDate" => $date,
+        "testLabel" => true,
     );
+    $carrierID =  $cartData['carrier_id'];
+    $serviceID = $cartData['service_code'];
+    $shipDate = $date;
+    $printLabelObjecst = "{\n  \"orderId\": $orderId,\n  \"carrierCode\": \"$carrierID\",\n  \"serviceCode\": \"$serviceID\",\n  \"packageCode\": \"package\",\n  \"confirmation\": null,\n  \"shipDate\": \"$shipDate\",\n  \"weight\": {\n    \"value\": 2,\n    \"units\": \"pounds\"\n  },\n  \"dimensions\": null,\n  \"insuranceOptions\": null,\n  \"internationalOptions\": null,\n  \"advancedOptions\": null,\n  \"testLabel\": false\n}";
 
+    $response =  $important->CallAPI('POST', 'orders/createlabelfororder', ($printLabelObjecst));
 
-
-    $response =  $important->CallAPI('POST', 'v-beta/labels/sales_order/' . $orderId, json_encode($printLabelObject));
-    if (isset($response->errors)&& count($response->errors) > 0) {
+    if (isset($response->errors) && count($response->errors) > 0) {
         HEADER('LOCATION: buy_postage.php?message=error');
     }
 
 
 
-    $important->storeOwes($assignResponse['order_no'], $storeName, $response->shipment_cost->amount, $totalQuantities);
-    $important->storeShippingLabelInfo($response->label_id, $response->shipment_id, $response->ship_date, $response->tracking_number, $response->label_download->pdf, $assignId, $assignResponse['order_no'], $response->shipment_cost->amount, $storeID);
-
-    $URL = $response->label_download->pdf;
+    // $important->storeOwes($assignResponse['order_no'], $storeName, $response->shipment_cost->amount, $totalQuantities);
+    $important->storeShippingLabelInfo($response->label_id, $response->shipmentId, $response->shipDate, $response->trackingNumber, $response->labelData, $assignId, $assignResponse['order_no'], $response->shipmentCost, $storeID);
 
 
-    echo "<script type='text/javascript'> let a= document.createElement('a');
-        a.href= '{$URL}';
-        a.click();</script>";
+    //Decode pdf content
+    $pdf_decoded = base64_decode($response->labelData);
+    $pdf = fopen($response->shipmentId . '.pdf', 'w');
+    fwrite($pdf, $pdf_decoded);
+    //close output file
 
+    $file = $response->shipmentId . '.pdf';
 
+    $pathname = $file;
 
+    header('Content-type: application/pdf');
+    header('Content-Disposition: inline; filename="' . $file . '"');
+    header('Content-Transfer-Encoding: binary');
+    header('Content-Length: ' . filesize($pathname));
+    header('Accept-Ranges: bytes');
+
+    readfile($pathname);
 
     // echo "<script type='text/javascript'>document.location.href='{$URL}';</script>";
     // echo '<META HTTP-EQUIV="refresh" content="0;URL=' . $URL . '">';
