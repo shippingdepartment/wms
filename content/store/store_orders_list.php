@@ -264,6 +264,7 @@ if (false) {
                     100,
                     $value->orderId,
                     $store_id,
+                    $lineItems->weight != null ? strval($lineItems->weight->WeightUnits) : "ounces",
                 );
             }
             $lastOrderSourceId = $important->getLastOrderId();

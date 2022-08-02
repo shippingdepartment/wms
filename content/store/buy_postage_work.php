@@ -73,19 +73,24 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
 
     $date = date('Y-m-d H:i:s');
 
-    $printLabelObjecst = array(
-        "orderId" => $orderId,
-        "carrierCode" => $cartData['carrier_id'],
-        "serviceCode" => $cartData['service_code'],
-        "packageCode" => "package",
-        "confirmation" => "none",
-        "shipDate" => $date,
-        "testLabel" => true,
-    );
+    // $printLabelObjecst = json_encode(array(
+    //     "orderId" => $orderId,
+    //     "carrierCode" => $cartData['carrier_id'],
+    //     "serviceCode" => $cartData['service_code'],
+    //     "packageCode" => "package",
+    //     "confirmation" => "delivery",
+    //     "shipDate" => $date,
+    //     "testLabel" => false,
+    //     "weight" => json_encode(array(
+    //         "value" => 2,
+    //         "units" => "pounds"
+    //     )),
+    // ));
     $carrierID =  $cartData['carrier_id'];
     $serviceID = $cartData['service_code'];
     $shipDate = $date;
-    $printLabelObjecst = "{\n  \"orderId\": $orderId,\n  \"carrierCode\": \"$carrierID\",\n  \"serviceCode\": \"$serviceID\",\n  \"packageCode\": \"package\",\n  \"confirmation\": null,\n  \"shipDate\": \"$shipDate\",\n  \"weight\": {\n    \"value\": 2,\n    \"units\": \"pounds\"\n  },\n  \"dimensions\": null,\n  \"insuranceOptions\": null,\n  \"internationalOptions\": null,\n  \"advancedOptions\": null,\n  \"testLabel\": false\n}";
+    $totalWeight = $cartData['total_weight'];
+    $printLabelObjecst = "{\n  \"orderId\": $orderId,\n  \"carrierCode\": \"$carrierID\",\n  \"serviceCode\": \"$serviceID\",\n  \"packageCode\": \"package\",\n  \"confirmation\": \"none\",\n  \"shipDate\": \"$shipDate\",\n  \"weight\": {\n    \"value\": \"$totalWeight\",\n    \"units\": \"ounces\"\n  },\n  \"dimensions\": null,\n  \"insuranceOptions\": null,\n  \"internationalOptions\": null,\n  \"advancedOptions\": null,\n  \"testLabel\":\"false\"\n}";
 
     $response =  $important->CallAPI('POST', 'orders/createlabelfororder', ($printLabelObjecst));
 
@@ -96,26 +101,25 @@ if (isset($_GET['assign_id']) && isset($_GET['cart_id'])) {
 
 
     // $important->storeOwes($assignResponse['order_no'], $storeName, $response->shipment_cost->amount, $totalQuantities);
-    $important->storeShippingLabelInfo($response->label_id, $response->shipmentId, $response->shipDate, $response->trackingNumber, $response->labelData, $assignId, $assignResponse['order_no'], $response->shipmentCost, $storeID);
 
 
     //Decode pdf content
     $pdf_decoded = base64_decode($response->labelData);
     $pdf = fopen($response->shipmentId . '.pdf', 'w');
     fwrite($pdf, $pdf_decoded);
-    //close output file
 
     $file = $response->shipmentId . '.pdf';
 
     $pathname = $file;
+    $important->storeShippingLabelInfo($response->label_id, $response->shipmentId, $response->shipDate, $response->trackingNumber, $pathname, $assignId, $assignResponse['order_no'], $response->shipmentCost, $storeID);
+    HEADER('LOCATION: finished_orders.php?message=success');
+    // header('Content-type: application/pdf');
+    // header('Content-Disposition: inline; filename="' . $file . '"');
+    // header('Content-Transfer-Encoding: binary');
+    // header('Content-Length: ' . filesize($pathname));
+    // header('Accept-Ranges: bytes');
 
-    header('Content-type: application/pdf');
-    header('Content-Disposition: inline; filename="' . $file . '"');
-    header('Content-Transfer-Encoding: binary');
-    header('Content-Length: ' . filesize($pathname));
-    header('Accept-Ranges: bytes');
-
-    readfile($pathname);
+    // readfile($pathname);
 
     // echo "<script type='text/javascript'>document.location.href='{$URL}';</script>";
     // echo '<META HTTP-EQUIV="refresh" content="0;URL=' . $URL . '">';

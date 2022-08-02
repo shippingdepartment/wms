@@ -10,10 +10,7 @@ $orderId = $_GET['id']; // store id;
 
 $function_id = $user->get_user_info($user_id, "user_function");
 
-
-
 $important = new ImportantFunctions();
-// $important->getShippingServices();
 $product = new Product();
 $estimatedShippingCost = 0.0;
 $shippingService = null;
@@ -24,6 +21,18 @@ $shippingCarriers = $important->CallAPI('GET', 'carriers');
 // print_r(($shippingCarriers));
 // echo "</pre>";
 // exit;
+foreach ($shippingCarriers as $key => $carrier) {
+    if ($carrier->code == 'ups_walleted' || $carrier->code == 'fedex' || $carrier->code == 'stamps_com') {
+    } else {
+        unset($shippingCarriers[$key]);
+    }
+}
+
+// echo "<pre>";
+// print_r(($shippingCarriers));
+// echo "</pre>";
+// exit;
+
 
 $content = '';
 $totalWeight = 0;
@@ -37,6 +46,8 @@ if (isset($_GET['assign_id'])) {
 } else {
     $assignID = $important->getAssignOrderId($orderId);
 }
+
+
 
 foreach ($response->items as $key => $value) {
     $productname = $value->name;
@@ -96,7 +107,7 @@ $shippingObject = array(
 );
 
 
-$sf = [];
+$sf = array();
 
 if ($totalWeight <= 16) {
 
@@ -112,7 +123,7 @@ if ($totalWeight <= 16) {
     );
     $shippingCarriers = $important->CallAPI('POST', 'shipments/getrates', json_encode($shippingObject));
     // echo "<pre>";
-    //  print_r(($shippingCarriers));
+    // print_r(($shippingCarriers));
     // echo "</pre>";
     // exit;
 
@@ -123,47 +134,77 @@ if ($totalWeight <= 16) {
     $carrierId = "stamps_com";
 } else {
     foreach ($shippingCarriers as $key => $carrier) {
-        // if ($carrier->carrier_id == 'se-647512') {
-        //     continue; //ignoring the FEDX SHIPPING
-        // }
-        $shippingObject = array(
-            'carrierCode' => "stamps_com",
-            'fromPostalCode' => '46226',
-            'toCountry' => $response->shipTo->country,
-            'toPostalCode' => $response->shipTo->postalCode,
-            'toCity' => $response->shipTo->city,
-            'toState' => $response->shipTo->state,
-            'weight' => (array('value' => intval($totalWeight), 'unit' => 'ounce')),
-            'dimensions' => (array('unit' => 'inch', 'length' => 5.0, 'width' => 5.0, 'height' => 5.0)),
-        );
-        $shippingRates = $important->CallAPI('POST', 'shipments/getrates', json_encode($shippingObject));
-        //         echo "<pre>";
-        //  print_r(($shippingRates));
-        // echo "</pre>";
-        // exit;
-        foreach ($shippingRates as $keyj => $ship) {
-            //usps_media_mail is not required
-            if ($ship->serviceCode != 'usps_media_mail') {
-                $estimatedShippingCost = $ship->shipmentCost;
-                $shippingService = $ship->serviceName;
-                $packageType = 'Package';
-                $serviceCode = $ship->serviceCode;
-                $carrierId = $carrier->code;
-                $sf[] = array('amount' => $ship->shipmentCost, 'shippingService' => $ship->serviceName, 'serviceCode' => $ship->serviceCode, 'carrierId' => $carrier->code);
+        if ($carrier->code == 'ups_walleted' || $carrier->code == 'fedex' || $carrier->code == 'stamps_com') {
+            $shippingObject = array(
+                'carrierCode' => $carrier->code,
+                'fromPostalCode' => '46226',
+                'toCountry' => $response->shipTo->country,
+                'toPostalCode' => $response->shipTo->postalCode,
+                'toCity' => $response->shipTo->city,
+                'toState' => $response->shipTo->state,
+                'weight' => (array('value' => intval($totalWeight), 'unit' => 'ounce')),
+                'dimensions' => (array('unit' => 'inch', 'length' => 5.0, 'width' => 5.0, 'height' => 5.0)),
+            );
+            $shippingRates = $important->CallAPI('POST', 'shipments/getrates', json_encode($shippingObject));
+            //             echo "<pre>";
+            // print_r(($shippingRates));
+            // echo "</pre>";
+            // exit;
+            foreach ($shippingRates as $keyj => $ship) {
+
+                if ($carrier->code == 'fedex') {
+                    // echo "<pre>";
+                    // print_r(($shippingRates));
+                    // echo "</pre>";
+                    // exit;
+
+                    if ($ship->serviceCode == 'fedex_ground' || $ship->serviceCode == 'fedex_home_delivery' || $ship->serviceCode == 'fedex_2day' || $ship->serviceCode == 'fedex_first_overnight' || $ship->serviceCode == 'fedex_priority_overnight' || $ship->serviceCode == 'fedex_standard_overnight' || $ship->serviceCode == 'fedex_ground_international'|| $ship->serviceCode == 'fedex_international_economy') {
+                        $estimatedShippingCost = $ship->shipmentCost;
+                        $shippingService = $ship->serviceName;
+                        $packageType = 'Package';
+                        $serviceCode = $ship->serviceCode;
+                        $carrierId = $carrier->code;
+                        $sf[] = array('amount' => $ship->shipmentCost, 'shippingService' => $ship->serviceName, 'serviceCode' => $ship->serviceCode, 'carrierId' => $carrier->code);
+                    }
+                }
+                if ($carrier->code == 'stamps_com') {
+                    if ($ship->serviceCode == 'usps_priority_mail' || $ship->serviceCode == 'usps_media_mail') {
+                        $estimatedShippingCost = $ship->shipmentCost;
+                        $shippingService = $ship->serviceName;
+                        $packageType = 'Package';
+                        $serviceCode = $ship->serviceCode;
+                        $carrierId = $carrier->code;
+                        $sf[] = array('amount' => $ship->shipmentCost, 'shippingService' => $ship->serviceName, 'serviceCode' => $ship->serviceCode, 'carrierId' => $carrier->code);
+                    }
+                }
+                if ($carrier->code == 'ups_walleted') {
+                    if ($ship->serviceCode == 'ups_next_day_air_saver' || $ship->serviceCode == 'ups_ground' || $ship->serviceCode == 'ups_2nd_day_air') {
+                        $estimatedShippingCost = $ship->shipmentCost;
+                        $shippingService = $ship->serviceName;
+                        $packageType = 'Package';
+                        $serviceCode = $ship->serviceCode;
+                        $carrierId = $carrier->code;
+                        $sf[] = array('amount' => $ship->shipmentCost, 'shippingService' => $ship->serviceName, 'serviceCode' => $ship->serviceCode, 'carrierId' => $carrier->code);
+                    }
+                }
             }
         }
+
+        // echo "<pre>";
+        // print_r(($sf));
+        // echo "</pre>";
+        // exit;
+        if ($sf) {
+            $sfS =  min($sf);
+            $estimatedShippingCost = ($sfS['amount']) . ' USD';
+            $shippingService = $sfS['shippingService'];
+            $serviceCode = $sfS['serviceCode'];
+            $carrierId = $sfS['carrierId'];
+        }
     }
-    $sf =  min($sf);
+
     // echo "<pre>";
-    //  print_r(($sf));
-    // echo "</pre>";
-    // exit;
-    $estimatedShippingCost = $sf['amount'] . ' USD';
-    $shippingService = $sf['shippingService'];
-    $serviceCode = $sf['serviceCode'];
-    $carrierId = $sf['carrierId'];
-    // echo "<pre>";
-    // print_r(min($sf));
+    // print_r(($sf));
     // echo "</pre>";
     // exit;
 }
@@ -281,6 +322,13 @@ if ($totalWeight <= 16) {
 
                         <?php $important->getShippingServices();
                         ?>
+                    </select>
+                </div>
+
+                <div class="serviceCodes d-none">
+                    <h6>Select Service Codes</h6>
+                    <select name="service_codes" id="serviceCodesSelector" class="form-control">
+                        <option selected value="">Select Service Codes</option>
                     </select>
                 </div>
 
@@ -506,11 +554,12 @@ if ($totalWeight <= 16) {
 
     $('#shippingServices').on('change', function() {
         const selected = ($(this).find(':selected').data("id"));
+        let selectedShip = $(this).find(':selected').val();
         $('#shippingService').text('Shipping Service: ' + $("#shippingServices option:selected").text());
         var data;
-        console.log($(this).find(':selected').val());
+        console.log(selectedShip);
         paramJSON = JSON.stringify({
-            'carrierCode': $(this).find(':selected').val(),
+            'carrierCode': selectedShip,
             'fromPostalCode': '46226',
             'toCountry': $('#toCountryCode').val(),
             'toPostalCode': $('#toPostalCode').val(),
@@ -543,36 +592,42 @@ if ($totalWeight <= 16) {
             .then(response => response.json())
             .then(result => {
                 console.log(result);
-                // TODO: WORKING ON SHIPPING PART
-                // $.each(result, function(key, value) {
-                //     console.log(value)
-                //     data = value[0];
-                //     console.log('andr agay');
-                //     return false;
-                // })
-                var lowest = Number.POSITIVE_INFINITY;
-                // var highest = Number.NEGATIVE_INFINITY;
-                var tmp;
-                var shippingObject
-                for (var i = result.length - 1; i >= 0; i--) {
-                    tmp = result[i].shipmentCost;
-                    if (tmp < lowest) {
-                        lowest = tmp;
-                        shippingObject = result[i];
+                $('.serviceCodes').removeClass('d-none');
+                $('#serviceCodesSelector').empty()
+                $.each(result, function(key, value) {
+                    if (selectedShip == 'fedex') {
+                        if (value.serviceCode == 'fedex_ground' || value.serviceCode == 'fedex_home_delivery' || value.serviceCode == 'fedex_2day' || value.serviceCode == 'fedex_first_overnight' || value.serviceCode == 'fedex_priority_overnight' || value.serviceCode == 'fedex_standard_overnight' || value.serviceCode == 'fedex_ground_international') {
+                            console.log(value)
+                            $('#serviceCodesSelector').append('<option data-shipmentCost="' + value.shipmentCost + '" value="' + value.serviceCode + '">' + value.serviceName + '</option>');
+                        }
                     }
-                    // if (tmp > highest) highest = tmp;
-                }
-                if (shippingObject) {
-                    $('#estimatedShippingCost').text('Estimated Shipping Cost: ' + shippingObject.shipmentCost)
-                    $('#serviceCode').text('Service Code: ' + shippingObject.serviceCode);
-                    serviceCode = shippingObject.serviceCode;
-                    carrierId = $("#shippingServices option:selected").data("id");
-                } else {
-                    console.log('bahr gayaga');
-                    alert('This shipping method is not available');
-                }
+                    if (selectedShip == 'stamps_com') {
+                        if (value.serviceName.includes('Package') || value.serviceName.includes('Package')) {
+                            $('#serviceCodesSelector').append('<option data-shipmentCost="' + value.shipmentCost + '" value="' + value.serviceCode + '">' + value.serviceName + '</option>');
+
+                        }
+                    }
+                    if (selectedShip == 'ups_walleted') {
+                        if (value.serviceCode == 'ups_next_day_air_saver' || value.serviceCode == 'ups_ground' || value.serviceCode == 'ups_2nd_day_air' || value.serviceCode == 'ups_standard_international' || value.serviceCode == "ups_worldwide_saver" || value.serviceCode == "ups_worldwide_expedited") {
+                            $('#serviceCodesSelector').append('<option data-shipmentCost="' + value.shipmentCost + '" value="' + value.serviceCode + '">' + value.serviceName + '</option>');
+                        }
+                    }
+                });
+
             })
             .catch(error => console.log('error', error));
+    });
+    $('#serviceCodesSelector').on('change', function() {
+        let selectedServiceCodeEle = $(this).find(':selected');
+        if (selectedServiceCodeEle) {
+            $('#estimatedShippingCost').text('Estimated Shipping Cost: ' + selectedServiceCodeEle.attr('data-shipmentCost'));
+            $('#serviceCode').text('Service Code: ' + selectedServiceCodeEle.val());
+            serviceCode = selectedServiceCodeEle.val();
+            carrierId = $("#shippingServices option:selected").data("id");
+        } else {
+            console.log('bahr gayaga');
+            alert('This shipping method is not available');
+        }
     });
 </script>
 

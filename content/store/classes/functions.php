@@ -910,12 +910,10 @@ class ImportantFunctions
         $options = '';
         $shippingServices = $this->CallAPI('GET', 'carriers');
 
-        foreach ($shippingServices as $key => $services) {
-            // if ($services->carrier_id == 'se-647512') {
-            //     continue; //ignoring the FEDX SHIPPING
-            // }
-
-            $options .= '<option data-id="' . $services->code . '"  value="' . $services->code . '">' . ucfirst($services->name) . '</option>';
+        foreach ($shippingServices as $key => $carrier) {
+            if ($carrier->code == 'ups_walleted' || $carrier->code == 'fedex' || $carrier->code == 'stamps_com') {
+                $options .= '<option data-id="' . $carrier->code . '"  value="' . $carrier->code . '">' . ucfirst($carrier->name) . '</option>';
+            }
         }
         echo ($options);
     }

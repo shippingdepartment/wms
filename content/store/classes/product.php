@@ -169,7 +169,7 @@ class Product
 
 	/***** MOID WORKS STARTS HERE */
 
-	function moidAddProduct($product_manual_id, $product_name, $product_unit, $tax_id, $product_cost, $product_selling_price, $alert_units, $order_id, $storeId)
+	function moidAddProduct($product_manual_id, $product_name, $product_unit, $tax_id, $product_cost, $product_selling_price, $alert_units, $order_id, $storeId, $productWeight)
 	{
 
 		global $db;
@@ -193,7 +193,7 @@ class Product
 			$result_rate = $db->query($query_rate) or die($db->error);
 
 			// inserting dimensions
-			$query_dimensions = "INSERT into dimensions (product_id, long_pr, larg, haut, poids, pounds, ounces) VALUES('" . $product_id . "', 1, 1, 1, 1,1,1)";
+			$query_dimensions = "INSERT into dimensions (product_id, long_pr, larg, haut, poids, pounds, ounces) VALUES('" . $product_id . "', $productWeight, $productWeight, $productWeight,$productWeight,$productWeight,$productWeight)";
 			$result_dimensions = $db->query($query_dimensions) or die($db->error);
 
 			$message = $warehouse->add_inventory(500, '0', $product_id, $_SESSION['warehouse_id'], '234234');
