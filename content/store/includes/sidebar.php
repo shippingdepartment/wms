@@ -5,7 +5,7 @@ $function_id = $user->get_user_info($user_id, "user_function");
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
     .page-sidebar-menu {
-        margin-top: 120px !important;
+        margin-top: 30px !important;
     }
 </style>
 <div class="page-sidebar">
@@ -101,35 +101,14 @@ $function_id = $user->get_user_info($user_id, "user_function");
                         <li><a href="inventproducts.php"><span class="text-success" title="Inventory by Warehouse"><i class="fa fa-caret-right"></i> Inventory</span></a></li>
                         <li><a href="lowstock.php"><span class="text-success" title="Low Stock"><i class="fa fa-caret-right"></i> Low Stock </span></a></li>
                         <li><a href="outstock.php"><span class="text-success" title="Low Stock"><i class="fa fa-caret-right"></i> Out Of Stock </span></a></li>
-                    </ul>
-                </li>
-
-                <li>
-                    <a href="javascript:void(0)">
-                        <i class="menu-icon fa fa-cubes"></i><span>Stock <i class="accordion-icon fa fa-angle-right"></i> </span>
-                    </a>
-                    <ul class="sub-menu">
                         <li><a href="addstock.php"><span class="text-success"><i class="fa fa-caret-right"></i> Add Stock</span></a></li>
                         <li><a href="updatestock.php"><span class="text-success"><i class="fa fa-caret-right"></i> Update Stock</span></a></li>
-
-                    </ul>
-                </li>
-                <li>
-                    <a href="javascript:void(0)">
-                        <i class="menu-icon fa fa-truck"></i><span>Deliveries <i class="accordion-icon fa fa-angle-right"></i> </span>
-                    </a>
-                    <ul class="sub-menu">
-                        <?php if (partial_access('admin') or $function_id == 'storem' or $function_id == 'manager') { ?>
-                            <!-- <li><a href="newdelivery.php"><span class="text-success"><i class="fa fa-caret-right"></i> New Delivery</span></a></li> -->
-                        <?php } ?>
-                        <!-- <li><a href="deliveries.php"><span class="text-success"><i class="fa fa-caret-right"></i> All Deliveries</span></a></li>
-                                <li><a href="deliveriesbycust.php"><span class="text-success" title="Deliveries by Customer"><i class="fa fa-caret-right"></i> Deliveries by Cust.</span></a></li> -->
                         <li><a href="receive_shipments.php"><span class="text-success"><i class="fa fa-caret-right"></i> Receive Shipments</span></a></li>
-
-
+                        <li><a href="receive_inventory_request.php"><span class="text-success"><i class="fa fa-caret-right"></i> Received Request</span></a></li>
 
                     </ul>
                 </li>
+
 
                 <li>
                     <a href="javascript:void(0)">
@@ -137,20 +116,14 @@ $function_id = $user->get_user_info($user_id, "user_function");
                     </a>
                     <ul class="sub-menu">
                         <li><a href="return_label_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> Return labels</span></a></li>
-                    </ul>
-                </li>
-
-                <li>
-                    <a href="javascript:void(0)">
-                        <i class="menu-icon fa fa-arrow-circle-down"></i><span>Stock Returns <i class="accordion-icon fa fa-angle-right"></i> </span>
-                    </a>
-                    <ul class="sub-menu">
                         <?php if (partial_access('admin') or $function_id == 'storem' or $function_id == 'manager') { ?>
                             <li><a href="newreturn.php"><span class="text-success"><i class="fa fa-caret-right"></i> New Stock Return</span></a></li>
                         <?php } ?>
                         <li><a href="returns.php"><span class="text-success"><i class="fa fa-caret-right"></i> All Returns</span></a></li>
                     </ul>
                 </li>
+
+
 
                 <li>
                     <a href="javascript:void(0)">
@@ -164,17 +137,8 @@ $function_id = $user->get_user_info($user_id, "user_function");
                     </ul>
                 </li>
 
-                <?php if (partial_access('admin') or $function_id == 'storem' or $function_id == 'manager') { ?>
-                    <li>
-                        <a href="javascript:void(0)">
-                            <i class="menu-icon fa fa-cubes"></i><span> Inventory Req <i class="accordion-icon fa fa-angle-right"></i> </span>
-                        </a>
-                        <ul class="sub-menu">
-                            <li><a href="receive_inventory_request.php"><span class="text-success"><i class="fa fa-caret-right"></i> Received Request</span></a></li>
-                        </ul>
-                    <?php } ?>
-                    </li>
-                    <?php if (partial_access('admin') or $function_id == 'storem' or $function_id == 'manager') { ?>
+
+                    <?php if (false) { ?>
                         <li>
                             <a href="javascript:void(0)">
                                 <i class="menu-icon fa fa-exchange"></i><span>Transfers <i class="accordion-icon fa fa-angle-right"></i> </span>
@@ -241,7 +205,7 @@ $function_id = $user->get_user_info($user_id, "user_function");
 
                             </a>
                             <ul class="sub-menu">
-                            <li><a href="stores_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> View Stores</span></a></li>
+                                <li><a href="stores_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> View Stores</span></a></li>
                                 <li><a href="store_owner_price_list.php"><span class="text-success"><i class="fa fa-caret-right"></i>Adjust Price</span></a></li>
                                 <li><a href="store_owner_owes.php"><span class="text-success"><i class="fa fa-caret-right"></i>Store Owner Reports</span></a></li>
                                 <li><a href="create_filters.php"><span class="text-success"><i class="fa fa-caret-right"></i>Create Filters</span></a></li>

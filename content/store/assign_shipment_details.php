@@ -1,32 +1,37 @@
 <?php
 
-include('../system_load.php');
+include('system_load.php');
 //This loads system.
 //user Authentication.
 authenticate_user('subscriber');
+$important = new ImportantFunctions();
+
+$assignID = $_GET['assign_id'];
+$cardId = $_GET['cart_id'];
 $user_id = $_SESSION['user_id'];
 
-$orderId = $_GET['id']; // store id;
+$orderId = ($important->getOrderDataThroughAssignId($assignID))['order_id']; // store id;
+// echo "<pre>";
+// print_r(($orderId['order_id']));
+// echo "</pre>";
+// exit;
+
 
 $function_id = $user->get_user_info($user_id, "user_function");
 
-$important = new ImportantFunctions();
 $product = new Product();
 $estimatedShippingCost = 0.0;
 $shippingService = null;
 $orderStatus = null;
 $response = $important->CallAPI('GET', "orders/" . $orderId);
-// $shippingCarriers = $important->CallAPI('GET', 'carriers');
-// echo "<pre>";
-// print_r(($shippingCarriers));
-// echo "</pre>";
-// exit;
-// foreach ($shippingCarriers as $key => $carrier) {
-//     if ($carrier->code == 'ups_walleted' || $carrier->code == 'fedex' || $carrier->code == 'stamps_com') {
-//     } else {
-//         unset($shippingCarriers[$key]);
-//     }
-// }
+$shippingCarriers = $important->CallAPI('GET', 'carriers');
+
+foreach ($shippingCarriers as $key => $carrier) {
+    if ($carrier->code == 'ups_walleted' || $carrier->code == 'fedex' || $carrier->code == 'stamps_com') {
+    } else {
+        unset($shippingCarriers[$key]);
+    }
+}
 
 // echo "<pre>";
 // print_r(($shippingCarriers));
@@ -40,13 +45,6 @@ $totalSize = 0;
 $totalItems = 0;
 
 $details = '';
-$assignID = 0;
-if (isset($_GET['assign_id'])) {
-    $assignID = $_GET['assign_id'];
-} else {
-    $assignID = $important->getAssignOrderId($orderId);
-}
-
 $isMediaMail = false;
 
 foreach ($response->items as $key => $value) {
@@ -72,7 +70,6 @@ foreach ($response->items as $key => $value) {
     $details .= '</div>';
     $details .= '</div>';
     $details .= '</div>';
-    $details .= '<div class="text-right"> <button id=' . $value->sku . ' type="button" class="btn btn-success" data-product-quantity=' . $value->quantity . '   onclick="verifyThePick(this)" > Verify Pick </button> </div>';
 
     $details .= '<hr class="my-3 ">';
     $details .= '</div>';
@@ -88,7 +85,6 @@ foreach ($response->items as $key => $value) {
     $isMediaMail = $product->isMediaMail;
 }
 
-$currentCarts = $important->getFreeCarts();
 $orderStatus = $important->getOrderStatus($response->orderId, $response->advancedOptions->storeId);
 $carrierCode = '';
 $carrierId = '';
@@ -110,98 +106,88 @@ $shippingObject = array(
 
 $sf = array();
 
-// if ($totalWeight <= 16) {
+if ($totalWeight <= 16) {
 
-//     $shippingObject = array(
-//         'carrierCode' => "stamps_com",
-//         'fromPostalCode' => '46226',
-//         'toCountry' => $response->shipTo->country,
-//         'toPostalCode' => $response->shipTo->postalCode,
-//         'toCity' => $response->shipTo->city,
-//         'toState' => $response->shipTo->state,
-//         'weight' => (array('value' => intval($totalWeight), 'unit' => 'ounce')),
-//         'dimensions' => (array('unit' => 'inch', 'length' => 5.0, 'width' => 5.0, 'height' => 5.0)),
-//     );
-//     $shippingCarriers = $important->CallAPI('POST', 'shipments/getrates', json_encode($shippingObject));
-//     $estimatedShippingCost = $shippingCarriers[0]->shipmentCost;
-//     $shippingService = $shippingCarriers[0]->serviceName;
-//     $serviceCode = $shippingCarriers[0]->serviceCode;
-//     $carrierId = "stamps_com";
-// } else {
-//     foreach ($shippingCarriers as $key => $carrier) {
-//         if ($carrier->code == 'ups_walleted' || $carrier->code == 'fedex' || $carrier->code == 'stamps_com') {
-//             $shippingObject = array(
-//                 'carrierCode' => $carrier->code,
-//                 'fromPostalCode' => '46226',
-//                 'toCountry' => $response->shipTo->country,
-//                 'toPostalCode' => $response->shipTo->postalCode,
-//                 'toCity' => $response->shipTo->city,
-//                 'toState' => $response->shipTo->state,
-//                 'weight' => (array('value' => intval($totalWeight), 'unit' => 'ounce')),
-//                 'dimensions' => (array('unit' => 'inch', 'length' => 5.0, 'width' => 5.0, 'height' => 5.0)),
-//             );
-//             $shippingRates = $important->CallAPI('POST', 'shipments/getrates', json_encode($shippingObject));
+    $shippingObject = array(
+        'carrierCode' => "stamps_com",
+        'fromPostalCode' => '46226',
+        'toCountry' => $response->shipTo->country,
+        'toPostalCode' => $response->shipTo->postalCode,
+        'toCity' => $response->shipTo->city,
+        'toState' => $response->shipTo->state,
+        'weight' => (array('value' => intval($totalWeight), 'unit' => 'ounce')),
+        'dimensions' => (array('unit' => 'inch', 'length' => 5.0, 'width' => 5.0, 'height' => 5.0)),
+    );
+    $shippingCarriers = $important->CallAPI('POST', 'shipments/getrates', json_encode($shippingObject));
+    $estimatedShippingCost = $shippingCarriers[0]->shipmentCost;
+    $shippingService = $shippingCarriers[0]->serviceName;
+    $serviceCode = $shippingCarriers[0]->serviceCode;
+    $carrierId = "stamps_com";
+} else {
+    foreach ($shippingCarriers as $key => $carrier) {
+        if ($carrier->code == 'ups_walleted' || $carrier->code == 'fedex' || $carrier->code == 'stamps_com') {
+            $shippingObject = array(
+                'carrierCode' => $carrier->code,
+                'fromPostalCode' => '46226',
+                'toCountry' => $response->shipTo->country,
+                'toPostalCode' => $response->shipTo->postalCode,
+                'toCity' => $response->shipTo->city,
+                'toState' => $response->shipTo->state,
+                'weight' => (array('value' => intval($totalWeight), 'unit' => 'ounce')),
+                'dimensions' => (array('unit' => 'inch', 'length' => 5.0, 'width' => 5.0, 'height' => 5.0)),
+            );
+            $shippingRates = $important->CallAPI('POST', 'shipments/getrates', json_encode($shippingObject));
 
-//             foreach ($shippingRates as $keyj => $ship) {
+            foreach ($shippingRates as $keyj => $ship) {
 
-//                 if ($carrier->code == 'fedex') {
-//                     // echo "<pre>";
-//                     // print_r(($shippingRates));
-//                     // echo "</pre>";
-//                     // exit;
+                if ($carrier->code == 'fedex') {
+                    // echo "<pre>";
+                    // print_r(($shippingRates));
+                    // echo "</pre>";
+                    // exit;
 
-//                     if ($ship->serviceCode == 'fedex_ground' || $ship->serviceCode == 'fedex_home_delivery' || $ship->serviceCode == 'fedex_2day' || $ship->serviceCode == 'fedex_first_overnight' || $ship->serviceCode == 'fedex_priority_overnight' || $ship->serviceCode == 'fedex_standard_overnight' || $ship->serviceCode == 'fedex_ground_international' || $ship->serviceCode == 'fedex_international_economy') {
-//                         $estimatedShippingCost = $ship->shipmentCost;
-//                         $shippingService = $ship->serviceName;
-//                         $packageType = 'Package';
-//                         $serviceCode = $ship->serviceCode;
-//                         $carrierId = $carrier->code;
-//                         $sf[] = array('amount' => $ship->shipmentCost, 'shippingService' => $ship->serviceName, 'serviceCode' => $ship->serviceCode, 'carrierId' => $carrier->code);
-//                     }
-//                 }
-//                 if ($carrier->code == 'stamps_com') {
-//                     if ($ship->serviceCode == 'usps_priority_mail' || ($product->isMediaMail ? $ship->serviceCode == 'usps_media_mail' : false)) {
-//                         $estimatedShippingCost = $ship->shipmentCost;
-//                         $shippingService = $ship->serviceName;
-//                         $packageType = 'Package';
-//                         $serviceCode = $ship->serviceCode;
-//                         $carrierId = $carrier->code;
-//                         $sf[] = array('amount' => $ship->shipmentCost, 'shippingService' => $ship->serviceName, 'serviceCode' => $ship->serviceCode, 'carrierId' => $carrier->code);
-//                     }
-//                 }
-//                 if ($carrier->code == 'ups_walleted') {
-//                     if ($ship->serviceCode == 'ups_next_day_air_saver' || $ship->serviceCode == 'ups_ground' || $ship->serviceCode == 'ups_2nd_day_air') {
-//                         $estimatedShippingCost = $ship->shipmentCost;
-//                         $shippingService = $ship->serviceName;
-//                         $packageType = 'Package';
-//                         $serviceCode = $ship->serviceCode;
-//                         $carrierId = $carrier->code;
-//                         $sf[] = array('amount' => $ship->shipmentCost, 'shippingService' => $ship->serviceName, 'serviceCode' => $ship->serviceCode, 'carrierId' => $carrier->code);
-//                     }
-//                 }
-//             }
-//         }
-
-//         // echo "<pre>";
-//         // print_r(($sf));
-//         // echo "</pre>";
-//         // exit;
-//         if ($sf) {
-//             $sfS =  min($sf);
-//             $estimatedShippingCost = ($sfS['amount']) . ' USD';
-//             $shippingService = $sfS['shippingService'];
-//             $serviceCode = $sfS['serviceCode'];
-//             $carrierId = $sfS['carrierId'];
-//         }
-//     }
-
-//     // echo "<pre>";
-//     // print_r(($sf));
-//     // echo "</pre>";
-//     // exit;
-// }
+                    if ($ship->serviceCode == 'fedex_ground' || $ship->serviceCode == 'fedex_home_delivery' || $ship->serviceCode == 'fedex_2day' || $ship->serviceCode == 'fedex_first_overnight' || $ship->serviceCode == 'fedex_priority_overnight' || $ship->serviceCode == 'fedex_standard_overnight' || $ship->serviceCode == 'fedex_ground_international' || $ship->serviceCode == 'fedex_international_economy') {
+                        $estimatedShippingCost = $ship->shipmentCost;
+                        $shippingService = $ship->serviceName;
+                        $packageType = 'Package';
+                        $serviceCode = $ship->serviceCode;
+                        $carrierId = $carrier->code;
+                        $sf[] = array('amount' => $ship->shipmentCost, 'shippingService' => $ship->serviceName, 'serviceCode' => $ship->serviceCode, 'carrierId' => $carrier->code);
+                    }
+                }
+                if ($carrier->code == 'stamps_com') {
+                    if ($ship->serviceCode == 'usps_priority_mail' || ($product->isMediaMail ? $ship->serviceCode == 'usps_media_mail' : false)) {
+                        $estimatedShippingCost = $ship->shipmentCost;
+                        $shippingService = $ship->serviceName;
+                        $packageType = 'Package';
+                        $serviceCode = $ship->serviceCode;
+                        $carrierId = $carrier->code;
+                        $sf[] = array('amount' => $ship->shipmentCost, 'shippingService' => $ship->serviceName, 'serviceCode' => $ship->serviceCode, 'carrierId' => $carrier->code);
+                    }
+                }
+                if ($carrier->code == 'ups_walleted') {
+                    if ($ship->serviceCode == 'ups_next_day_air_saver' || $ship->serviceCode == 'ups_ground' || $ship->serviceCode == 'ups_2nd_day_air') {
+                        $estimatedShippingCost = $ship->shipmentCost;
+                        $shippingService = $ship->serviceName;
+                        $packageType = 'Package';
+                        $serviceCode = $ship->serviceCode;
+                        $carrierId = $carrier->code;
+                        $sf[] = array('amount' => $ship->shipmentCost, 'shippingService' => $ship->serviceName, 'serviceCode' => $ship->serviceCode, 'carrierId' => $carrier->code);
+                    }
+                }
+            }
+        }
 
 
+        if ($sf) {
+            $sfS =  min($sf);
+            $estimatedShippingCost = ($sfS['amount']) . ' USD';
+            $shippingService = $sfS['shippingService'];
+            $serviceCode = $sfS['serviceCode'];
+            $carrierId = $sfS['carrierId'];
+        }
+    }
+}
 
 
 ?>
@@ -235,22 +221,8 @@ $sf = array();
                     <div class="col my-auto">
                         <h4 class="mb-0"><span class="change-color"><?php echo $response->advancedOptions->storeId ?></span> </h4>
                     </div>
-                    <div class="col my-auto d-none" id="isEveryThingDone">
-
-                        Select Cart
-                        <select name="cart_option" id="cart_option">
-                            <option value="" disabled>----Select----</option>
-                            <?php
-                            foreach ($currentCarts as $key => $value) {
-                                echo '<option value="' . $value . '">' . $value . '</option>';
-                            }
-                            ?>
-
-
-                        </select>
-
-                        <button type="button" id="confirmedBtn" style="margin-left: 20px;;" class="btn btn-success">Done</button>
-
+                    <div class="col my-auto">
+                        <h3 class="mb-0">Assign Shipments</h3>
                     </div>
                     <div class="col-auto text-center my-auto pl-0 pt-sm-4">
                         <p class="">Order# &nbsp;<?php echo $response->orderNumber ?></p>
@@ -299,16 +271,16 @@ $sf = array();
 
                 </div>
                 <hr>
-                <div class="w-100 d-none htanahai" style="display:none!important">
+                <div class="w-100 d-none ">
                     <small class="text-danger text-center">(Cheapest One)</small>
                 </div>
-                <div class="w-100 d-flex mt-1 justify-content-between d-none htanahai" style="display:none!important">
+                <div class="w-100 d-flex mt-1 justify-content-between d-none ">
                     <span id="estimatedShippingCost" class="ml-3 text-muted">Estimated Shipping Cost: <?php echo $estimatedShippingCost; ?></span> <!-- $estimatedShippingCost -->
                     <span id="shippingService" class="ml-3 text-muted"> Shipping Service: <?php echo $shippingService; ?></span> <!-- $shippingService -->
                     <span id="serviceCode" class="ml-3 text-muted"> Service Code: <?php echo $serviceCode; ?></span> <!-- $serviceCode -->
                     <!-- <span class="ml-3 text-muted"> Package Type: Package</span>$packageType -->
                 </div>
-                <div class="w-100 d-flex mt-1 justify-content-between mt-5 d-none htanahai" style="display:none!important">
+                <div class="w-100 d-flex mt-1 justify-content-between mt-5 d-none ">
                     <select name="shipping_services" id="shippingServices" class="form-control">
                         <option selected value="">Select Shipping</option>
 
@@ -380,6 +352,7 @@ $sf = array();
                             <?php if ($orderStatus != 'Fulfilled' && $orderStatus != 'shipped') { ?>
                                 <button type="button" onClick="window.location.reload();" class="btn btn-success">Refresh Order</button>
                             <?php } ?>
+                            <button type="button" id="confirmShipmentBtn" class="btn btn-danger">Assign Shipment</button>
 
                             <?php if ($orderStatus == 'inprogress' || $orderStatus == 'Not-Assigned') { ?>
 
@@ -396,155 +369,39 @@ $sf = array();
                     </div>
                 </div>
             </div>
-            <!-- <div class="card-footer">
-                <div class="jumbotron-fluid">
-                    <div class="row justify-content-between ">
-                        <div class="col-sm-auto col-auto my-auto"><img class="img-fluid my-auto align-self-center " src="https://i.imgur.com/7q7gIzR.png" width="115" height="115"></div>
-                        <div class="col-auto my-auto ">
-                            <h2 class="mb-0 font-weight-bold">TOTAL PAID</h2>
-                        </div>
-                        <div class="col-auto my-auto ml-auto">
-                            <h1 class="display-3 ">&#8377; 5,528</h1>
-                        </div>
-                    </div>
-                    <div class="row mb-3 mt-3 mt-md-0">
-                        <div class="col-auto border-line"> <small class="text-white">PAN:AA02hDW7E</small></div>
-                        <div class="col-auto border-line"> <small class="text-white">CIN:UMMC20PTC </small></div>
-                        <div class="col-auto "><small class="text-white">GSTN:268FD07EXX </small> </div>
-                    </div>
-                </div>
-            </div> -->
-        </div>
-    </div>
-
-
-    <!-- Modal -->
-    <div class="modal fade" id="verifyPickModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <span id="informQuantity" class="text-muted"></span>
-                    <input type="hidden" name="" id="requiredQuantity">
-                    <input type="hidden" name="" id="sku">
-                    <input type="text" class="form-control mt-3" id="enteredQuantity" placeholder="Enter Quantity">
-                    <div id="errorMsg" class="errorMsg text-center d-none">
-                        <p class="text-danger ">Invalid Quantity Selected</p>
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" id="confirmPick" class="btn btn-primary">Confirm Pick</button>
-                </div>
-            </div>
         </div>
     </div>
 
 </body>
 <script>
-    var pickedItems = 0;
     var totalItems = <?php echo $totalItems; ?>;
     var assignID = <?php echo $assignID; ?>;
     var totalWeight = "<?php echo ($totalWeight); ?>";
     var orderId = "<?php echo ($orderId); ?>";
     var isMediaMailEligible = "<?php echo ($isMediaMail); ?>";
+    var serviceCode = "<?php echo ($serviceCode); ?>";
+    var carrierId = "<?php echo ($carrierId); ?>";
 
-
-    function verifyThePick(e) {
-        $('#exampleModalLongTitle').text(e.getAttribute('id'))
-        $('#informQuantity').text('Quantity ' + e.getAttribute('data-product-quantity'));
-        $('#requiredQuantity').val(e.getAttribute('data-product-quantity'));
-        $('#sku').val(e.id);
-        $('#verifyPickModal').modal('toggle');
-    }
-
-    $('#confirmPick').click(function(e) {
-        var requiredQuantity = $('#requiredQuantity').val();
-        var enteredQuantity = $('#enteredQuantity').val();
-        var sku = $('#sku').val();
-
-        if (requiredQuantity === enteredQuantity) {
-            if (sku[0] === '#') {
-                $(sku).addClass('d-none');
-            } else {
-                $('#' + sku).addClass('d-none');
-            }
-            $('#errorMsg').addClass('d-none');
-
-            $('#verifyPickModal').modal('toggle');
-            $('#isEveryThingDone').removeClass('d-none');
-
-        } else {
-            $('#errorMsg').removeClass('d-none');
-            return;
-        }
-
-
-        $('#enteredQuantity').val(null);
-
-    });
-    $('#cart_option').on('change', function() {
-        selectedCart = this.value;
-    });
-    $('#confirmedBtn').click(function(e) {
+    $('#confirmShipmentBtn').click(function(e) {
         paramJSON = {
-            'assign_order_id': parseInt(assignID),
-            'cart': $('#cart_option').find(":selected").text(),
-            'total_weight': totalWeight
+            'service_code': serviceCode,
+            'carrier_id': carrierId,
+            'order_id': orderId,
+            'assign_order_id': assignID
         }
         $.post(
-            'assign_cart_ajax.php', {
+            './shipengine/update_cart_ajax.php', {
                 data: JSON.stringify(paramJSON),
             },
             function(data) {
-                window.location.href = "../assigned_orders_list.php"
+              window.location.href = 'finished_orders.php?message=success'
+
                 // var result = JSON.parse(data);
             }
         );
 
 
     });
-
-    $('#cancelOrder').click(function(e) {
-        e.preventDefault();
-        var isConfirmed = confirm("Are you Confirm ?");
-        if (!isConfirmed) {
-            return;
-        }
-        var orderNo = "<?php echo  $response->orderId ?>";
-        paramJSON = {
-            'order_no': orderNo,
-            'status': 'canceled',
-        }
-        $.post(
-            'redo_order.php', {
-                data: JSON.stringify(paramJSON),
-            },
-            function(data) {
-                var response = (data);
-                if (response.success === true) {
-                    $('#alertSuccess').text('Order canceled successfully');
-                    $('#alertSuccess').removeClass('d-none');
-                    setTimeout(function() {
-                        window.location.href = "../assigned_orders_list.php"
-                    }, 2000);
-
-                } else {
-                    $('#alertDanger').text('Some Error Occured');
-                    $('#alertDanger').removeClass('d-none');
-                }
-
-            }
-        );
-    });
-
-
     $('#shippingServices').on('change', function() {
         const selected = ($(this).find(':selected').data("id"));
         let selectedShip = $(this).find(':selected').val();

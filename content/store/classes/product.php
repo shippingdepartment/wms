@@ -22,6 +22,7 @@ class Product
 	public $pounds;
 	public $ounces;
 	public $photo;
+	public $isMediaMail;
 
 	function moid_set_product_through_sku($sku, $store_id = '')
 	{
@@ -49,6 +50,7 @@ class Product
 						100,
 						$value->external_order_number,
 						$store_id,
+						false
 					);
 				}
 			}
@@ -64,6 +66,8 @@ class Product
 			$this->tax_id = $tax_id;
 			//$this->product_image = $product_image;
 			$this->alert_units = $alert_units;
+			$this->isMediaMail = $is_media_mail;
+
 			//query supplier.
 			// $query_supplier = "SELECT * from suppliers WHERE supplier_id='" . $supplier_id . "'";
 			// $result_supplier = $db->query($query_supplier) or die($db->error);
@@ -225,6 +229,7 @@ class Product
 		$row_supplier = $result_supplier->fetch_array();
 
 		$this->supplier = $row_supplier['full_name'];
+		$this->isMediaMail = $is_media_mail;
 
 		//query cost and selling price.
 		$query_cost = "SELECT * from price WHERE product_id='" . $product_id . "' ORDER by price_id ASC LIMIT 1";
@@ -304,26 +309,22 @@ class Product
 		return 'Product was updated successfuly.';
 	} //update product ends here.
 
-	function moid_update_product($edit_product, $product_name, $unit, $cost, $price, $tax, $alert, $long_pr, $larg, $haut, $poids, $photo, $pounds, $ounces)
+	function moid_update_product($edit_product, $product_name, $unit, $cost, $price, $tax, $alert, $long_pr, $larg, $haut, $poids, $photo, $pounds, $ounces, $isMediaMail)
 	{
-
 		global $db;
 		$query = "UPDATE products SET
 			product_name='" . $product_name . "',
 			product_unit='" . $unit . "',
 			tax_id='" . $tax . "',
 			alert_units='" . $alert . "',
-			photo='" . $photo . "'
-			WHERE product_id='" . $edit_product . "'
+			photo='" . $photo . "',
+			is_media_mail='" . $isMediaMail . "'
+			WHERE product_id='" . ($edit_product) . "'
 		";
 		$result = $db->query($query) or die($db->error);
-
+		$productId =  intval($edit_product);
 		//update price.
-		$update_price = "UPDATE price SET
-		cost='" . $cost . "',
-		selling_price='" . $price . "'
-		WHERE product_id='" . $edit_product . " ORDER by price_id ASC LIMIT 1'
-		";
+		$update_price = "UPDATE price SET cost=$cost, selling_price=$price WHERE product_id=$productId";
 		$result_price = $db->query($update_price) or die($db->error);
 		//Updating price ends here.
 		$update_rate = "UPDATE product_rates SET
@@ -333,15 +334,7 @@ class Product
 		$rate_query = $db->query($update_rate) or die($db->error);
 
 		//update dimensions.
-		$update_dimensions = "UPDATE dimensions SET
-		long_pr='" . $long_pr . "',
-		larg='" . $larg . "',
-		haut='" . $haut . "',
-		poids='" . $poids . "',
-		pounds='" . $pounds . "',
-		ounces='" . $ounces . "'
-		WHERE product_id='" . $edit_product . "'
-		";
+		$update_dimensions = "UPDATE dimensions SET long_pr=$long_pr, larg=$larg, haut=$haut, poids=$poids, pounds=$pounds, ounces=$ounces WHERE product_id=$edit_product";
 		$result_dimensions = $db->query($update_dimensions) or die($db->error);
 		//Updating dimensions ends here.
 
