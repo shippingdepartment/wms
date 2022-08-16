@@ -32,9 +32,15 @@ if (isset($_POST['edit_product'])) {
 if (isset($_POST['update_product'])) {
 	if ($_POST['update_product'] == '1') {
 		extract($_POST);
+		$mediaMail = null;
+		if(isset($isMediaMail)){
+			$mediaMail = 1;
+		}else{
+			$mediaMail = 0;
+		}
 		if (isset($_FILES['productPhoto'])) {
 			if (($_FILES['productPhoto']['error'] == 4)) {
-				$message = $product->moid_update_product($prodid, $product_name, $unit, $cost, $price, $tax_id, $alert_units, $length, $width, $height, $weight,$photos, $pounds, $ounces);
+				$message = $product->moid_update_product($prodid, $product_name, $unit, $cost, $price, $tax_id, $alert_units, $length, $width, $height, $weight, $photos, $pounds, $ounces, $mediaMail );
 			} else {
 				$photo = $_FILES['productPhoto']['name'];
 				$target_dir = "upload/";
@@ -46,7 +52,7 @@ if (isset($_POST['update_product'])) {
 					}
 				}
 
-				$message = $product->moid_update_product($prodid, $product_name, $unit, $cost, $price, $tax_id, $alert_units, $length, $width, $height, $weight, $photo, $pounds, $ounces);
+				$message = $product->moid_update_product($prodid, $product_name, $unit, $cost, $price, $tax_id, $alert_units, $length, $width, $height, $weight, $photo, $pounds, $ounces,$mediaMail);
 			}
 		}
 	}
@@ -278,6 +284,15 @@ $page_title = 'Edit Product'; //You can edit this to change your page title.
 									<div class="col-sm-10">
 										<div style="margin-bottom:15px;" class="input-group">
 											<input type="text" id="ounces" name="ounces" class="form-control" placeholder="Weight" value="<?php echo $product->ounces; ?>" onkeypress="return isNumberKey(event)" required><span class="input-group-addon">oz</span>
+										</div>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<label for="input-Default" class="col-sm-2 control-label">Is Media Mail Required</label>
+									<div class="col-sm-10">
+										<div style="margin-bottom:15px;" class="input-group">
+											<input type="checkbox" id="isMediaMail" name="isMediaMail" class="form-control" <?php if ($product->isMediaMail) echo 'checked'; ?> >
 										</div>
 									</div>
 								</div>

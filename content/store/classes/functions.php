@@ -261,12 +261,11 @@ class ImportantFunctions
             $content .= $data['order_no'];
             $content .= '</td><td>';
             $content .= $userName;
-
             $content .= '</td><td>';
             $content .= $cart;
             $content .= '</td>';
             $content .= '<td>';
-            $content .= '<a href="buy_postage_work.php?assign_id=' . $assign_order_id . '&cart_id=' . $id . '"><b class="" style="font-size:16px">Shipping Label</b></a> ';
+            $content .= '<a href="assign_shipment_details.php?assign_id=' . $assign_order_id . '&cart_id=' . $id . '"><b class="" style="font-size:16px">Shipping Label</b></a> ';
             $content .= '</td>';
             $content .= '</tr>';
         }
@@ -288,6 +287,14 @@ class ImportantFunctions
     {
         global $db;
         $query = "SELECT * from cart_assigning WHERE id='" . $id . "'  LIMIT 1";
+        $result = $db->query($query) or die($db->error);
+        return $result->fetch_array();
+    }
+
+    public function getDataThroughCartAssigningByAssignId($id)
+    {
+        global $db;
+        $query = "SELECT * from cart_assigning WHERE assign_order_id='" . $id . "'  LIMIT 1";
         $result = $db->query($query) or die($db->error);
         return $result->fetch_array();
     }
@@ -362,7 +369,7 @@ class ImportantFunctions
             $content .= $tracking_number;
             $content .= '</td>';
             $content .= '<td>';
-            $content .= '<a href=' . $shipment_id . '.pdf download target="_blank"><i class="fa fa-tag" style="font-size:16px"></i></a> ';
+            $content .= '<a href=../store/shipengine/printLabels/' . $shipment_id . '.pdf  target="_blank"><i class="fa fa-tag" style="font-size:16px"></i></a> ';
             $content .= '</td>';
             $content .= '</tr>';
         }
@@ -438,6 +445,18 @@ class ImportantFunctions
         // echo "</pre>";
         // exit;
     }
+
+    public function getOrderDataThroughAssignId($assignId)
+    {
+        global $db;
+        $query = "SELECT * from assign_order WHERE id='" . $assignId . "' LIMIT 1";
+        $result = $db->query($query) or die($db->error);
+        if ($result->num_rows > 0)
+            return $result->fetch_array();
+        else
+            return null;
+    }
+
 
     public function getOrderStatus($orderNo, $orderId)
     {
