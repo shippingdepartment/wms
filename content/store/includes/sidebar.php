@@ -82,7 +82,7 @@ $function_id = $user->get_user_info($user_id, "user_function");
                     </a>
                     <ul class="sub-menu">
                         <?php if (partial_access('admin')) { ?>
-                            <li><a href="assigned_orders_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> All Assigned Orders</span></a></li>
+                            <li><a href="assigned_orders_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> All Orders</span></a></li>
                         <?php  } ?>
                         <li><a href="assigned_orders_list.php?t=user"><span class="text-success"><i class="fa fa-caret-right"></i> Assigned Orders</span></a></li>
                         <li><a href="buy_postage.php"><span class="text-success"><i class="fa fa-caret-right"></i> Buy Postage </span></a></li>

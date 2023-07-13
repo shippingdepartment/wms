@@ -178,6 +178,7 @@
 	'subscribers' => 'Subscribers',
 	'notify_user_group' => 'Notify User Group',
 	'default_system_user_type' => 'Default System User Type',
+	'assigned_orders' => 'Assigned Orders',
 	'session_timeout' => 'Session Timeout',
 	'maximum_login_attempts' => 'Maximum Login Attemps',
 	'wrong_attempts_time' => 'Wrong Attempts Time',

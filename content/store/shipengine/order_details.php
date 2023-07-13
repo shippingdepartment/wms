@@ -440,7 +440,7 @@ $sf = array();
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" id="confirmPick" class="btn btn-primary">Confirm Pick</button>
+                    <button type="button" id="confirmPick" class="btn btn-primary">Finish Order</button>
                 </div>
             </div>
         </div>
@@ -503,7 +503,17 @@ $sf = array();
                 data: JSON.stringify(paramJSON),
             },
             function(data) {
-                window.location.href = "../assigned_orders_list.php"
+                
+                window.location.href = "../buy_postage.php"
+                //user Authentication.
+authenticate_user('subscriber');
+$important = new ImportantFunctions();
+
+$assignID = $_GET['assign_id'];
+$cardId = $_GET['cart_id'];
+$user_id = $_SESSION['user_id'];
+
+$orderId = ($important->getOrderDataThroughAssignId($assignID))['order_id']; // store id;
                 // var result = JSON.parse(data);
             }
         );

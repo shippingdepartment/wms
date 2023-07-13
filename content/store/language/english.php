@@ -310,6 +310,7 @@
 	'subscribers' => 'Subscribers',
 	'registeration_disabled_temporary' => 'Sorry you cannot register right now. Registration is disabled temporary.',
 	'default_system_user_type' => 'Default registration user type',
+	'assigned_orders' => 'Assigned Orders',
 	'session_timeout' => 'Session timeout in minutes',
 	'notify_user_group' => 'Notify user group on new registration',
 	'notify_user_group_title' => 'Notify other users of same group on new registration in that group.',

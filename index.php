@@ -1,4 +1,4 @@
 <?php
-header("Location: content/store/login.php"); /* Redirect browser */
+header("Location: content/store/install.php"); /* Redirect browser */
 exit();
 ?>

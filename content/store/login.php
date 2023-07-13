@@ -127,7 +127,7 @@ $sub_title = "Please login below to access the dashboard.";
 							echo '</div>';
 						}
 						?>
-						<form action="<?php $_SERVER['PHP_SELF'] ?>" id="login_form" name="login" method="post">
+						<form action="<?php echo $_SERVER['PHP_SELF'] ?>" id="login_form" name="login" method="post">
 							<div class="form-group">
 								<label for="exampleInputEmail1">Email address</label>
 								<input type="email" class="form-control" id="exampleInputEmail1" name="email" required="required">
