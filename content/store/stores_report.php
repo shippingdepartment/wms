@@ -115,26 +115,15 @@ $page_title = 'Assigned Users Orders List'; //You can edit this to change your p
 
 
                 <div class="row">
-                    <div class=" d-flex justify-content-center">
-                        <div class="col-md-6">
-                            <?php if (!$isForAdmin) { ?>
-                                <p>Total Orders Assigned : <span style="color:red;font-weight:bold">
-                                        <?php echo $important->getCurrentUserAssignedOrdersCount() ?>
-                                    </span></p>
-                            <?php } ?>
+                    <?php
+                    if ($isForAdmin) {
+                        ?>
+                        <div class="col-md-12">
+                            <button class="btn btn-primary">Generate report</button>
                         </div>
-                        <div class="col-md-6">
-                            <?php if (!$isForAdmin && ($important->getCurrentUserAssignedOrdersCount()) < 25) { ?>
-                                <?php
-                                if ($is_Request) {
-                                    ?><button id="requestOrder" class="btn btn-primary"> Pause Orders</button>
-                                    <?php
-                                } else { ?>
-                                    <button id="requestOrder" class="btn btn-primary"> Request Orders</button>
-                                <?php } ?>
-                            <?php } ?>
-                        </div>
-                    </div>
+                        <?php
+                    }
+                    ?>
                     <div class="col-md-12">
 
                         <!-- <div class="panel panel-white"> -->
