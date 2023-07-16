@@ -20,7 +20,7 @@ $message = null;
 if (isset($_GET['message'])) {
     $message = $_GET['message'];
 }
-$page_title = 'Assigned Users Orders List'; //You can edit this to change your page title.
+$page_title = 'Generate Report'; //You can edit this to change your page title.
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -125,14 +125,6 @@ $page_title = 'Assigned Users Orders List'; //You can edit this to change your p
                     }
                     ?>
                     <div class="col-md-12">
-
-                        <!-- <div class="panel panel-white"> -->
-                        <!-- <div class="panel-body"> -->
-
-                        <!-- <a href="reports/listCustomers.php" target="_blank" class="btn btn-info btn-addon"> <i class="fa fa-print"></i> Print Customer List</a>-->
-                        <!-- <a class="btn btn-info btn-addon" onClick="$('#example3').tableExport({type:'excel',escape:'false'});"> <i class="fa fa-file-excel-o"></i> Export to CSV</a>  -->
-                        <!-- </div> -->
-                        <!-- </div> -->
                         </br>
 
                         <div class="panel-body" id="printlist">
