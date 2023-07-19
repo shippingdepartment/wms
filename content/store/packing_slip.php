@@ -93,7 +93,7 @@ foreach ($response->sales_order_items as $key => $value) {
                     <div class="col my-auto">
                         <h4 class="mb-0"><span class="change-color"><?php echo $response->order_source->order_source_nickname ?></span> </h4>
                     </div>
-                    <div class="col my-auto d-none" id="isEveryThingDone">
+                    <div class="col my-auto d-none" id="isEveryThingDone" id="isEveryThingDonee">
 
                         Select Cart
                         <select name="cart_option" id="cart_option">

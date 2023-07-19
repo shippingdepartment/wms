@@ -1,6 +1,23 @@
 <?php
 $user_id = $_SESSION['user_id'];
 $function_id = $user->get_user_info($user_id, "user_function");
+
+?>
+<?php
+
+// Check if the store ID is provided in the URL
+if(isset($_GET['id'])) {
+    $store_id = $_GET['id'];
+    $_SESSION['store_id'] = $store_id; // Save the store ID in the session
+} else {
+    // Retrieve the store ID from the session
+    if(isset($_SESSION['store_id'])) {
+        $store_id = $_SESSION['store_id'];
+    } else {
+        // Handle the case when the store ID is not available
+        // You can set a default value or redirect the user to a different page
+    }
+}
 ?>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
@@ -81,15 +98,18 @@ $function_id = $user->get_user_info($user_id, "user_function");
                         <i class="menu-icon fa fa-credit-card"></i><span>Orders <i class="accordion-icon fa fa-angle-right"></i> </span>
                     </a>
                     <ul class="sub-menu">
-                        <?php if (partial_access('admin')) { ?>
-                            <li><a href="assigned_orders_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> All Orders</span></a></li>
-                        <?php  } ?>
-                        <li><a href="assigned_orders_list.php?t=user"><span class="text-success"><i class="fa fa-caret-right"></i> Assigned Orders</span></a></li>
-                        <li><a href="buy_postage.php"><span class="text-success"><i class="fa fa-caret-right"></i> Buy Postage </span></a></li>
-                        <li><a href="finished_orders.php"><span class="text-success"><i class="fa fa-caret-right"></i> Finished Orders </span></a></li>
+                    <li><a href="store_orders_list.php?id=<?php echo $store_id; ?>"><span class="text-success"><i class="fa fa-caret-right"></i> All Orders</span></a></li>
+                        <?php if (partial_access('admin') && isset($_SESSION['assigned_orders']) && $_SESSION['assigned_orders']) { ?>
+                            <li><a href="assigned_orders_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> Orders Assigned To Me</span></a></li>
+                        <?php } ?>
+                        <!--
+                        <?php if (isset($_SESSION['assigned_orders']) && $_SESSION['assigned_orders']) { ?>
+                            <li><a href="assigned_orders_list.php?t=user"><span class="text-success"><i class="fa fa-caret-right"></i> Orders Assigned To Me</span></a></li>
+                        <?php } ?> -->
+                        <li><a href="buy_postage.php"><span class="text-success"><i class="fa fa-caret-right"></i> Buy Postage</span></a></li>
+                        <li><a href="finished_orders.php"><span class="text-success"><i class="fa fa-caret-right"></i> Finished Orders</span></a></li>
                         <!-- <li><a href="orders.php"><span class="text-success"><i class="fa fa-caret-right"></i> View Orders</span></a></li>
-                            <li><a href="ordersbysupplier.php"><span class="text-success"><i class="fa fa-caret-right"></i> Orders Per Supplier</span></a></li> -->
-
+                        <li><a href="ordersbysupplier.php"><span class="text-success"><i class="fa fa-caret-right"></i> Orders Per Supplier</span></a></li> -->
                     </ul>
                 </li>
 

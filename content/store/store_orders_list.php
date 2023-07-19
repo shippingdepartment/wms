@@ -289,7 +289,9 @@ if (false) {
             $content .= '</td><td>';
             $content .=  date("m-d-Y", strtotime($value->createDate));
             $content .= '</td><td>';
+            if (partial_access('admin') && isset($_SESSION['assigned_orders']) && $_SESSION['assigned_orders']) { 
             $content .= $isAssigned;
+           
             $content .= '</td>';
             $content .= '<td > ' . $value->orderId;
             $content .= '</td>';
@@ -297,12 +299,21 @@ if (false) {
 
             $content .= '</td>';
             $content .= '</tr>';
+            }
+            else{
+                $content .=  $value->orderId;
+            
+                $content .= '<td> <a href="shipengine/order_details.php?id=' . $value->orderId . '" target="_self"><i class="fa fa-eye" style="font-size:16px"></i></a>';
+    
+                $content .= '</td>';
+                $content .= '</tr>';
+            }
         }
     }
 }
 
 
-$page_title = 'Orders List'; //You can edit this to change your page title.
+$page_title = 'All Orders'; //You can edit this to change your page title.
 
 
 ?>
@@ -406,7 +417,10 @@ $page_title = 'Orders List'; //You can edit this to change your page title.
                                             <th>Item</th>
                                             <th>Item SKU</th>
                                             <th>Order Date</th>
-                                            <th>Is Assigned</th>
+                                            <?php if (partial_access('admin') && isset($_SESSION['assigned_orders']) && $_SESSION['assigned_orders']) { ?>
+                                                <th>Is Assigned</th>
+                                            <?php } ?>
+                                            
                                             <th>Order Source Id</th>
                                             <th>Actions</th>
 

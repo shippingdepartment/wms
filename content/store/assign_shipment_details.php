@@ -1,51 +1,51 @@
-<?php
+    <?php
 
-include('system_load.php');
-//This loads system.
-//user Authentication.
-authenticate_user('subscriber');
-$important = new ImportantFunctions();
+    include('system_load.php');
+    //This loads system.
+    //user Authentication.
+    authenticate_user('subscriber');
+    $important = new ImportantFunctions();
 
-$assignID = $_GET['assign_id'];
-$cardId = $_GET['cart_id'];
-$user_id = $_SESSION['user_id'];
+    $assignID = $_GET['assign_id'];
+    $cardId = $_GET['cart_id'];
+    $user_id = $_SESSION['user_id'];
 
-$orderId = ($important->getOrderDataThroughAssignId($assignID))['order_id']; // store id;
-// echo "<pre>";
-// print_r(($orderId['order_id']));
-// echo "</pre>";
-// exit;
+    $orderId = ($important->getOrderDataThroughAssignId($assignID))['order_id']; // store id;
+    // echo "<pre>";
+    // print_r(($orderId['order_id']));
+    // echo "</pre>";
+    // exit;
 
 
-$function_id = $user->get_user_info($user_id, "user_function");
+    $function_id = $user->get_user_info($user_id, "user_function");
 
-$product = new Product();
-$estimatedShippingCost = 0.0;
-$shippingService = null;
-$orderStatus = null;
-$response = $important->CallAPI('GET', "orders/" . $orderId);
-$shippingCarriers = $important->CallAPI('GET', 'carriers');
+    $product = new Product();
+    $estimatedShippingCost = 0.0;
+    $shippingService = null;
+    $orderStatus = null;
+    $response = $important->CallAPI('GET', "orders/" . $orderId);
+    $shippingCarriers = $important->CallAPI('GET', 'carriers');
 
-foreach ($shippingCarriers as $key => $carrier) {
-    if ($carrier->code == 'ups_walleted' || $carrier->code == 'fedex' || $carrier->code == 'stamps_com') {
-    } else {
-        unset($shippingCarriers[$key]);
+    foreach ($shippingCarriers as $key => $carrier) {
+        if ($carrier->code == 'ups_walleted' || $carrier->code == 'fedex' || $carrier->code == 'stamps_com') {
+        } else {
+            unset($shippingCarriers[$key]);
+        }
     }
-}
 
-// echo "<pre>";
-// print_r(($shippingCarriers));
-// echo "</pre>";
-// exit;
+    // echo "<pre>";
+    // print_r(($shippingCarriers));
+    // echo "</pre>";
+    // exit;
 
 
-$content = '';
-$totalWeight = 0;
-$totalSize = 0;
-$totalItems = 0;
+    $content = '';
+    $totalWeight = 0;
+    $totalSize = 0;
+    $totalItems = 0;
 
-$details = '';
-$isMediaMail = false;
+    $details = '';
+    $isMediaMail = false;
 
 foreach ($response->items as $key => $value) {
     $productname = $value->name;
@@ -195,7 +195,7 @@ if ($totalWeight <= 16) {
 <html>
 
 <head>
-    <title>Purshasing Order Sheet</title>
+    <title>Purchasing Order Sheet</title>
     <link rel="stylesheet" type="text/css" media="all" href="reports.css" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -352,7 +352,7 @@ if ($totalWeight <= 16) {
                             <?php if ($orderStatus != 'Fulfilled' && $orderStatus != 'shipped') { ?>
                                 <button type="button" onClick="window.location.reload();" class="btn btn-success">Refresh Order</button>
                             <?php } ?>
-                            <button type="button" id="confirmShipmentBtn" class="btn btn-danger">Assign Shipment</button>
+                            <button type="button" id="confirmShipmentBtn" class="btn btn-danger">Purchase Label</button>
 
                             <?php if ($orderStatus == 'inprogress' || $orderStatus == 'Not-Assigned') { ?>
 

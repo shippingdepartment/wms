@@ -29,7 +29,7 @@ if (!$isForAdmin) {
     $page_title = 'Assigned Orders'; //You can edit this to change your page title.
 }
 else {
-    $page_title = 'All Orders'; //You can edit this to change your page title.
+    $page_title = 'Orders Assigned To Me'; //You can edit this to change your page title.
 }
 
 ?>

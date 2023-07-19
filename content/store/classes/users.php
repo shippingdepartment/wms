@@ -116,7 +116,7 @@ class Users
 		$row = $result->fetch_array();
 		return $row[$term];
 	} //get user email ends here.
-
+	
 	function register_user($first_name, $last_name, $user_type, $username, $email, $password)
 	{
 		global $db;
