@@ -25,8 +25,12 @@ $message = null;
 if (isset($_GET['message'])) {
     $message = $_GET['message'];
 }
-$page_title = 'Assigned Users Orders List'; //You can edit this to change your page title.
-
+if (!$isForAdmin) {
+    $page_title = 'Assigned Orders'; //You can edit this to change your page title.
+}
+else {
+    $page_title = 'Orders Assigned To Me'; //You can edit this to change your page title.
+}
 
 ?>
 <!DOCTYPE html>

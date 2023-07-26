@@ -65,6 +65,42 @@
 
     
 ?>
+<?php
+		
+	$assigned_orders = isset($_SESSION['assigned_orders']) && $_SESSION['assigned_orders'] ? 'checked="checked"' : '';
+	$cart_toggle = isset($_SESSION['cart_toggle']) && $_SESSION['cart_toggle'] ? 'checked="checked"' : '';
+	$bulk_fulfillment = isset($_SESSION['bulk_fulfillment']) && $_SESSION['bulk_fulfillment'] ? 'checked="checked"' : '';
+	if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['settings_submit'])) {
+		$assigned_orders = isset($_POST['assigned_orders']) && $_POST['assigned_orders'] == '1';
+
+		// Store the checkbox value in a session variable
+		$_SESSION['assigned_orders'] = $assigned_orders;
+
+		$message = $language['settings_saved1'];
+		HEADER('LOCATION: companysettings.php?msg='.$message); 
+		}//form validations
+
+			if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['settings_submit'])) {
+				$cart_toggle = isset($_POST['cart_toggle']) && $_POST['cart_toggle'] == '1';
+		
+				// Store the checkbox value in a session variable
+				$_SESSION['cart_toggle'] = $cart_toggle;
+		
+				$message = $language['settings_saved1'];
+				HEADER('LOCATION: companysettings.php?msg='.$message); 
+				}//form validations
+				if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['settings_submit'])) {
+					$bulk_fulfillment = isset($_POST['bulk_fulfillment']) && $_POST['bulk_fulfillment'] == '1';
+			
+					// Store the checkbox value in a session variable
+					$_SESSION['bulk_fulfillment'] = $bulk_fulfillment;
+			
+					$message = $language['settings_saved1'];
+					HEADER('LOCATION: companysettings.php?msg='.$message); 
+					}//form validations
+	
+?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -80,6 +116,7 @@
         <title><?php echo $page_title; ?></title>
 
         <!-- Styles -->
+		<script src="../../assets/js/pages/toggleFunctionality.js"></script>
         <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
         <link href="../../assets/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet">
         <link href="../../assets/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet">
@@ -113,7 +150,7 @@
 			require_once("includes/sidebaradmin.php"); //including sidebar file. 	
 			}
 			?>
-			<!-- End Side Bar 
+			<!-- End Side Bar -->
             <!-- Page Content -->
             <div class="page-content">
 				<!-- Header -->
@@ -183,66 +220,83 @@
 										</select>
 									</div>
 								</div>
-								<div class="alert alert-default" style="font-size:16px;color:#0d47a1" role="alert">
-                                        <strong>2- Mail Settings</strong>
-                                </div>
-                        
 								<div class="form-group">
-									<label for="input-Default" class="col-sm-3 control-label"><?php echo $language['email_from']; ?>*:</label>
+									<label for="input-Default" class="col-sm-3 control-label"><?php echo 'Assigned Orders'; ?>:</label>
 									<div class="col-sm-9">
-										<input type="text" name="email_from" class="form-control" value="<?php echo get_option('email_from'); ?>" required />
+										<input type="checkbox" class="form-control" style="text-align:left" name="assigned_orders" <?php echo $assigned_orders; ?> value="1" title="<?php echo 'Assgined Orders'; ?>" />
 									</div>
 								</div>
-                        
-								<div class="form-group">
-									<label for="input-Default" class="col-sm-3 control-label"><?php echo $language['reply_to']; ?>*:</label>
-									<div class="col-sm-9">
-										<input type="text" name="email_to" class="form-control" value="<?php echo get_option('email_to'); ?>" required />
+									<div class="form-group">
+										<label for="input-Default" class="col-sm-3 control-label"><?php echo 'Cart'; ?>:</label>
+										<div class="col-sm-9">
+											<input type="checkbox" class="form-control" style="text-align:left" name="cart_toggle" <?php echo $cart_toggle; ?> value="1" title="<?php echo 'Cart'; ?>" />
+										</div>
 									</div>
-								</div>
-                        
-								<div class="form-group">
-									<label for="input-Default" class="col-sm-3 control-label"><?php echo $language['activate_without_verification']; ?>:</label>
-									<div class="col-sm-9">
-										<input type="checkbox" name="register_verification" class="form-control" style="text-align:left" <?php if(get_option('register_verification') == '1'){echo 'checked="checked"'; }?> value="1" title="<?php echo $language['activate_without_2']; ?>" disabled />
+									<div class="form-group">
+										<label for="input-Default" class="col-sm-3 control-label"><?php echo 'Bulk Fulfillment'; ?>:</label>
+										<div class="col-sm-9">
+											<input type="checkbox" class="form-control" style="text-align:left" name="bulk_fulfillment" <?php echo $bulk_fulfillment; ?> value="1" title="<?php echo 'Bulk Fulfillment';	 ?>" />
+										</div>
 									</div>
-								</div>
-								
-								
-								<div class="alert alert-default" style="font-size:16px;color:#0d47a1" role="alert">
-                                        <strong>3- Login & Sessions</strong>
-                                </div>
-                        
-								<div class="form-group">
-									<label for="input-Default" class="col-sm-3 control-label"><?php echo $language['session_timeout']; ?>:</label>
-									<div class="col-sm-9">
-										<input type="text" name="session_timeout" class="form-control" value="<?php echo get_option('session_timeout'); ?>" />
+									<div class="alert alert-default" style="font-size:16px;color:#0d47a1" role="alert">
+											<strong>2- Mail Settings</strong>
 									</div>
-								</div>
-								
-                        
-								<div class="form-group">
-									<label for="input-Default" class="col-sm-3 control-label"><?php echo $language['maximum_login_attempts']; ?>:</label>
-									<div class="col-sm-9">
-										<input type="text" name="maximum_login_attempts" class="form-control" value="<?php echo get_option('maximum_login_attempts'); ?>" />
+									<div class="form-group">
+										<label for="input-Default" class="col-sm-3 control-label"><?php echo $language['email_from']; ?>*:</label>
+										<div class="col-sm-9">
+											<input type="text" name="email_from" class="form-control" value="<?php echo get_option('email_from'); ?>" required />
+										</div>
 									</div>
-								</div>
-                        
-								<div class="form-group">
-									<label for="input-Default" class="col-sm-3 control-label"><?php echo $language['wrong_attempts_time']; ?>:</label>
-									<div class="col-sm-9">
-										<input type="text" name="wrong_attempts_time" class="form-control" value="<?php echo get_option('wrong_attempts_time'); ?>" />
+							
+									<div class="form-group">
+										<label for="input-Default" class="col-sm-3 control-label"><?php echo $language['reply_to']; ?>*:</label>
+										<div class="col-sm-9">
+											<input type="text" name="email_to" class="form-control" value="<?php echo get_option('email_to'); ?>" required />
+										</div>
 									</div>
-								</div>
-                        
-								<div class="form-group">
-								<div class="col-sm-offset-3 col-sm-9">
-									<input type="hidden" name="settings_submit" value="Yes" />
-									<button type="submit" id="submit" class="btn btn-info btn-addon" style="margin-top:10px;margin-bottom:-14px;" ><i class="fa fa-save"></i> <?php echo $language['submit_button']; ?></button>
-									<a href="warehouse.php" class="btn btn-default" style="margin-top:10px;margin-bottom:-14px;" ><?php echo $language['cancel_button']; ?></a>
-                                 </div>   
-								</div>
-								</form>
+							
+									<div class="form-group">
+										<label for="input-Default" class="col-sm-3 control-label"><?php echo $language['activate_without_verification']; ?>:</label>
+										<div class="col-sm-9">
+											<input type="checkbox" name="register_verification" class="form-control" style="text-align:left" <?php if(get_option('register_verification') == '1'){echo 'checked="checked"'; }?> value="1" title="<?php echo $language['activate_without_2']; ?>" disabled />
+										</div>
+									</div>
+									
+									
+									<div class="alert alert-default" style="font-size:16px;color:#0d47a1" role="alert">
+											<strong>3- Login & Sessions</strong>
+									</div>
+							
+									<div class="form-group">
+										<label for="input-Default" class="col-sm-3 control-label"><?php echo $language['session_timeout']; ?>:</label>
+										<div class="col-sm-9">
+											<input type="text" name="session_timeout" class="form-control" value="<?php echo get_option('session_timeout'); ?>" />
+										</div>
+									</div>
+									
+							
+									<div class="form-group">
+										<label for="input-Default" class="col-sm-3 control-label"><?php echo $language['maximum_login_attempts']; ?>:</label>
+										<div class="col-sm-9">
+											<input type="text" name="maximum_login_attempts" class="form-control" value="<?php echo get_option('maximum_login_attempts'); ?>" />
+										</div>
+									</div>
+							
+									<div class="form-group">
+										<label for="input-Default" class="col-sm-3 control-label"><?php echo $language['wrong_attempts_time']; ?>:</label>
+										<div class="col-sm-9">
+											<input type="text" name="wrong_attempts_time" class="form-control" value="<?php echo get_option('wrong_attempts_time'); ?>" />
+										</div>
+									</div>
+							
+									<div class="form-group">
+									<div class="col-sm-offset-3 col-sm-9">
+										<input type="hidden" name="settings_submit" value="Yes" />
+										<button type="submit" id="submit" class="btn btn-info btn-addon" style="margin-top:10px;margin-bottom:-14px;" ><i class="fa fa-save"></i> <?php echo $language['submit_button']; ?></button>
+										<a href="warehouse.php" class="btn btn-default" style="margin-top:10px;margin-bottom:-14px;" ><?php echo $language['cancel_button']; ?></a>
+									</div>   
+									</div>
+									</form>
 								
 							</div>
 						</div>
@@ -280,4 +334,4 @@
 	</body>
 </html>
 
-													
+					

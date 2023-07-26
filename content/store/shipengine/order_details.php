@@ -5,7 +5,7 @@ include('../system_load.php');
 //user Authentication.
 authenticate_user('subscriber');
 $user_id = $_SESSION['user_id'];
-
+$store_id = $_GET['id']; // store id;
 $orderId = $_GET['id']; // store id;
 
 $function_id = $user->get_user_info($user_id, "user_function");
@@ -209,7 +209,7 @@ $sf = array();
 <html>
 
 <head>
-    <title>Purshasing Order Sheet</title>
+    <title>Purchasing Order Sheet</title>
     <link rel="stylesheet" type="text/css" media="all" href="reports.css" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -235,22 +235,21 @@ $sf = array();
                     <div class="col my-auto">
                         <h4 class="mb-0"><span class="change-color"><?php echo $response->advancedOptions->storeId ?></span> </h4>
                     </div>
-                    <div class="col my-auto d-none" id="isEveryThingDone">
-
-                        Select Cart
+                   
+                    <div class="col my-auto d-none" id="isEveryThingDonee">
+                    <?php if (partial_access('admin') && isset($_SESSION['cart_toggle']) && $_SESSION['cart_toggle']) { ?>
+                        Select Cart         
                         <select name="cart_option" id="cart_option">
                             <option value="" disabled>----Select----</option>
                             <?php
                             foreach ($currentCarts as $key => $value) {
                                 echo '<option value="' . $value . '">' . $value . '</option>';
                             }
-                            ?>
-
-
+                            ?>  
                         </select>
-
+                        
                         <button type="button" id="confirmedBtn" style="margin-left: 20px;;" class="btn btn-success">Done</button>
-
+                    <?php } ?>
                     </div>
                     <div class="col-auto text-center my-auto pl-0 pt-sm-4">
                         <p class="">Order# &nbsp;<?php echo $response->orderNumber ?></p>
@@ -376,11 +375,15 @@ $sf = array();
                 <div class="media flex-sm-row flex-column-reverse justify-content-between ">
                     <div class="col my-auto">
                         <h4 class="mb-0"><span class="change-color"><?php echo $response->advancedOptions->storeId ?></span> </h4>
-                        <div class="text-center">
+                        <div class="text-center d-none" id="isEveryThingDone">
                             <?php if ($orderStatus != 'Fulfilled' && $orderStatus != 'shipped') { ?>
                                 <button type="button" onClick="window.location.reload();" class="btn btn-success">Refresh Order</button>
                             <?php } ?>
-
+                            
+                            <?php if ((partial_access('admin') && isset($_SESSION['cart_toggle']) && !$_SESSION['cart_toggle']) || (partial_access('admin') && isset($_SESSION['cart_toggle']) == 0)) { ?>
+                                <button type="button" id="confirmedBtn" style="margin-left: 20px; background-color: red; border-color: red;" class="btn btn-success">Finish Order</button>
+                            <?php } ?>
+                        
                             <?php if ($orderStatus == 'inprogress' || $orderStatus == 'Not-Assigned') { ?>
 
                                 <button id="cancelOrder" type="button" class="btn btn-primary <?php echo  $orderStatus == 'Not-Assigned' ? 'd-none' : '' ?> ">Cancel Order</button>
@@ -479,6 +482,7 @@ $sf = array();
 
             $('#verifyPickModal').modal('toggle');
             $('#isEveryThingDone').removeClass('d-none');
+            $('#isEveryThingDonee').removeClass('d-none');
 
         } else {
             $('#errorMsg').removeClass('d-none');
@@ -492,24 +496,33 @@ $sf = array();
     $('#cart_option').on('change', function() {
         selectedCart = this.value;
     });
+    
     $('#confirmedBtn').click(function(e) {
-        paramJSON = {
-            'assign_order_id': parseInt(assignID),
-            'cart': $('#cart_option').find(":selected").text(),
-            'total_weight': totalWeight
+    var assignID = <?php echo $assignID; ?>; // Assuming you have the assignID available in your PHP code
+    var $orderId = <?php echo $orderId; ?>;
+    var paramJSON = {
+        'assign_order_id': parseInt(assignID),
+        'cart': $('#cart_option').find(":selected").text(),
+        'total_weight': totalWeight,
+    };
+
+    $.post(
+        'assign_cart_ajax.php',
+        {
+            data: JSON.stringify(paramJSON),
+        },
+        function(data) {
+            var cartID = data.cart_id;
+            <?php if ((partial_access('admin') && isset($_SESSION['bulk_fulfillment']) && !$_SESSION['bulk_fulfillment']) || (partial_access('admin') && isset($_SESSION['bulk_fulfillment']) == 0)) { ?>
+                window.location.href = "../assign_shipment_details.php?assign_id=" + assignID + "&cart_id=" + cartID;
+            <?php } else { ?>        
+                window.location.href = "../store_orders_list.php?id=<?php echo $response->advancedOptions->storeId; ?>"
+            <?php } ?>
         }
-        $.post(
-            'assign_cart_ajax.php', {
-                data: JSON.stringify(paramJSON),
-            },
-            function(data) {
-                window.location.href = "../assigned_orders_list.php"
-                // var result = JSON.parse(data);
-            }
-        );
+    );
+});
 
 
-    });
 
     $('#cancelOrder').click(function(e) {
         e.preventDefault();
