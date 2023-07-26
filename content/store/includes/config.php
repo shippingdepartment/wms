@@ -1,15 +1,10 @@
 <?php
-$dbhost_name = "localhost";
-$database = "php";
-$username = "root";
-$password = "admin123";
-// $database = "virtual6_wms";
-// $username = "virtual6_wms";
-// $password = "virtual6_wms";
-try {
-$dbo = new PDO("mysql:host=".$dbhost_name.";dbname=".$database, $username, $password);
-} catch (PDOException $e) {
-print "Error!: " . $e->getMessage() . "<br/>";
-die();
+define ("DB_HOST", "localhost");
+define ("DB_USER", "root");
+define ("DB_PASS", "admin123");
+define ("DB_NAME", "php");
+$db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+if($db->connect_errno > 0){
+die("Unable to connect to database [".$db->connect_error."]");
 }
 ?>
