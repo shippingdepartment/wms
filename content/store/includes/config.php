@@ -1,8 +1,8 @@
 <?php
 $dbhost_name = "localhost";
 $database = "php";
-$username = "u195495796_root";
-$password = "Admin123*";
+$username = "root";
+$password = "admin123";
 // $database = "virtual6_wms";
 // $username = "virtual6_wms";
 // $password = "virtual6_wms";
