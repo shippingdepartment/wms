@@ -2,7 +2,7 @@
 $dbhost_name = "localhost";
 $database = "php";
 $username = "root";
-$password = "Admin123*";
+$password = "admin123";
 // $database = "virtual6_wms";
 // $username = "virtual6_wms";
 // $password = "virtual6_wms";
