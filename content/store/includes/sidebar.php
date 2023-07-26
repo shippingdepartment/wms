@@ -27,7 +27,9 @@ if(isset($_GET['id'])) {
 </style>
 <div class="page-sidebar">
     <a class="logo-box" href="warehouse.php">
-        <span><?php echo get_option('site_name'); ?></span>
+        <span>
+            <?php echo get_option('site_name'); ?>
+        </span>
 
         <i class="icon-close" id="sidebar-toggle-button-close"></i>
     </a>
@@ -146,6 +148,15 @@ if(isset($_GET['id'])) {
 
 
                 <li>
+                    <a href="stores_report.php">
+                        <i class="menu-icon fa fa-bar-chart"></i>
+                        <span>Reports </span>
+                    </a>
+
+                </li>
+
+
+                <!-- <li>
                     <a href="javascript:void(0)">
                         <i class="menu-icon fa fa-bar-chart"></i><span>Reports <i class="accordion-icon fa fa-angle-right"></i> </span>
                     </a>
@@ -155,99 +166,120 @@ if(isset($_GET['id'])) {
                         <li><a href="orderreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Order Reports</span></a></li>
                         <li><a href="deliveryreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Delivery Reports</span></a></li>
                     </ul>
-                </li>
+                </li> -->
 
 
-                    <?php if (false) { ?>
-                        <li>
-                            <a href="javascript:void(0)">
-                                <i class="menu-icon fa fa-exchange"></i><span>Transfers <i class="accordion-icon fa fa-angle-right"></i> </span>
-                            </a>
-                            <ul class="sub-menu">
-                                <li><a href="newtransfer.php"><span class="text-success"><i class="fa fa-caret-right"></i> New Transfer</span></a></li>
-                                <li><a href="transfers.php"><span class="text-success"><i class="fa fa-caret-right"></i> Transfers Sent</span></a></li>
-                                <li><a href="transferreceived.php"><span class="text-success"><i class="fa fa-caret-right"></i> Transfers Received</span></a></li>
+                <?php if (false) { ?>
+                    <li>
+                        <a href="javascript:void(0)">
+                            <i class="menu-icon fa fa-exchange"></i><span>Transfers <i
+                                    class="accordion-icon fa fa-angle-right"></i> </span>
+                        </a>
+                        <ul class="sub-menu">
+                            <li><a href="newtransfer.php"><span class="text-success"><i class="fa fa-caret-right"></i> New
+                                        Transfer</span></a></li>
+                            <li><a href="transfers.php"><span class="text-success"><i class="fa fa-caret-right"></i>
+                                        Transfers Sent</span></a></li>
+                            <li><a href="transferreceived.php"><span class="text-success"><i class="fa fa-caret-right"></i>
+                                        Transfers Received</span></a></li>
 
 
                             </ul>
                         </li>
 
-                        <li>
-                            <a href="javascript:void(0)">
-                                <i class="menu-icon fa fa-address-book"></i><span>Suppliers <i class="accordion-icon fa fa-angle-right"></i> </span>
-                            </a>
-                            <ul class="sub-menu">
-                                <li><a href="suppliers.php"><span class="text-success"><i class="fa fa-caret-right"></i> All Suppliers</span></a></li>
-                                <?php if (partial_access('admin') or $function_id == 'storem' or $function_id == 'manager') { ?>
-                                    <li><a href="newsupplier.php"><span class="text-success"><i class="fa fa-caret-right"></i> New Supplier</span></a></li>
-                                <?php } ?>
+                    <li>
+                        <a href="javascript:void(0)">
+                            <i class="menu-icon fa fa-address-book"></i><span>Suppliers <i
+                                    class="accordion-icon fa fa-angle-right"></i> </span>
+                        </a>
+                        <ul class="sub-menu">
+                            <li><a href="suppliers.php"><span class="text-success"><i class="fa fa-caret-right"></i> All
+                                        Suppliers</span></a></li>
+                            <?php if (partial_access('admin') or $function_id == 'storem' or $function_id == 'manager') { ?>
+                                <li><a href="newsupplier.php"><span class="text-success"><i class="fa fa-caret-right"></i> New
+                                            Supplier</span></a></li>
+                            <?php } ?>
 
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0)">
-                                <i class="menu-icon fa fa-address-card"></i><span>Customers <i class="accordion-icon fa fa-angle-right"></i> </span>
-                            </a>
-                            <ul class="sub-menu">
-                                <li><a href="customers.php"><span class="text-success"><i class="fa fa-caret-right"></i> All Customers</span></a></li>
-                                <?php if (partial_access('admin') or $function_id == 'storem' or $function_id == 'manager') { ?>
-                                    <li><a href="newcustomer.php"><span class="text-success"><i class="fa fa-caret-right"></i> New Customer</span></a></li>
-                                <?php } ?>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)">
+                            <i class="menu-icon fa fa-address-card"></i><span>Customers <i
+                                    class="accordion-icon fa fa-angle-right"></i> </span>
+                        </a>
+                        <ul class="sub-menu">
+                            <li><a href="customers.php"><span class="text-success"><i class="fa fa-caret-right"></i> All
+                                        Customers</span></a></li>
+                            <?php if (partial_access('admin') or $function_id == 'storem' or $function_id == 'manager') { ?>
+                                <li><a href="newcustomer.php"><span class="text-success"><i class="fa fa-caret-right"></i> New
+                                            Customer</span></a></li>
+                            <?php } ?>
 
-                            </ul>
-                        </li>
-                        <li>
-                            <a href="javascript:void(0)">
-                                <i class="menu-icon fa fa-credit-card"></i><span>Purshasing Orders <i class="accordion-icon fa fa-angle-right"></i> </span>
-                            </a>
-                            <ul class="sub-menu">
-                                <?php if (partial_access('admin') or $function_id == 'storem' or $function_id == 'manager') { ?>
-                                    <li><a href="neworder.php"><span class="text-success"><i class="fa fa-caret-right"></i> New Order</span></a></li>
-                                <?php } ?>
-                                <li><a href="orders.php"><span class="text-success"><i class="fa fa-caret-right"></i> View Orders</span></a></li>
-                                <li><a href="ordersbysupplier.php"><span class="text-success"><i class="fa fa-caret-right"></i> Orders Per Supplier</span></a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)">
+                            <i class="menu-icon fa fa-credit-card"></i><span>Purshasing Orders <i
+                                    class="accordion-icon fa fa-angle-right"></i> </span>
+                        </a>
+                        <ul class="sub-menu">
+                            <?php if (partial_access('admin') or $function_id == 'storem' or $function_id == 'manager') { ?>
+                                <li><a href="neworder.php"><span class="text-success"><i class="fa fa-caret-right"></i> New
+                                            Order</span></a></li>
+                            <?php } ?>
+                            <li><a href="orders.php"><span class="text-success"><i class="fa fa-caret-right"></i> View
+                                        Orders</span></a></li>
+                            <li><a href="ordersbysupplier.php"><span class="text-success"><i class="fa fa-caret-right"></i>
+                                        Orders Per Supplier</span></a></li>
 
-                            </ul>
-                        </li>
-                    <?php } ?>
+                        </ul>
+                    </li>
+                <?php } ?>
 
-                    <!-- from MAddy -->
-
-
+                <!-- from MAddy -->
 
 
 
 
-                    <?php if (partial_access('admin')) { ?>
-                        <li>
-                            <a href="javascript:void(0)">
-                                <i class="menu-icon fa fa-bar-chart"></i><span>Store Owner <i class="accordion-icon fa fa-angle-right"></i> </span>
 
-                            </a>
-                            <ul class="sub-menu">
-                                <li><a href="stores_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> View Stores</span></a></li>
-                                <li><a href="store_owner_price_list.php"><span class="text-success"><i class="fa fa-caret-right"></i>Adjust Price</span></a></li>
-                                <li><a href="store_owner_owes.php"><span class="text-success"><i class="fa fa-caret-right"></i>Store Owner Reports</span></a></li>
-                                <li><a href="create_filters.php"><span class="text-success"><i class="fa fa-caret-right"></i>Create Filters</span></a></li>
 
-                                <!-- <li><a href="productreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Product Reports</span></a></li>
+                <?php if (partial_access('admin')) { ?>
+                    <li>
+                        <a href="javascript:void(0)">
+                            <i class="menu-icon fa fa-bar-chart"></i><span>Store Owner <i
+                                    class="accordion-icon fa fa-angle-right"></i> </span>
+
+                        </a>
+                        <ul class="sub-menu">
+                            <li><a href="stores_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> View
+                                        Stores</span></a></li>
+                            <li><a href="store_owner_price_list.php"><span class="text-success"><i
+                                            class="fa fa-caret-right"></i>Adjust Price</span></a></li>
+                            <li><a href="store_owner_owes.php"><span class="text-success"><i
+                                            class="fa fa-caret-right"></i>Store Owner Reports</span></a></li>
+                            <li><a href="create_filters.php"><span class="text-success"><i
+                                            class="fa fa-caret-right"></i>Create Filters</span></a></li>
+
+                            <!-- <li><a href="productreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Product Reports</span></a></li>
                                 <li><a href="orderreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Order Reports</span></a></li>
                                 <li><a href="deliveryreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Delivery Reports</span></a></li> -->
-                            </ul>
-                        </li>
-                    <?php } ?>
+                        </ul>
+                    </li>
+                <?php } ?>
 
-                    <?php if (partial_access('admin')) { ?>
-                        <li>
-                            <a href="javascript:void(0)">
-                                <i class="menu-icon fa fa-dollar"></i><span>Payments<i class="accordion-icon fa fa-angle-right"></i> </span>
-                            </a>
-                            <ul class="sub-menu">
-                                <li><a href="all_payment_list.php"><span class="text-success"><i class="fa fa-caret-right"></i>Payment List</span></a></li>
+                <?php if (partial_access('admin')) { ?>
+                    <li>
+                        <a href="javascript:void(0)">
+                            <i class="menu-icon fa fa-dollar"></i><span>Payments<i
+                                    class="accordion-icon fa fa-angle-right"></i> </span>
+                        </a>
+                        <ul class="sub-menu">
+                            <li><a href="all_payment_list.php"><span class="text-success"><i
+                                            class="fa fa-caret-right"></i>Payment List</span></a></li>
 
-                            </ul>
-                        </li>
-                    <?php } ?>
+                        </ul>
+                    </li>
+                <?php } ?>
             </ul>
         </div>
     </div>
