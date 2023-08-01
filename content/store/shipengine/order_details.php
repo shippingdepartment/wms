@@ -381,7 +381,7 @@ $sf = array();
                             <?php } ?>
                             
                             <?php if ((partial_access('admin') && isset($_SESSION['cart_toggle']) && !$_SESSION['cart_toggle']) || (partial_access('admin') && isset($_SESSION['cart_toggle']) == 0)) { ?>
-                                <button type="button" id="confirmedBtn" style="margin-left: 20px; background-color: red; border-color: red;" class="btn btn-success">Finish Order</button>
+                                <button type="button" id="confirmedBtn" style="margin-left: 20px; background-color: red; border-color: red;" class="btn btn-success">Finish Pick</button>
                             <?php } ?>
                         
                             <?php if ($orderStatus == 'inprogress' || $orderStatus == 'Not-Assigned') { ?>
