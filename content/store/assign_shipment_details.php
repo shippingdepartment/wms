@@ -349,14 +349,28 @@ if ($totalWeight <= 16) {
                     <div class="col my-auto">
                         <h4 class="mb-0"><span class="change-color"><?php echo $response->advancedOptions->storeId ?></span> </h4>
                         <div class="text-center">
+                        <script>
+                        // Function to handle the "Finish Order" button click
+                        function finishOrder() {
+                            // Implement the logic to show the "Finish Order" popup or perform any other desired action here
+                        
+                        }
+
+                        // Function to handle the click on any of the "Print" buttons
+                        function handlePrintButtonClick() {
+                            // Show the "Finish Order" button
+                            document.getElementById("confirmShipmentBtn").style.display = "inline";
+                        }
+                        </script>
                             <?php if ($orderStatus != 'Fulfilled' && $orderStatus != 'shipped') { ?>
                                 <button type="button" onClick="window.location.reload();" class="btn btn-success">Refresh Order</button>
                             <?php } ?>
                             <?php if ((partial_access('admin') && isset($_SESSION['bulk_fulfillment']) && !$_SESSION['bulk_fulfillment']) || (partial_access('admin') && isset($_SESSION['bulk_fulfillment']) == 0)) { ?>
-                                <button type="button" id="confirmShipmentBtn" class="btn btn-danger">Assign Shipping</button>
-                                <button type="button" id="confirmShipmentBtn" class="btn btn-danger">Print Shipping Label</button>
-                                <button type="button" id="confirmShipmentBtn" class="btn btn-danger">Print Packing List</button>
-                                <button type="button" id="confirmShipmentBtn" class="btn btn-danger">Print Both</button>
+                                <button type="button" id="confirmShipmentBtn" class="btn btn-danger" style="display: none;" onclick="finishOrder()">Finish Order</button>
+                                <button type="button" class="btn btn-danger" onclick="handlePrintButtonClick();">Print Shipping Label</button>
+                                <button type="button" class="btn btn-danger" onclick="handlePrintButtonClick();">Print Packing List</button>
+                                <button type="button" class="btn btn-danger" onclick="handlePrintButtonClick();">Print Both</button>
+                                </div>
                             <?php } else { ?>       
                                 <button type="button" id="confirmAssignShippingBtn" class="btn btn-danger">Assign Shipping</button>
                                 <?php } ?>

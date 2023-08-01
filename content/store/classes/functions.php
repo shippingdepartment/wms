@@ -240,37 +240,40 @@ class ImportantFunctions
     }
 
 
-    public function getCurrentUserAssignedOrdersWithCart()
-    {
-        global $db;
-        $query = "SELECT * from cart_assigning WHERE user_id='" . $_SESSION['user_id'] . "'  ORDER by cart ";
-        $result = $db->query($query) or die($db->error);
-        $content = '';
-        $user = new Users();
-        while ($row = $result->fetch_array()) {
-            extract($row);
-            $query = "SELECT * from assign_order WHERE id='" . $assign_order_id . "'  ";
-            $res = $db->query($query) or die($db->error);
-            $data = ($res->fetch_array());
+        public function getCurrentUserAssignedOrdersWithCart()
+        {
+            global $db;
+            $query = "SELECT * from cart_assigning WHERE user_id='" . $_SESSION['user_id'] . "'  ORDER by cart ";
+            $result = $db->query($query) or die($db->error);
+            $content = '';
+            $user = new Users();
+            while ($row = $result->fetch_array()) {
+                extract($row);
+                $query = "SELECT * from assign_order WHERE id='" . $assign_order_id . "'  ";
+                $res = $db->query($query) or die($db->error);
+                $data = ($res->fetch_array());
 
 
-            $userName = $user->get_user_info($user_id, 'first_name');
-            $userName .= ' ' . $user->get_user_info($user_id, 'last_name');
-            $content .= '<tr class="">';
-            $content .= '<td>';
-            $content .= $data['order_no'];
-            $content .= '</td><td>';
-            $content .= $userName;
-            $content .= '</td><td>';
-            $content .= $cart;
-            $content .= '</td>';
-            $content .= '<td>';
-            $content .= '<a href="assign_shipment_details.php?assign_id=' . $assign_order_id . '&cart_id=' . $id . '"><b class="" style="font-size:16px">Shipping Label</b></a> ';
-            $content .= '</td>';
-            $content .= '</tr>';
+                $userName = $user->get_user_info($user_id, 'first_name');
+                $userName .= ' ' . $user->get_user_info($user_id, 'last_name');
+                $content .= '<tr class="">';
+                $content .= '<td>';
+                $content .= $data['order_no'];
+                $content .= '</td><td>';
+                $content .= $userName;
+                $content .= '</td><td>';
+                $content .= $cart;
+                $content .= '</td>';
+                $content .= '<td>';
+                $content .= '<a href=><b class="" style="font-size:16px">Print Shipping Label |</b></a> ';
+                $content .= '<a href=><b class="" style="font-size:16px">Pick List |</b></a> ';
+                $content .= '<a href=><b class="" style="font-size:16px">Print Both</b></a> ';
+                $content .= '</td>';
+                $content .= '</tr>';
+                
+            }
+            echo $content;
         }
-        echo $content;
-    }
 
     public function getDataThroughAssignId($id)
     {
@@ -363,7 +366,7 @@ class ImportantFunctions
             $content .= '<td>';
             $content .= $order_no;
             $content .= '</td><td>';
-            $content .= $shipment_id;
+            $content .= $shipment_id;   
             $content .= '</td>';
             $content .= '<td>';
             $content .= $tracking_number;
