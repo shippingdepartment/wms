@@ -2,111 +2,111 @@
 //users Class
 class Users
 {
-    public $user_id;
-    public $first_name;
-    public $last_name;
-    public $gender;
-    public $date_of_birth;
-    public $address1;
-    public $address2;
-    public $city;
-    public $state;
-    public $country;
-    public $zip_code;
-    public $mobile;
-    public $phone;
-    public $username;
-    public $email;
-    public $profile_image;
-    public $description;
-    public $status;
-    public $user_type;
-    public $address;
-    public $user_function;
+	public $user_id;
+	public $first_name;
+	public $last_name;
+	public $gender;
+	public $date_of_birth;
+	public $address1;
+	public $address2;
+	public $city;
+	public $state;
+	public $country;
+	public $zip_code;
+	public $mobile;
+	public $phone;
+	public $username;
+	public $email;
+	public $profile_image;
+	public $description;
+	public $status;
+	public $user_type;
+	public $address;
+	public $user_function;
 
-    function set_user_meta($user_id, $term, $value)
-    {
-        global $db;
-        $query = "SELECT * from user_meta WHERE user_id='" . $user_id . "'";
-        $result = $db->query($query) or die($db->error);
-        $rows = $result->num_rows;
+	function set_user_meta($user_id, $term, $value)
+	{
+		global $db;
+		$query = "SELECT * from user_meta WHERE user_id='" . $user_id . "'";
+		$result = $db->query($query) or die($db->error);
+		$rows = $result->num_rows;
 
-        if ($rows > 0) {
-            //We have to update existing record.
-            $query = 'UPDATE user_meta SET
+		if ($rows > 0) {
+			//We have to update existing record. 
+			$query = 'UPDATE user_meta SET
    	    			' . $term . ' = "' . $value . '"
 			WHERE user_id="' . $user_id . '"';
-        } else {
-            //we have to add new record.
-            $query = 'INSERT into user_meta(user_meta_id, user_id, ' . $term . ') VALUES(NULL, "' . $user_id . '", "' . $value . '")';
-        }
-        $result = $db->query($query) or die($db->error);
-    } //set user meta information.
+		} else {
+			//we have to add new record.
+			$query = 'INSERT into user_meta(user_meta_id, user_id, ' . $term . ') VALUES(NULL, "' . $user_id . '", "' . $value . '")';
+		}
+		$result = $db->query($query) or die($db->error);
+	} //set user meta information.
 
-    function subscriber_options()
-    {
-        $query = "SELECT * from users WHERE user_type='subscriber' ORDER by first_name ASC";
-        $result = $db->query($query) or die($db->error);
+	function subscriber_options()
+	{
+		$query = "SELECT * from users WHERE user_type='subscriber' ORDER by first_name ASC";
+		$result = $db->query($query) or die($db->error);
 
-        $options = '';
+		$options = '';
 
-        while ($row = $result->fetch_array()) {
-            extract($row);
-            //$options .= '<option value="'.$user_id.'">'.$user_id.' | '.$first_name.'</option>';
-            if ($user_id == $row['user_id']) {
-                $options .= '<option selected="selected" value="' . $row['user_id'] . '">' . $row['user_id'] . ' | ' . $row['first_name'] . ' ' . $row['last_name'] . ' </option>';
-            } else {
-                $options .= '<option value="' . $row['user_id'] . '">' . $row['user_id'] . ' | ' . $row['first_name'] . ' ' . $row['last_name'] . ' </option>';
-            }
-        }
+		while ($row = $result->fetch_array()) {
+			extract($row);
+			//$options .= '<option value="'.$user_id.'">'.$user_id.' | '.$first_name.'</option>';
+			if ($user_id == $row['user_id']) {
+				$options .= '<option selected="selected" value="' . $row['user_id'] . '">' . $row['user_id'] . ' | ' . $row['first_name'] . ' ' . $row['last_name'] . ' </option>';
+			} else {
+				$options .= '<option value="' . $row['user_id'] . '">' . $row['user_id'] . ' | ' . $row['first_name'] . ' ' . $row['last_name'] . ' </option>';
+			}
+		}
 
-        //while loop ends here.
-        echo $options;
-    }
+		//while loop ends here.
+		echo $options;
+	}
 
-    function subscriber_access_options()
-    {
-        global $db;
-        $query = "SELECT * from users WHERE user_type='subscriber' ORDER by first_name ASC";
-        $result = $db->query($query) or die($db->error);
+	function subscriber_access_options()
+	{
+		global $db;
+		$query = "SELECT * from users WHERE user_type='subscriber' ORDER by first_name ASC";
+		$result = $db->query($query) or die($db->error);
 
-        $options = '';
+		$options = '';
 
-        while ($row = $result->fetch_array()) {
-            extract($row);
-            $options .= '<option value="' . $row['user_id'] . '">' . $row['user_id'] . ' | ' . $row['first_name'] . ' ' . $row['last_name'] . ' </option>';
-        }
+		while ($row = $result->fetch_array()) {
+			extract($row);
+			$options .= '<option value="' . $row['user_id'] . '">' . $row['user_id'] . ' | ' . $row['first_name'] . ' ' . $row['last_name'] . ' </option>';
+		}
 
-        //while loop ends here.
-        echo $options;
-    }
+		//while loop ends here.
+		echo $options;
+	}
 
-    function get_user_meta($user_id, $term)
-    {
-        global $db;
-        $query = "SELECT * from user_meta WHERE user_id='" . $user_id . "'";
-        $result = $db->query($query) or die($db->error);
-        if ($row = $result->fetch_array()) {
-            return $row[$term];
-        } else {
-            return '';
-        }
-    } //get user email ends here.
+	function get_user_meta($user_id, $term)
+	{
+		global $db;
+		$query = "SELECT * from user_meta WHERE user_id='" . $user_id . "'";
+		$result = $db->query($query) or die($db->error);
+		if ($row = $result->fetch_array()) {
+			return $row[$term];
+		} else {
+			return '';
+		}
+	} //get user email ends here.
 
-    function get_functions()
-    {
-        global $db;
-        $query = 'SELECT * from functions ORDER by function_name ASC';
-        $result = $db->query($query) or die($db->error);
-        $options = '';
+	function get_functions()
+	{
+		global $db;
+		$query = 'SELECT * from functions ORDER by function_name ASC';
+		$result = $db->query($query) or die($db->error);
+		$options = '';
 
-        while ($row = $result->fetch_array()) {
+		while ($row = $result->fetch_array()) {
 
-            $options .= '<option selected="selected" value="' . $row['function_name'] . '">' . $row['function_name'] . '</option>';
-        }
+			$options .= '<option selected="selected" value="' . $row['function_name'] . '">' . $row['function_name'] . '</option>';
+		}
 
-        echo $options;
-    }
+		echo $options;
+	}
 
 	function get_user_info($user_id, $term)
 	{
@@ -124,67 +124,51 @@ class Users
 		//Check if user already exist
 		$query = "SELECT * from users WHERE email='" . $email . "'";
 		$result = $db->query($query);
-    function get_user_info($user_id, $term)
-    {
-        global $db;
-        $query = "SELECT * from users WHERE user_id='" . $user_id . "'";
-        $result = $db->query($query) or die($db->error);
-        $row = $result->fetch_array();
-        return $row[$term];
-    } //get user email ends here.
-
-    function register_user($first_name, $last_name, $user_type, $username, $email, $password)
-    {
-        global $db;
-        global $language;
-        //Check if user already exist
-        $query = "SELECT * from users WHERE email='" . $email . "'";
-        $result = $db->query($query);
-
-        $num_user = $result->num_rows;
-
-        if ($num_user > 0) {
-            return '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> ' . $language["email_exit_user_err"] . ' <strong>' . $email . '</strong> ' . $language["already_REgistered"] . '</div>';
-            exit();
-        }
-        //username validation
-        $query = "SELECT * from users WHERE username='" . $username . "'";
-        $result = $db->query($query);
 
 		$num_user = $result->num_rows;
 
-        if ($num_user > 0) {
-            return '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> ' . $language["username_couldniot_add"] . ' <strong>' . $username . '</strong> ' . $language["already_REgistered"] . '</div>';
-            exit();
-        }
-        $registration_date = date('Y-m-d');
-        $password = md5($password);
-        $activation_key = substr(md5(uniqid(rand(), true)), 16, 16);
+		if ($num_user > 0) {
+			return '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> ' . $language["email_exit_user_err"] . ' <strong>' . $email . '</strong> ' . $language["already_REgistered"] . '</div>';
+			exit();
+		}
+		//username validation
+		$query = "SELECT * from users WHERE username='" . $username . "'";
+		$result = $db->query($query);
 
-        if (get_option('register_verification') != '1') {
-            $status = "deactivate";
-        } else {
-            $status = "activate";
-        }
-        if ($user_type == 'admin') {
-            $user_type = get_option('notify_user_group');
-        }
-        //adding user into database
-        $query = "INSERT INTO users(user_id, first_name,last_name,username,email,password,activation_key,date_register,user_type,status) VALUES (NULL, '$first_name', '$last_name', '$username', '$email', '$password', '$activation_key', '$registration_date', '$user_type', '$status')";
-        $result = $db->query($query) or die($db->error);
-        $user_id = $db->insert_id;
-        //Email to user
-        $site_url = get_option('site_url');
+		$num_user = $result->num_rows;
 
-        $email_message = $language["email_register_1"] . "<br />";
-        $email_message .= $language["email_register_2"] . ": <strong> " . $username . '</strong><br>';
-        $email_message .= $language["email_register_3"] . "<br />";
-        $email_message .= "<a href='" . $site_url . "login.php?confirmation_code=" . $activation_key . "&user_id=" . $user_id . "'>" . $language["email_register_4"] . "</a>";
-        $email_message .= "<br><br>" . $language["email_register_5"];
+		if ($num_user > 0) {
+			return '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> ' . $language["username_couldniot_add"] . ' <strong>' . $username . '</strong> ' . $language["already_REgistered"] . '</div>';
+			exit();
+		}
+		$registration_date = date('Y-m-d');
+		$password = md5($password);
+		$activation_key = substr(md5(uniqid(rand(), true)), 16, 16);
 
-        $message = $email_message;
-        $mailto = $email;
-        $subject = $language["email_register_6"];
+		if (get_option('register_verification') != '1') {
+			$status = "deactivate";
+		} else {
+			$status = "activate";
+		}
+		if ($user_type == 'admin') {
+			$user_type = get_option('notify_user_group');
+		}
+		//adding user into database
+		$query = "INSERT INTO users(user_id, first_name,last_name,username,email,password,activation_key,date_register,user_type,status) VALUES (NULL, '$first_name', '$last_name', '$username', '$email', '$password', '$activation_key', '$registration_date', '$user_type', '$status')";
+		$result = $db->query($query) or die($db->error);
+		$user_id = $db->insert_id;
+		//Email to user
+		$site_url = get_option('site_url');
+
+		$email_message = $language["email_register_1"] . "<br />";
+		$email_message .= $language["email_register_2"] . ": <strong> " . $username . '</strong><br>';
+		$email_message .= $language["email_register_3"] . "<br />";
+		$email_message .= "<a href='" . $site_url . "login.php?confirmation_code=" . $activation_key . "&user_id=" . $user_id . "'>" . $language["email_register_4"] . "</a>";
+		$email_message .= "<br><br>" . $language["email_register_5"];
+
+		$message = $email_message;
+		$mailto = $email;
+		$subject = $language["email_register_6"];
 
 		send_email($mailto, $subject, $message);
 		//Notify other users of same level on new registration.
@@ -907,4 +891,4 @@ class Users
 	} //list_levels ends here.
 
 
-}}//class ends here.
+}//class ends here.	

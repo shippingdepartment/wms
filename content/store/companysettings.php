@@ -150,7 +150,7 @@
 			require_once("includes/sidebaradmin.php"); //including sidebar file. 	
 			}
 			?>
-			<!-- End Side Bar -->
+			<!-- End Side Bar 
             <!-- Page Content -->
             <div class="page-content">
 				<!-- Header -->
@@ -221,21 +221,21 @@
 									</div>
 								</div>
 								<div class="form-group">
-									<label for="input-Default" class="col-sm-3 control-label"><?php echo 'Assigned Orders'; ?>:</label>
+									<label for="input-Default" class="col-sm-3 control-label"><?php echo "Assigned Orders"; ?>:</label>
 									<div class="col-sm-9">
-										<input type="checkbox" class="form-control" style="text-align:left" name="assigned_orders" <?php echo $assigned_orders; ?> value="1" title="<?php echo 'Assgined Orders'; ?>" />
+										<input type="checkbox" class="form-control" style="text-align:left" name="assigned_orders" <?php echo $assigned_orders; ?> value="1" title="<?php echo "Assigned Orders"	; ?>" />
 									</div>
 								</div>
 									<div class="form-group">
-										<label for="input-Default" class="col-sm-3 control-label"><?php echo 'Cart'; ?>:</label>
+										<label for="input-Default" class="col-sm-3 control-label"><?php echo "Cart"; ?>:</label>
 										<div class="col-sm-9">
-											<input type="checkbox" class="form-control" style="text-align:left" name="cart_toggle" <?php echo $cart_toggle; ?> value="1" title="<?php echo 'Cart'; ?>" />
+											<input type="checkbox" class="form-control" style="text-align:left" name="cart_toggle" <?php echo $cart_toggle; ?> value="1" title="<?php echo "Cart"; ?>" />
 										</div>
 									</div>
 									<div class="form-group">
-										<label for="input-Default" class="col-sm-3 control-label"><?php echo 'Bulk Fulfillment'; ?>:</label>
+										<label for="input-Default" class="col-sm-3 control-label"><?php echo "Bulk Fulfillment"; ?>:</label>
 										<div class="col-sm-9">
-											<input type="checkbox" class="form-control" style="text-align:left" name="bulk_fulfillment" <?php echo $bulk_fulfillment; ?> value="1" title="<?php echo 'Bulk Fulfillment';	 ?>" />
+											<input type="checkbox" class="form-control" style="text-align:left" name="bulk_fulfillment" <?php echo $bulk_fulfillment; ?> value="1" title="<?php echo "Bulk Fulfillment"; ?>" />
 										</div>
 									</div>
 									<div class="alert alert-default" style="font-size:16px;color:#0d47a1" role="alert">
@@ -334,4 +334,4 @@
 	</body>
 </html>
 
-					
+													

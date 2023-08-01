@@ -94,5 +94,5 @@ if (isset($_SESSION['user_id'])) :
 			$profile_img = $new_user->get_user_info($_SESSION['user_id'], 'profile_image');
 		}*/
 endif;
-
+	
 	//include('includes/update.php');
