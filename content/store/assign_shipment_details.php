@@ -195,7 +195,7 @@ if ($totalWeight <= 16) {
 <html>
 
 <head>
-    <title>Purshasing Order Sheet</title>
+    <title>Purchasing Order Sheet</title>
     <link rel="stylesheet" type="text/css" media="all" href="reports.css" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -352,7 +352,14 @@ if ($totalWeight <= 16) {
                             <?php if ($orderStatus != 'Fulfilled' && $orderStatus != 'shipped') { ?>
                                 <button type="button" onClick="window.location.reload();" class="btn btn-success">Refresh Order</button>
                             <?php } ?>
-                            <button type="button" id="confirmShipmentBtn" class="btn btn-danger">Assign Shipment</button>
+                            <?php if ((partial_access('admin') && isset($_SESSION['bulk_fulfillment']) && !$_SESSION['bulk_fulfillment']) || (partial_access('admin') && isset($_SESSION['bulk_fulfillment']) == 0)) { ?>
+                                <button type="button" id="confirmShipmentBtn" class="btn btn-danger">Assign Shipping</button>
+                                <button type="button" id="confirmShipmentBtn" class="btn btn-danger">Print Shipping Label</button>
+                                <button type="button" id="confirmShipmentBtn" class="btn btn-danger">Print Packing List</button>
+                                <button type="button" id="confirmShipmentBtn" class="btn btn-danger">Print Both</button>
+                            <?php } else { ?>       
+                                <button type="button" id="confirmAssignShippingBtn" class="btn btn-danger">Assign Shipping</button>
+                                <?php } ?>
 
                             <?php if ($orderStatus == 'inprogress' || $orderStatus == 'Not-Assigned') { ?>
 
@@ -395,6 +402,42 @@ if ($totalWeight <= 16) {
             },
             function(data) {
               window.location.href = 'finished_orders.php?message=success'
+
+                // var result = JSON.parse(data);
+            }
+        );
+
+
+    });
+    <?php
+
+// Check if the store ID is provided in the URL
+if(isset($_GET['id'])) {
+    $store_id = $_GET['id'];
+    $_SESSION['store_id'] = $store_id; // Save the store ID in the session
+} else {
+    // Retrieve the store ID from the session
+    if(isset($_SESSION['store_id'])) {
+        $store_id = $_SESSION['store_id'];
+    } else {
+        // Handle the case when the store ID is not available
+        // You can set a default value or redirect the user to a different page
+    }
+}
+?>  
+    $('#confirmAssignShippingBtn').click(function(e) {
+        paramJSON = {
+            'service_code': serviceCode,
+            'carrier_id': carrierId,
+            'order_id': orderId,
+            'assign_order_id': assignID
+        }
+        $.post(
+            './shipengine/update_cart_ajax.php', {
+                data: JSON.stringify(paramJSON),
+            },
+            function(data) {
+              window.location.href = 'store_orders_list.php?id=<?php echo $store_id; ?>'
 
                 // var result = JSON.parse(data);
             }
