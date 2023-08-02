@@ -9,8 +9,24 @@ $important = new ImportantFunctions();
 $assignID = $_GET['assign_id'];
 $cardId = $_GET['cart_id'];
 $user_id = $_SESSION['user_id'];
-
 $orderId = ($important->getOrderDataThroughAssignId($assignID))['order_id']; // store id;
+
+
+
+// Check if the store ID is provided in the URL
+if(isset($_GET['id'])) {
+    $store_id = $_GET['id'];
+    $_SESSION['store_id'] = $store_id; // Save the store ID in the session
+} else {
+    // Retrieve the store ID from the session
+    if(isset($_SESSION['store_id'])) {
+        $store_id = $_SESSION['store_id'];
+    } else {
+        // Handle the case when the store ID is not available
+        // You can set a default value or redirect the user to a different page
+    }
+}
+
 // echo "<pre>";
 // print_r(($orderId['order_id']));
 // echo "</pre>";
@@ -415,7 +431,7 @@ if ($totalWeight <= 16) {
                 data: JSON.stringify(paramJSON),
             },
             function(data) {
-              window.location.href = 'finished_orders.php?message=success'
+              window.location.href = "store_orders_list.php?id=<?php echo $store_id; ?>"
 
                 // var result = JSON.parse(data);
             }
