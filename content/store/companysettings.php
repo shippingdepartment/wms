@@ -226,18 +226,18 @@
 										<input type="checkbox" class="form-control" style="text-align:left" name="assigned_orders" <?php echo $assigned_orders; ?> value="1" title="<?php echo "Assigned Orders"	; ?>" />
 									</div>
 								</div>
-									<div class="form-group">
-										<label for="input-Default" class="col-sm-3 control-label"><?php echo "Cart"; ?>:</label>
-										<div class="col-sm-9">
-											<input type="checkbox" class="form-control" style="text-align:left" name="cart_toggle" <?php echo $cart_toggle; ?> value="1" title="<?php echo "Cart"; ?>" />
-										</div>
+								<div class="form-group">
+									<label for="input-Default" class="col-sm-3 control-label"><?php echo "Cart"; ?>:</label>
+									<div class="col-sm-9">
+										<input type="checkbox" class="form-control" style="text-align:left" name="cart_toggle" <?php echo $cart_toggle; ?> value="1" title="<?php echo "Cart"; ?>" <?php if (!$bulk_fulfillment) echo 'disabled'; ?> />
 									</div>
-									<div class="form-group">
-										<label for="input-Default" class="col-sm-3 control-label"><?php echo "Bulk Fulfillment"; ?>:</label>
-										<div class="col-sm-9">
-											<input type="checkbox" class="form-control" style="text-align:left" name="bulk_fulfillment" <?php echo $bulk_fulfillment; ?> value="1" title="<?php echo "Bulk Fulfillment"; ?>" />
-										</div>
+								</div>
+								<div class="form-group">
+									<label for="input-Default" class="col-sm-3 control-label"><?php echo "Bulk Fulfillment"; ?>:</label>
+									<div class="col-sm-9">
+										<input type="checkbox" class="form-control" style="text-align:left" name="bulk_fulfillment" <?php echo $bulk_fulfillment; ?> value="1" title="<?php echo "Bulk Fulfillment"; ?>" onchange="toggleCartCheckbox(this)" />
 									</div>
+								</div>
 									<div class="alert alert-default" style="font-size:16px;color:#0d47a1" role="alert">
 											<strong>2- Mail Settings</strong>
 									</div>
@@ -334,4 +334,14 @@
 	</body>
 </html>
 
-													
+<script>
+    function toggleCartCheckbox(bulkFulfillmentCheckbox) {
+        const cartCheckbox = document.getElementsByName("cart_toggle")[0];
+        if (!bulkFulfillmentCheckbox.checked) {
+            cartCheckbox.disabled = true;
+            cartCheckbox.checked = false;
+        } else {
+            cartCheckbox.disabled = false;
+        }
+    }
+</script>
