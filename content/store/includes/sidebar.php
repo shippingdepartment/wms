@@ -130,21 +130,29 @@ if(isset($_GET['id'])) {
                 </li>
 
 
-                <li>
-                    <a href="javascript:void(0)">
-                        <i class="menu-icon fa fa-truck"></i><span>Return <i class="accordion-icon fa fa-angle-right"></i> </span>
-                    </a>
-                    <ul class="sub-menu">
-                        <li><a href="return_label_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> Return labels</span></a></li>
-                        <?php if (partial_access('admin') or $function_id == 'storem' or $function_id == 'manager') { ?>
-                            <li><a href="newreturn.php"><span class="text-success"><i class="fa fa-caret-right"></i> New Stock Return</span></a></li>
-                        <?php } ?>
-                        <li><a href="returns.php"><span class="text-success"><i class="fa fa-caret-right"></i> All Returns</span></a></li>
-                    </ul>
-                </li>
+                <?php
+                    /*
+                    <!-- Return Section -->
+                    <li>
+                        <a href="javascript:void(0)">
+                            <i class="menu-icon fa fa-truck"></i><span>Return <i class="accordion-icon fa fa-angle-right"></i> </span>
+                        </a>
+                        <ul class="sub-menu">
+                            <li><a href="return_label_list.php"><span class="text-success"><i class="fa fa-caret-right"></i> Return labels</span></a></li>
+                            
+                            <?php // if (partial_access('admin') or $function_id == 'storem' or $function_id == 'manager') { ?>
+                                <!-- Display only for admin, store manager, or manager -->
+                                <!-- <li><a href="newreturn.php"><span class="text-success"><i class="fa fa-caret-right"></i> New Stock Return</span></a></li> -->
+                            <?php // } ?>
 
+                            <li><a href="returns.php"><span class="text-success"><i class="fa fa-caret-right"></i> All Returns</span></a></li>
+                        </ul>
+                    </li>
+                    -->
+                    */
+                    ?>
 
-
+                <!-- Reports Section
                 <li>
                     <a href="javascript:void(0)">
                         <i class="menu-icon fa fa-bar-chart"></i><span>Reports <i class="accordion-icon fa fa-angle-right"></i> </span>
@@ -156,7 +164,7 @@ if(isset($_GET['id'])) {
                         <li><a href="deliveryreports.php"><span class="text-success"><i class="fa fa-caret-right"></i> Delivery Reports</span></a></li>
                     </ul>
                 </li>
-
+                -->
 
                     <?php if (false) { ?>
                         <li>
@@ -214,10 +222,6 @@ if(isset($_GET['id'])) {
                     <!-- from MAddy -->
 
 
-
-
-
-
                     <?php if (partial_access('admin')) { ?>
                         <li>
                             <a href="javascript:void(0)">
@@ -237,18 +241,24 @@ if(isset($_GET['id'])) {
                         </li>
                     <?php } ?>
 
-                    <?php if (partial_access('admin')) { ?>
-                        <li>
-                            <a href="javascript:void(0)">
-                                <i class="menu-icon fa fa-dollar"></i><span>Payments<i class="accordion-icon fa fa-angle-right"></i> </span>
-                            </a>
-                            <ul class="sub-menu">
-                                <li><a href="all_payment_list.php"><span class="text-success"><i class="fa fa-caret-right"></i>Payment List</span></a></li>
+                    <?php /*
+                        <!-- Payments Section -->
+                        if (partial_access('admin')) {
+                            ?>
+                            <li>
+                                <a href="javascript:void(0)">
+                                    <i class="menu-icon fa fa-dollar"></i><span>Payments<i class="accordion-icon fa fa-angle-right"></i> </span>
+                                </a>
+                                <ul class="sub-menu">
+                                    <li><a href="all_payment_list.php"><span class="text-success"><i class="fa fa-caret-right"></i>Payment List</span></a></li>
+                                </ul>
+                            </li>
+                            <?php
+                        }
+                        */
+                    ?>
 
-                            </ul>
-                        </li>
-                    <?php } ?>
             </ul>
         </div>
     </div>
-</div><!-- /Page Sidebar -->
+</div> <!-- /Page Sidebar -->
