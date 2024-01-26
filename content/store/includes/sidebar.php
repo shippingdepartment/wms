@@ -50,7 +50,7 @@ if(isset($_GET['id'])) {
                 <?php if (partial_access('admin')) { ?>
                     <li>
                         <a href="reset_orders.php" onclick="return confirm('Are you sure?')">
-                            <i class="menu-icon icon-settings"></i><span>Reset Orders</span>
+                            <i class="menu-icon icon-settings"></i><span>Reset Orderss</span>
                         </a>
                     </li>
                 <?php } ?>
