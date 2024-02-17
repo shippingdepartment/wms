@@ -37,27 +37,26 @@ if (isset($_POST['login']) && $_POST['login'] == 1) {
 		/*if(get_option('disable_login') == '1' && $new_user->user_type != 'admin') { 
 				$message = $language['login_disabled_temporary'];	
 			} else {*/
-		$_SESSION['user_id'] = $new_user->user_id;
-		$_SESSION['first_name'] = $new_user->first_name;
-		$_SESSION['last_name'] = $new_user->last_name;
-		$_SESSION['username'] = $new_user->username;
-		$_SESSION['email'] = $new_user->email;
-		$_SESSION['status'] = $new_user->status;
-		$_SESSION['user_type'] = $new_user->user_type;
-		$_SESSION['timeout'] = time();
+        $_SESSION['user_id'] = $new_user->user_id;
+        $_SESSION['first_name'] = $new_user->first_name;
+        $_SESSION['last_name'] = $new_user->last_name;
+        $_SESSION['username'] = $new_user->username;
+        $_SESSION['email'] = $new_user->email;
+        $_SESSION['status'] = $new_user->status;
+        $_SESSION['user_type'] = $new_user->user_type;
+        $_SESSION['timeout'] = time();
 
-		$_SESSION['is_request'] = $new_user->is_request;
-		//Setting user meta information.
-		$user_ip = get_client_ip(); //Function is inside function.php to get ip
-		$new_user->set_user_meta($_SESSION['user_id'], 'last_login_time', date("Y-m-d H:i:s")); //setting last login time.
-		$new_user->set_user_meta($_SESSION['user_id'], 'last_login_ip', $user_ip); //setting last login IP.
-		$new_user->set_user_meta($_SESSION['user_id'], 'login_attempt', '0'); //On login success default loign attempt is 0.
-		$new_user->set_user_meta($_SESSION['user_id'], 'login_lock', 'No'); //setting last login time.
+        //Setting user meta information.
+        $user_ip = get_client_ip(); //Function is inside function.php to get ip
+        $new_user->set_user_meta($_SESSION['user_id'], 'last_login_time', date("Y-m-d H:i:s")); //setting last login time.
+        $new_user->set_user_meta($_SESSION['user_id'], 'last_login_ip', $user_ip); //setting last login IP.
+        $new_user->set_user_meta($_SESSION['user_id'], 'login_attempt', '0'); //On login success default loign attempt is 0.
+        $new_user->set_user_meta($_SESSION['user_id'], 'login_lock', 'No'); //setting last login time.
 
-		$message = $language['login_success_message'];
-		redirect_user($new_user->user_type); //Checks authentication and redirect user as per his/her level.
-		//}
-	} //setting session variables if user loged in successful!
+        $message = $language['login_success_message'];
+        redirect_user($new_user->user_type); //Checks authentication and redirect user as per his/her level.
+        //}
+    } //setting session variables if user loged in successful!
 } //login process ends here if form submits
 
 $page_title = $language['login_title']; //You can edit this to change your page title.
